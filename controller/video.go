@@ -9,65 +9,82 @@ import (
 )
 
 var sourceMap = map[string]handler.IVideo{
-	handler.CzzyHandler{}.Name(): handler.CzzyHandler{},
-	handler.SubbHandler{}.Name(): handler.SubbHandler{},
+	handler.CzzyHandler{}.Name(): handler.CzzyHandler{}.Init(),
+	handler.SubbHandler{}.Name(): handler.SubbHandler{}.Init(),
 }
 
 type VideoController struct {
 }
 
 func (x VideoController) Provider(ctx *gin.Context) {
-	var providers interface{}
+	var providers = make([]string, 0)
+	for s, _ := range sourceMap {
+		providers = append(providers, s)
+	}
 	ctx.JSON(http.StatusOK, model.NewSuccess(providers))
 }
-func (x VideoController) Search(ctx *gin.Context) {
 
+func (x VideoController) Search(ctx *gin.Context) {
+	h, ok := sourceMap[strings.TrimSpace(ctx.Query("_source"))]
+	if !ok {
+		ctx.JSON(http.StatusOK, model.NewError("数据源错误"))
+		return
+	}
+	x.response(ctx, h.Search)
 }
+
 func (x VideoController) TagList(ctx *gin.Context) {
 	h, ok := sourceMap[strings.TrimSpace(ctx.Query("_source"))]
 	if !ok {
-		ctx.JSON(http.StatusOK, gin.H{"err": "source err"})
+		ctx.JSON(http.StatusOK, model.NewError("数据源错误"))
 		return
 	}
-	ctx.JSON(http.StatusOK, h.TagList())
+	x.response(ctx, h.TagList())
 }
+
 func (x VideoController) VideoList(ctx *gin.Context) {
+	h, ok := sourceMap[strings.TrimSpace(ctx.Query("_source"))]
+	if !ok {
+		ctx.JSON(http.StatusOK, model.NewError("数据源错误"))
+		return
+	}
+	x.response(ctx, h.VideoList)
 }
+
 func (x VideoController) Detail(ctx *gin.Context) {
-
+	h, ok := sourceMap[strings.TrimSpace(ctx.Query("_source"))]
+	if !ok {
+		ctx.JSON(http.StatusOK, model.NewError("数据源错误"))
+		return
+	}
+	x.response(ctx, h.Detail)
 }
+
 func (x VideoController) Source(ctx *gin.Context) {
-
+	h, ok := sourceMap[strings.TrimSpace(ctx.Query("_source"))]
+	if !ok {
+		ctx.JSON(http.StatusOK, model.NewError("数据源错误"))
+		return
+	}
+	x.response(ctx, h.Source)
 }
+
 func (x VideoController) Airplay(ctx *gin.Context) {
 	h, ok := sourceMap[strings.TrimSpace(ctx.Query("_source"))]
 	if !ok {
-		ctx.JSON(http.StatusOK, gin.H{"err": "source err"})
+		ctx.JSON(http.StatusOK, model.NewError("数据源错误"))
 		return
 	}
-	ctx.JSON(http.StatusOK, h.TagList())
-
-}
-func X() {
-
+	x.response(ctx, h.Airplay)
 }
 
-//func (x VideoController) checkVideoHandler(ctx *gin.Context) (handler.IVideo, bool) {
-//	v, ok := sourceMap[strings.TrimSpace(ctx.Query("_source"))]
-//
-//	log.Println("[_source]", strings.TrimSpace(ctx.Query("_source")))
-//	log.Println("[sourceMap]", sourceMap)
-//
-//	return v, ok
-//}
-
-func NewVideo(ctx *gin.Context) {
-	//
-	//
-	//
-	//
-	//switch  {
-	//case handler.CzzyHandler{}.Name():
-	//	return handler.CzzyHandler{}
-	//}
+func (x VideoController) response(ctx *gin.Context, resp interface{}) {
+	switch resp.(type) {
+	case model.Success:
+		ctx.JSON(http.StatusOK, resp)
+	case model.Error:
+		ctx.JSON(http.StatusOK, resp)
+	default:
+		ctx.JSON(http.StatusInternalServerError, model.NewError("接口返回数据格式不支持"))
+	}
 }

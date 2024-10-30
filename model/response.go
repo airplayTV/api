@@ -6,14 +6,14 @@ import (
 
 type Success struct {
 	Code int         `json:"code"`
-	Msg  string      `json:"msg"`
+	Msg  string      `json:"msg,omitempty"`
 	Data interface{} `json:"data"`
 }
 
 type Error struct {
 	Code int         `json:"code"`
 	Msg  string      `json:"msg"`
-	Data interface{} `json:"data"`
+	Data interface{} `json:"data,omitempty"`
 }
 
 func NewSuccess(data interface{}) Success {
@@ -23,7 +23,18 @@ func NewSuccess(data interface{}) Success {
 	}
 }
 
-func NewError(msg string, data interface{}, code ...int) Error {
+func NewError(msg string, code ...int) Error {
+	var c = 500
+	if len(code) > 0 {
+		c = code[0]
+	}
+	return Error{
+		Code: c,
+		Msg:  msg,
+	}
+}
+
+func NewErrorWithData(msg string, data interface{}, code ...int) Error {
 	var c = 500
 	if len(code) > 0 {
 		c = code[0]
