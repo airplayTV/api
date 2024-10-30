@@ -2,6 +2,7 @@ package handler
 
 import (
 	"github.com/airplayTV/api/util"
+	"regexp"
 	"strconv"
 )
 
@@ -18,4 +19,15 @@ func (x Handler) parsePageNumber(s string) int {
 		return 1
 	}
 	return n
+}
+
+func (x Handler) simpleRegEx(plainText, regex string) string {
+	//regEx := regexp.MustCompile(`(\d+)`)
+	regEx := regexp.MustCompile(regex)
+	tmpList := regEx.FindStringSubmatch(plainText)
+	if len(tmpList) < 2 {
+		return ""
+	}
+	return tmpList[1]
+
 }

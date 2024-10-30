@@ -1,13 +1,17 @@
 package controller
 
 import (
+	"context"
+	"fmt"
 	"github.com/airplayTV/api/handler"
 	"github.com/airplayTV/api/model"
 	"github.com/airplayTV/api/util"
+	"github.com/eko/gocache/lib/v4/store"
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
 	"strings"
+	"time"
 )
 
 var sourceMap = map[string]handler.IVideo{
@@ -53,10 +57,18 @@ func (x VideoController) VideoList(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, model.NewError("数据源错误"))
 		return
 	}
-	x.response(ctx, h.VideoList(
-		ctx.Query("tag"),
-		ctx.Query("page"),
-	))
+	var cacheKey = fmt.Sprintf("%s_%s_%s", ctx.Query("_source"), ctx.Query("tag"), ctx.Query("page"))
+	data, err := globalCache.Get(context.Background(), cacheKey)
+	if err == nil {
+		x.response(ctx, data)
+		return
+	}
+	var resp = h.VideoList(ctx.Query("tag"), ctx.Query("page"))
+	switch resp.(type) {
+	case model.Success:
+		_ = globalCache.Set(context.Background(), cacheKey, resp, store.WithExpiration(time.Hour*1))
+	}
+	x.response(ctx, resp)
 }
 
 func (x VideoController) Detail(ctx *gin.Context) {
