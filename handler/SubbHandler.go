@@ -6,7 +6,7 @@ import (
 )
 
 type SubbHandler struct {
-	httpClient util.HttpClient
+	Handler
 }
 
 func (x SubbHandler) Init() IVideo {

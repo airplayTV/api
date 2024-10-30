@@ -3,7 +3,9 @@ package controller
 import (
 	"github.com/airplayTV/api/handler"
 	"github.com/airplayTV/api/model"
+	"github.com/airplayTV/api/util"
 	"github.com/gin-gonic/gin"
+	"log"
 	"net/http"
 	"strings"
 )
@@ -30,7 +32,10 @@ func (x VideoController) Search(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, model.NewError("数据源错误"))
 		return
 	}
-	x.response(ctx, h.Search)
+	x.response(ctx, h.Search(
+		ctx.Query("keyword"),
+		ctx.Query("page"),
+	))
 }
 
 func (x VideoController) TagList(ctx *gin.Context) {
@@ -48,7 +53,10 @@ func (x VideoController) VideoList(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, model.NewError("数据源错误"))
 		return
 	}
-	x.response(ctx, h.VideoList)
+	x.response(ctx, h.VideoList(
+		ctx.Query("tag"),
+		ctx.Query("page"),
+	))
 }
 
 func (x VideoController) Detail(ctx *gin.Context) {
@@ -57,7 +65,9 @@ func (x VideoController) Detail(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, model.NewError("数据源错误"))
 		return
 	}
-	x.response(ctx, h.Detail)
+	x.response(ctx, h.Detail(
+		ctx.Query("id"),
+	))
 }
 
 func (x VideoController) Source(ctx *gin.Context) {
@@ -66,7 +76,10 @@ func (x VideoController) Source(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, model.NewError("数据源错误"))
 		return
 	}
-	x.response(ctx, h.Source)
+	x.response(ctx, h.Source(
+		ctx.Query("pid"),
+		ctx.Query("vid"),
+	))
 }
 
 func (x VideoController) Airplay(ctx *gin.Context) {
@@ -75,7 +88,10 @@ func (x VideoController) Airplay(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, model.NewError("数据源错误"))
 		return
 	}
-	x.response(ctx, h.Airplay)
+	x.response(ctx, h.Airplay(
+		ctx.Query("pid"),
+		ctx.Query("vid"),
+	))
 }
 
 func (x VideoController) response(ctx *gin.Context, resp interface{}) {
@@ -85,6 +101,7 @@ func (x VideoController) response(ctx *gin.Context, resp interface{}) {
 	case model.Error:
 		ctx.JSON(http.StatusOK, resp)
 	default:
+		log.Println("[resp]", util.ToString(resp))
 		ctx.JSON(http.StatusInternalServerError, model.NewError("接口返回数据格式不支持"))
 	}
 }

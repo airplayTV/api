@@ -6,7 +6,7 @@ const (
 
 const (
 	czzyHost      = "https://czzy.top"
-	czzyTagUrl    = "https://czzy.top/%s/movie_bt_series/dyy/page/%d"
+	czzyTagUrl    = "https://czzy.top/%s/page/%d"
 	czzySearchUrl = "https://czzy.top/daoyongjiekoshibushiyoubing?q=%s&f=_all&p=%d"
 	czzyDetailUrl = "https://czzy.top/movie/%s.html"
 	czzyPlayUrl   = "https://czzy.top/v_play/%s.html"

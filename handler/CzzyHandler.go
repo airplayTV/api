@@ -1,13 +1,14 @@
 package handler
 
 import (
+	"fmt"
 	"github.com/airplayTV/api/model"
 	"github.com/airplayTV/api/util"
 	"github.com/gin-gonic/gin"
 )
 
 type CzzyHandler struct {
-	httpClient util.HttpClient
+	Handler
 }
 
 func (x CzzyHandler) Init() IVideo {
@@ -20,14 +21,20 @@ func (x CzzyHandler) Name() string {
 }
 
 func (x CzzyHandler) TagList() interface{} {
-	return model.NewSuccess(gin.H{
-		"name": x.Name(),
-		"tags": x.Name(),
-	})
+	var tags = make([]gin.H, 0)
+	tags = append(tags, gin.H{"name": "dbtop250", "value": "dbtop250"})
+	tags = append(tags, gin.H{"name": "movie_bt", "value": "movie_bt"})
+	tags = append(tags, gin.H{"name": "gaofenyingshi", "value": "gaofenyingshi"})
+	tags = append(tags, gin.H{"name": "zuixindianying", "value": "zuixindianying"})
+	tags = append(tags, gin.H{"name": "gcj", "value": "gcj"})
+	tags = append(tags, gin.H{"name": "meijutt", "value": "meijutt"})
+	tags = append(tags, gin.H{"name": "hanjutv", "value": "hanjutv"})
+	tags = append(tags, gin.H{"name": "fanju", "value": "fanju"})
+	return model.NewSuccess(tags)
 }
 
 func (x CzzyHandler) VideoList(tag, page string) interface{} {
-	return gin.H{}
+	return x._videoList(tag, page)
 }
 
 func (x CzzyHandler) Search(keyword, page string) interface{} {
@@ -44,4 +51,19 @@ func (x CzzyHandler) Source(pid, vid string) interface{} {
 
 func (x CzzyHandler) Airplay(pid, vid string) interface{} {
 	return gin.H{}
+}
+
+//
+
+func (x CzzyHandler) _tagList() interface{} {
+	return nil
+}
+
+func (x CzzyHandler) _videoList(tag, page string) interface{} {
+	buff, err := x.httpClient.Get(fmt.Sprintf(czzyTagUrl, tag, x.parsePageNumber(page)))
+	if err != nil {
+		return model.NewError("获取数据失败：" + err.Error())
+	}
+
+	return model.NewSuccess(gin.H{"data": string(buff)})
 }
