@@ -23,9 +23,12 @@ type VideoController struct {
 }
 
 func (x VideoController) Provider(ctx *gin.Context) {
-	var providers = make([]string, 0)
-	for s, _ := range sourceMap {
-		providers = append(providers, s)
+	var providers = make([]map[string]interface{}, 0)
+	for tmpName, tmpHandler := range sourceMap {
+		providers = append(providers, map[string]interface{}{
+			"name": tmpName,
+			"tags": tmpHandler.TagList(),
+		})
 	}
 	ctx.JSON(http.StatusOK, model.NewSuccess(providers))
 }
