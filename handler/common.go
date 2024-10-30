@@ -13,3 +13,11 @@ const (
 	czzyDetailUrl = "https://czzy.top/movie/%s.html"
 	czzyPlayUrl   = "https://czzy.top/v_play/%s.html"
 )
+
+const (
+	subbHost      = "https://www.subaibaiys.com"
+	subbTagUrl    = "https://www.subaibaiys.com/%s/page/%d"
+	subbSearchUrl = "https://www.subaibaiys.com/?s=%s"
+	subbDetailUrl = "https://www.subaibaiys.com/movie/%s.html"
+	subbPlayUrl   = "https://www.subaibaiys.com/v_play/%s.html"
+)

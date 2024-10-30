@@ -44,7 +44,7 @@ func (x CzzyHandler) VideoList(tag, page string) interface{} {
 }
 
 func (x CzzyHandler) Search(keyword, page string) interface{} {
-	return gin.H{}
+	return x._search(keyword, page)
 }
 
 func (x CzzyHandler) Detail(id string) interface{} {
@@ -60,10 +60,6 @@ func (x CzzyHandler) Airplay(pid, vid string) interface{} {
 }
 
 //
-
-func (x CzzyHandler) _tagList() interface{} {
-	return nil
-}
 
 func (x CzzyHandler) _videoList(tagName, page string) interface{} {
 	buff, err := x.httpClient.Get(fmt.Sprintf(czzyTagUrl, tagName, x.parsePageNumber(page)))
@@ -108,6 +104,10 @@ func (x CzzyHandler) _videoList(tagName, page string) interface{} {
 	pager.Page, _ = strconv.Atoi(doc.Find(".pagenavi_txt .current").Text())
 
 	return model.NewSuccess(pager)
+}
+
+func (x CzzyHandler) _search(keyword, page string) interface{} {
+	return model.NewError("尚未实现")
 }
 
 func (x CzzyHandler) _detail(id string) interface{} {
