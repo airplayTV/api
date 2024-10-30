@@ -36,7 +36,7 @@ func (x CzzyHandler) TagList() interface{} {
 	tags = append(tags, gin.H{"name": "美剧", "value": "meijutt"})
 	tags = append(tags, gin.H{"name": "韩剧", "value": "hanjutv"})
 	tags = append(tags, gin.H{"name": "番剧", "value": "fanju"})
-	return model.NewSuccess(tags)
+	return tags
 }
 
 func (x CzzyHandler) VideoList(tag, page string) interface{} {
@@ -94,10 +94,12 @@ func (x CzzyHandler) _videoList(tagName, page string) interface{} {
 
 	doc.Find(".pagenavi_txt a").Each(func(i int, selection *goquery.Selection) {
 		tmpHref, _ := selection.Attr("href")
-		tmpList := strings.Split(tmpHref, "/")
-		n, _ := strconv.Atoi(tmpList[len(tmpList)-1])
+		n := x.parsePageNumber(x.simpleRegEx(tmpHref, `/page/(\d+)`))
 		if n*pager.Limit > pager.Total {
 			pager.Total = n * pager.Limit
+		}
+		if n >= pager.Pages {
+			pager.Pages = n
 		}
 	})
 

@@ -10,26 +10,39 @@ import (
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
+	"slices"
 	"strings"
 	"time"
 )
 
-var sourceMap = map[string]handler.IVideo{
-	handler.CzzyHandler{}.Name(): handler.CzzyHandler{}.Init(),
-	handler.SubbHandler{}.Name(): handler.SubbHandler{}.Init(),
+var sourceMap = map[string]struct {
+	Sort    int
+	Handler handler.IVideo
+}{
+	handler.CzzyHandler{}.Name(): {Sort: 1, Handler: handler.CzzyHandler{}.Init()},
+	handler.SubbHandler{}.Name(): {Sort: 2, Handler: handler.SubbHandler{}.Init()},
 }
 
 type VideoController struct {
 }
 
 func (x VideoController) Provider(ctx *gin.Context) {
-	var providers = make([]map[string]interface{}, 0)
-	for tmpName, tmpHandler := range sourceMap {
-		providers = append(providers, map[string]interface{}{
-			"name": tmpName,
-			"tags": tmpHandler.TagList(),
+	type ProviderItem struct {
+		Name string      `json:"name"`
+		Sort int         `json:"sort"`
+		Tags interface{} `json:"tags"`
+	}
+	var providers = make([]ProviderItem, 0)
+	for tmpName, tmpValue := range sourceMap {
+		providers = append(providers, ProviderItem{
+			Name: tmpName,
+			Sort: tmpValue.Sort,
+			Tags: tmpValue.Handler.TagList(),
 		})
 	}
+	slices.SortFunc(providers, func(a, b ProviderItem) int {
+		return a.Sort - b.Sort
+	})
 	ctx.JSON(http.StatusOK, model.NewSuccess(providers))
 }
 
@@ -39,19 +52,10 @@ func (x VideoController) Search(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, model.NewError("数据源错误"))
 		return
 	}
-	x.response(ctx, h.Search(
+	x.response(ctx, h.Handler.Search(
 		ctx.Query("keyword"),
 		ctx.Query("page"),
 	))
-}
-
-func (x VideoController) TagList(ctx *gin.Context) {
-	h, ok := sourceMap[strings.TrimSpace(ctx.Query("_source"))]
-	if !ok {
-		ctx.JSON(http.StatusOK, model.NewError("数据源错误"))
-		return
-	}
-	x.response(ctx, h.TagList())
 }
 
 func (x VideoController) VideoList(ctx *gin.Context) {
@@ -66,7 +70,7 @@ func (x VideoController) VideoList(ctx *gin.Context) {
 		x.response(ctx, data)
 		return
 	}
-	var resp = h.VideoList(ctx.Query("tag"), ctx.Query("page"))
+	var resp = h.Handler.VideoList(ctx.Query("tag"), ctx.Query("page"))
 	switch resp.(type) {
 	case model.Success:
 		_ = globalCache.Set(context.Background(), cacheKey, resp, store.WithExpiration(time.Hour*1))
@@ -86,7 +90,7 @@ func (x VideoController) Detail(ctx *gin.Context) {
 		x.response(ctx, data)
 		return
 	}
-	var resp = h.Detail(ctx.Query("id"))
+	var resp = h.Handler.Detail(ctx.Query("id"))
 	switch resp.(type) {
 	case model.Success:
 		_ = globalCache.Set(context.Background(), cacheKey, resp, store.WithExpiration(time.Hour*10))
@@ -106,7 +110,7 @@ func (x VideoController) Source(ctx *gin.Context) {
 		x.response(ctx, data)
 		return
 	}
-	var resp = h.Source(ctx.Query("pid"), ctx.Query("vid"))
+	var resp = h.Handler.Source(ctx.Query("pid"), ctx.Query("vid"))
 	switch resp.(type) {
 	case model.Success:
 		_ = globalCache.Set(context.Background(), cacheKey, resp, store.WithExpiration(time.Hour*1))
@@ -120,7 +124,7 @@ func (x VideoController) Airplay(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, model.NewError("数据源错误"))
 		return
 	}
-	x.response(ctx, h.Airplay(
+	x.response(ctx, h.Handler.Airplay(
 		ctx.Query("pid"),
 		ctx.Query("vid"),
 	))

@@ -35,7 +35,7 @@ func (x SubbHandler) TagList() interface{} {
 	tags = append(tags, gin.H{"name": "电视剧", "value": "tv-drama"})
 	tags = append(tags, gin.H{"name": "欧美剧", "value": "american-drama"})
 	tags = append(tags, gin.H{"name": "动漫剧", "value": "anime-drama"})
-	return model.NewSuccess(tags)
+	return tags
 }
 
 func (x SubbHandler) VideoList(tag, page string) interface{} {

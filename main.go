@@ -28,7 +28,6 @@ func newRouterApi(app *gin.Engine) *gin.Engine {
 
 	var videoController = new(controller.VideoController)
 	app.GET("/api/video/provider", videoController.Provider) // 来源
-	app.GET("/api/video/tags", videoController.TagList)      // 视频TAG列表
 	app.GET("/api/video/search", videoController.Search)     // 视频搜索
 	app.GET("/api/video/list", videoController.VideoList)    // 视频列表（根据来源-TAG确定）
 	app.GET("/api/video/detail", videoController.Detail)     // 视频详情
