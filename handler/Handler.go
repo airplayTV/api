@@ -4,6 +4,7 @@ import (
 	"github.com/airplayTV/api/util"
 	"regexp"
 	"strconv"
+	"strings"
 )
 
 type Handler struct {
@@ -29,5 +30,12 @@ func (x Handler) simpleRegEx(plainText, regex string) string {
 		return ""
 	}
 	return tmpList[1]
+}
 
+func (x Handler) parseVideoType(sourceUrl string) string {
+	if strings.Contains(sourceUrl, ".m3u8") {
+		return sourceTypeHLS
+	}
+
+	return ""
 }

@@ -57,7 +57,7 @@ func (x VideoController) VideoList(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, model.NewError("数据源错误"))
 		return
 	}
-	var cacheKey = fmt.Sprintf("%s_%s_%s", ctx.Query("_source"), ctx.Query("tag"), ctx.Query("page"))
+	var cacheKey = fmt.Sprintf("VideoList::%s_%s_%s", ctx.Query("_source"), ctx.Query("tag"), ctx.Query("page"))
 	data, err := globalCache.Get(context.Background(), cacheKey)
 	if err == nil {
 		x.response(ctx, data)
@@ -77,9 +77,18 @@ func (x VideoController) Detail(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, model.NewError("数据源错误"))
 		return
 	}
-	x.response(ctx, h.Detail(
-		ctx.Query("id"),
-	))
+	var cacheKey = fmt.Sprintf("Detail::%s_%s", ctx.Query("_source"), ctx.Query("id"))
+	data, err := globalCache.Get(context.Background(), cacheKey)
+	if err == nil {
+		x.response(ctx, data)
+		return
+	}
+	var resp = h.Detail(ctx.Query("id"))
+	switch resp.(type) {
+	case model.Success:
+		_ = globalCache.Set(context.Background(), cacheKey, resp, store.WithExpiration(time.Hour*10))
+	}
+	x.response(ctx, resp)
 }
 
 func (x VideoController) Source(ctx *gin.Context) {
@@ -88,10 +97,18 @@ func (x VideoController) Source(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, model.NewError("数据源错误"))
 		return
 	}
-	x.response(ctx, h.Source(
-		ctx.Query("pid"),
-		ctx.Query("vid"),
-	))
+	var cacheKey = fmt.Sprintf("Source::%s_%s_%s", ctx.Query("_source"), ctx.Query("pid"), ctx.Query("vid"))
+	data, err := globalCache.Get(context.Background(), cacheKey)
+	if err == nil {
+		x.response(ctx, data)
+		return
+	}
+	var resp = h.Source(ctx.Query("pid"), ctx.Query("vid"))
+	switch resp.(type) {
+	case model.Success:
+		_ = globalCache.Set(context.Background(), cacheKey, resp, store.WithExpiration(time.Hour*1))
+	}
+	x.response(ctx, resp)
 }
 
 func (x VideoController) Airplay(ctx *gin.Context) {
