@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"bytes"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"github.com/PuerkitoBio/goquery"
@@ -9,6 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"log"
 	"regexp"
+	"slices"
 	"strconv"
 	"strings"
 )
@@ -152,7 +155,7 @@ func (x CzzyHandler) _source(pid, vid string) interface{} {
 	}
 	source.Name = doc.Find(".pclist .jujiinfo h3").Text()
 
-	{
+	if bytes.Contains(buff, []byte("md5.AES.decrypt")) && bytes.Contains(buff, []byte("decrypted.toString(md5.enc.Utf8")) {
 		// 从html加密数据中解析播放地址
 		var encryptedLine = x._findEncryptedLine(string(buff))
 		if len(encryptedLine) == 0 {
@@ -165,14 +168,22 @@ func (x CzzyHandler) _source(pid, vid string) interface{} {
 		}
 		source.Source = tmpSource.Source
 		source.Type = tmpSource.Type
-	}
-
-	{
+	} else if doc.Find(".videoplay iframe").Length() > 0 {
 		// 解析另一种iframe嵌套的视频
 		iframeUrl, _ := doc.Find(".videoplay iframe").Attr("src")
-		if strings.TrimSpace(iframeUrl) != "" {
-			log.Println("[iframeUrl]", iframeUrl)
+		log.Println("[iframeUrl]", iframeUrl)
+		frameContent, err := x.getIframeContent(iframeUrl)
+		if err != nil {
+			return model.NewError(err.Error())
 		}
+		var encryptResultV2 = x.simpleRegEx(frameContent, `var result_v2 = {"data":"(\S+?)"`)
+		if len(encryptResultV2) > 0 {
+			source.Source = x.parseEncryptedResultV2ToUrl(encryptResultV2)
+		} else {
+			return model.NewError("未知解析逻辑1")
+		}
+	} else {
+		return model.NewError("未知解析逻辑")
 	}
 
 	if len(source.Source) == 0 {
@@ -250,4 +261,38 @@ func (x CzzyHandler) _parseVideoSource(id, js string) (model.Source, error) {
 	}
 
 	return source, nil
+}
+
+func (x CzzyHandler) getIframeContent(iframeUrl string) (string, error) {
+	x.httpClient.AddHeader("referer", czzyHost)
+	x.httpClient.AddHeader("sec-fetch-dest", "iframe")
+	x.httpClient.AddHeader("sec-fetch-mode", "navigate")
+	buff, err := x.httpClient.Get(iframeUrl)
+	if err != nil {
+		return "", err
+	}
+	return string(buff), nil
+}
+
+func (x CzzyHandler) parseEncryptedResultV2ToUrl(resultV2 string) string {
+	// htoStr
+	var chars = strings.Split(resultV2, "")
+	slices.Reverse(chars)
+	var sb = strings.Builder{}
+	var tmpStr = ""
+	var buf []byte
+	var err error
+	for i := 0; i < len(chars); i += 2 {
+		tmpStr = chars[i] + chars[i+1]
+		buf, err = hex.DecodeString(tmpStr)
+		if err != nil {
+			log.Println("[decodeHexError]", err.Error())
+			break
+		}
+		sb.Write(buf)
+	}
+	// decodeStr
+	var tmpUrl = sb.String()
+	var tmpA = (len(tmpUrl) - 7) / 2
+	return fmt.Sprintf("%s%s", tmpUrl[0:tmpA], tmpUrl[tmpA+7:])
 }
