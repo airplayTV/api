@@ -3,7 +3,9 @@ package controller
 import (
 	"github.com/dgraph-io/ristretto"
 	"github.com/eko/gocache/lib/v4/cache"
+	redis_store "github.com/eko/gocache/store/redis/v4"
 	ristretto_store "github.com/eko/gocache/store/ristretto/v4"
+	"github.com/redis/go-redis/v9"
 )
 
 var (
@@ -11,6 +13,11 @@ var (
 )
 
 func init() {
+	initRistrettoCache()
+	//initRedisCache()// 这玩意还需要给模型实现（implement encoding.BinaryMarshaler）！！！
+}
+
+func initRistrettoCache() {
 	if globalCache == nil {
 		// https://github.com/dgraph-io/ristretto
 		ristrettoCache, err := ristretto.NewCache(&ristretto.Config{
@@ -26,5 +33,14 @@ func init() {
 		}
 		ristrettoStore := ristretto_store.NewRistretto(ristrettoCache)
 		globalCache = cache.New[any](ristrettoStore)
+	}
+}
+
+func initRedisCache() {
+	if globalCache == nil {
+		redisStore := redis_store.NewRedis(redis.NewClient(&redis.Options{
+			Addr: "127.0.0.1:6379",
+		}))
+		globalCache = cache.New[any](redisStore)
 	}
 }

@@ -22,7 +22,7 @@ func newRouterApi(app *gin.Engine) *gin.Engine {
 		AllowOrigins:     []string{"*"},
 		AllowMethods:     []string{"PUT", "PATCH", "GET", "POST", "HEAD"},
 		AllowHeaders:     []string{"*"},
-		ExposeHeaders:    []string{"Content-Length"},
+		ExposeHeaders:    []string{"Content-Length", "Hit-Cache"},
 		AllowCredentials: true,
 	}))
 

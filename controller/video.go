@@ -67,13 +67,14 @@ func (x VideoController) VideoList(ctx *gin.Context) {
 	var cacheKey = fmt.Sprintf("VideoList::%s_%s_%s", ctx.Query("_source"), ctx.Query("tag"), ctx.Query("page"))
 	data, err := globalCache.Get(context.Background(), cacheKey)
 	if err == nil {
+		ctx.Header("Hit-Cache", "true")
 		x.response(ctx, data)
 		return
 	}
 	var resp = h.Handler.VideoList(ctx.Query("tag"), ctx.Query("page"))
 	switch resp.(type) {
 	case model.Success:
-		_ = globalCache.Set(context.Background(), cacheKey, resp, store.WithExpiration(time.Hour*1))
+		_ = globalCache.Set(context.Background(), cacheKey, resp, store.WithExpiration(time.Hour*2))
 	}
 	x.response(ctx, resp)
 }
@@ -87,13 +88,14 @@ func (x VideoController) Detail(ctx *gin.Context) {
 	var cacheKey = fmt.Sprintf("Detail::%s_%s", ctx.Query("_source"), ctx.Query("id"))
 	data, err := globalCache.Get(context.Background(), cacheKey)
 	if err == nil {
+		ctx.Header("Hit-Cache", "true")
 		x.response(ctx, data)
 		return
 	}
 	var resp = h.Handler.Detail(ctx.Query("id"))
 	switch resp.(type) {
 	case model.Success:
-		_ = globalCache.Set(context.Background(), cacheKey, resp, store.WithExpiration(time.Hour*10))
+		_ = globalCache.Set(context.Background(), cacheKey, resp, store.WithExpiration(time.Hour*72))
 	}
 	x.response(ctx, resp)
 }
@@ -107,6 +109,7 @@ func (x VideoController) Source(ctx *gin.Context) {
 	var cacheKey = fmt.Sprintf("Source::%s_%s_%s", ctx.Query("_source"), ctx.Query("pid"), ctx.Query("vid"))
 	data, err := globalCache.Get(context.Background(), cacheKey)
 	if err == nil {
+		ctx.Header("Hit-Cache", "true")
 		x.response(ctx, data)
 		return
 	}
