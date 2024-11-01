@@ -10,7 +10,7 @@ import (
 
 func main() {
 	var app = gin.Default()
-	if err := newRouterWS(newRouterApi(app)).Run(":8082"); err != nil {
+	if err := newRouterApi(app).Run(":8082"); err != nil {
 		log.Fatalln(err)
 	}
 }
@@ -26,25 +26,22 @@ func newRouterApi(app *gin.Engine) *gin.Engine {
 		AllowCredentials: true,
 	}))
 
-	var videoController = new(controller.VideoController)
+	var websocketController = new(controller.WebsocketController)
+	var ws = goWebsocket.NewWebsocketManager(true)
+	var videoController = controller.VideoController{WssManager: ws}
+
+	// websocket
+	ws.On("/", websocketController.Index)
+	app.GET("/api/wss", func(ctx *gin.Context) {
+		ws.Handler(ctx.Writer, ctx.Request, nil)
+	})
+	// api接口
 	app.GET("/api/video/provider", videoController.Provider) // 来源
 	app.GET("/api/video/search", videoController.Search)     // 视频搜索
 	app.GET("/api/video/list", videoController.VideoList)    // 视频列表（根据来源-TAG确定）
 	app.GET("/api/video/detail", videoController.Detail)     // 视频详情
 	app.GET("/api/video/source", videoController.Source)     // 视频播放源
-	app.GET("/api/video/airplay", videoController.Airplay)   // 远程遥控功能
-
-	return app
-}
-
-func newRouterWS(app *gin.Engine) *gin.Engine {
-	websocketController := new(controller.WebsocketController)
-
-	var ws = goWebsocket.NewWebsocketManager(true)
-	ws.On("/", websocketController.Index)
-	app.GET("/api/wss", func(ctx *gin.Context) {
-		ws.Handler(ctx.Writer, ctx.Request, nil)
-	})
+	app.POST("/api/video/control", videoController.Control)  // 远程遥控功能
 
 	return app
 }

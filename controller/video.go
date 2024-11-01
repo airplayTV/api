@@ -8,6 +8,8 @@ import (
 	"github.com/airplayTV/api/util"
 	"github.com/eko/gocache/lib/v4/store"
 	"github.com/gin-gonic/gin"
+	"github.com/gorilla/websocket"
+	"github.com/lixiang4u/goWebsocket"
 	"log"
 	"net/http"
 	"slices"
@@ -131,6 +133,18 @@ func (x VideoController) Airplay(ctx *gin.Context) {
 		ctx.Query("pid"),
 		ctx.Query("vid"),
 	))
+}
+
+func (x VideoController) Control(ctx *gin.Context) {
+	var post model.Control
+	if err := ctx.ShouldBindBodyWithJSON(&post); err != nil {
+		x.response(ctx, model.NewError("参数解析失败"))
+		return
+	}
+
+	x.WssManager.SendToGroup(post.Group, websocket.TextMessage, x.WssManager.ToBytes(post))
+
+	x.response(ctx, model.NewSuccess(nil))
 }
 
 func (x VideoController) response(ctx *gin.Context, resp interface{}) {
