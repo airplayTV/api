@@ -26,6 +26,7 @@ var sourceMap = map[string]struct {
 }
 
 type VideoController struct {
+	WssManager *goWebsocket.WebsocketManager
 }
 
 func (x VideoController) Provider(ctx *gin.Context) {
