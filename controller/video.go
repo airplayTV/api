@@ -98,7 +98,7 @@ func (x VideoController) Detail(ctx *gin.Context) {
 	var resp = h.Handler.Detail(ctx.Query("id"))
 	switch resp.(type) {
 	case model.Success:
-		_ = globalCache.Set(context.Background(), cacheKey, resp, store.WithExpiration(time.Hour*72))
+		_ = globalCache.Set(context.Background(), cacheKey, resp, store.WithExpiration(time.Hour*24*7))
 	}
 	x.response(ctx, resp)
 }
