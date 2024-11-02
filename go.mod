@@ -7,10 +7,12 @@ require (
 	github.com/andybalholm/brotli v1.1.1
 	github.com/dgraph-io/ristretto v0.2.0
 	github.com/eko/gocache/lib/v4 v4.1.6
+	github.com/eko/gocache/store/redis/v4 v4.2.2
 	github.com/eko/gocache/store/ristretto/v4 v4.2.2
 	github.com/gin-contrib/cors v1.7.2
 	github.com/gin-gonic/gin v1.10.0
 	github.com/gorilla/websocket v1.5.3
+	github.com/redis/go-redis/v9 v9.0.2
 	github.com/zc310/headers v0.0.0-20210220023006-06acd8c1c220
 )
 
@@ -24,7 +26,6 @@ require (
 	github.com/cloudwego/iasm v0.2.0 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
-	github.com/eko/gocache/store/redis/v4 v4.2.2 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.3 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
@@ -37,7 +38,7 @@ require (
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.7 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
-	github.com/lixiang4u/goWebsocket v0.0.0-20241101085317-c62f0dad4788 // indirect
+	github.com/lixiang4u/goWebsocket v0.0.0-20241101151902-934f284d9fcc // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.1 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
@@ -48,7 +49,6 @@ require (
 	github.com/prometheus/client_model v0.3.0 // indirect
 	github.com/prometheus/common v0.37.0 // indirect
 	github.com/prometheus/procfs v0.8.0 // indirect
-	github.com/redis/go-redis/v9 v9.0.2 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.12 // indirect
 	golang.org/x/arch v0.8.0 // indirect
