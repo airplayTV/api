@@ -7,11 +7,11 @@ const (
 )
 
 const (
-	czzyHost      = "https://czzy.top"
-	czzyTagUrl    = "https://czzy.top/%s/page/%d"
-	czzySearchUrl = "https://czzy.top/daoyongjiekoshibushiyoubing?q=%s&f=_all&p=%d"
-	czzyDetailUrl = "https://czzy.top/movie/%s.html"
-	czzyPlayUrl   = "https://czzy.top/v_play/%s.html"
+	czzyHost      = "https://www.czzyvideo.com"
+	czzyTagUrl    = "https://www.czzyvideo.com/%s/page/%d"
+	czzySearchUrl = "https://www.czzyvideo.com/daoyongjiekoshibushiyoubing?q=%s&f=_all&p=%d"
+	czzyDetailUrl = "https://www.czzyvideo.com/movie/%s.html"
+	czzyPlayUrl   = "https://www.czzyvideo.com/v_play/%s.html"
 )
 
 const (
