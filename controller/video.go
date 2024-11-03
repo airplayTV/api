@@ -24,7 +24,7 @@ var sourceMap = map[string]struct {
 	handler.CzzyHandler{}.Name():    {Sort: 1, Handler: handler.CzzyHandler{}.Init()},
 	handler.SubbHandler{}.Name():    {Sort: 2, Handler: handler.SubbHandler{}.Init()},
 	handler.YingshiHandler{}.Name(): {Sort: 3, Handler: handler.YingshiHandler{}.Init()},
-	handler.MaYiHandler{}.Name():    {Sort: 4, Handler: handler.MaYiHandler{}.Init()},
+	//handler.MaYiHandler{}.Name():    {Sort: 4, Handler: handler.MaYiHandler{}.Init()},
 }
 
 type VideoController struct {
