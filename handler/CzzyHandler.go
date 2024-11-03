@@ -9,6 +9,7 @@ import (
 	"github.com/airplayTV/api/model"
 	"github.com/airplayTV/api/util"
 	"github.com/gin-gonic/gin"
+	"github.com/zc310/headers"
 	"log"
 	"regexp"
 	"slices"
@@ -22,6 +23,7 @@ type CzzyHandler struct {
 
 func (x CzzyHandler) Init() IVideo {
 	x.httpClient = util.HttpClient{}
+	x.httpClient.AddHeader(headers.UserAgent, useragent)
 	return x
 }
 
