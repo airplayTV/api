@@ -57,10 +57,19 @@ func (x VideoController) Search(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, model.NewError("数据源错误"))
 		return
 	}
-	x.response(ctx, h.Handler.Search(
-		ctx.Query("keyword"),
-		ctx.Query("page"),
-	))
+	var cacheKey = fmt.Sprintf("Search::%s_%s_%s", ctx.Query("_source"), ctx.Query("keyword"), ctx.Query("page"))
+	data, err := globalCache.Get(context.Background(), cacheKey)
+	if err == nil {
+		ctx.Header("Hit-Cache", "true")
+		x.response(ctx, data)
+		return
+	}
+	var resp = h.Handler.Search(ctx.Query("keyword"), ctx.Query("page"))
+	switch resp.(type) {
+	case model.Success:
+		_ = globalCache.Set(context.Background(), cacheKey, resp, store.WithExpiration(time.Hour*2))
+	}
+	x.response(ctx, resp)
 }
 
 func (x VideoController) VideoList(ctx *gin.Context) {
