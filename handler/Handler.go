@@ -36,6 +36,12 @@ func (x Handler) parseVideoType(sourceUrl string) string {
 	if strings.Contains(sourceUrl, ".m3u8") {
 		return sourceTypeHLS
 	}
+	if strings.HasSuffix(sourceUrl, "m3u8") {
+		return sourceTypeHLS
+	}
+	if strings.HasSuffix(sourceUrl, ".mp4") {
+		return sourceTypeAuto
+	}
 
 	return ""
 }

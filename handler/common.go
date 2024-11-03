@@ -21,3 +21,19 @@ const (
 	subbDetailUrl = "https://www.subaibaiys.com/movie/%s.html"
 	subbPlayUrl   = "https://www.subaibaiys.com/v_play/%s.html"
 )
+
+const (
+	mayiHost      = "https://www.mayiyingshi.tv"
+	mayiTagUrl    = "https://www.mayiyingshi.tv/vodtype/%s-%d.html"
+	mayiSearchUrl = "https://www.mayiyingshi.tv/vodsearch/%s----------%d---.html"
+	mayiDetailUrl = "https://www.mayiyingshi.tv/voddetail/%s.html"
+	mayiPlayUrl   = "https://www.mayiyingshi.tv/vodplay/%s.html"
+)
+
+const (
+	yingshiHost      = "https://yingshi.tv"
+	yingshiTagUrl    = "https://api.yingshi.tv/vod/v1/vod/list?order=desc&limit=30&tid=%s&by=time&page=%d"
+	yingshiSearchUrl = "https://api.yingshi.tv/vod/v1/search?wd=%s&limit=20&page=%d"
+	yingshiDetailUrl = "https://api.yingshi.tv/vod/v1/info?id=%s&tid=%s"
+	yingshiPlayUrl   = "https://api.yingshi.tv/vod/v1/info?id=%s&tid=%s"
+)
