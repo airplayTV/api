@@ -76,7 +76,7 @@ func (x CzzyHandler) _videoList(tagName, page string) interface{} {
 		return model.NewError("获取数据失败：" + err.Error())
 	}
 
-	var pager = model.Pager{Limit: 25, Page: x.parsePageNumber(page)}
+	var pager = model.Pager{Limit: 25, Page: x.parsePageNumber(page), List: make([]model.Video, 0)}
 
 	doc.Find(".mi_cont .mi_ne_kd ul li").Each(func(i int, selection *goquery.Selection) {
 		name := selection.Find(".dytit a").Text()
@@ -109,6 +109,10 @@ func (x CzzyHandler) _videoList(tagName, page string) interface{} {
 	})
 
 	pager.Page, _ = strconv.Atoi(doc.Find(".pagenavi_txt .current").Text())
+
+	if len(pager.List) == 0 {
+		return model.NewError("暂无数据")
+	}
 
 	return model.NewSuccess(pager)
 }

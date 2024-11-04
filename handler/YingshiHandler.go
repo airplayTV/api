@@ -64,7 +64,7 @@ func (x YingshiHandler) _videoList(tagName, page string) interface{} {
 	if err != nil {
 		return model.NewError("获取数据失败：" + err.Error())
 	}
-	var pager = model.Pager{Limit: 30, Page: x.parsePageNumber(page)}
+	var pager = model.Pager{Limit: 30, Page: x.parsePageNumber(page), List: make([]model.Video, 0)}
 
 	var result = gjson.ParseBytes(buff)
 
@@ -82,6 +82,10 @@ func (x YingshiHandler) _videoList(tagName, page string) interface{} {
 		})
 		return true
 	})
+
+	if len(pager.List) == 0 {
+		return model.NewError("暂无数据")
+	}
 
 	return model.NewSuccess(pager)
 }
@@ -109,6 +113,10 @@ func (x YingshiHandler) _search(keyword, page string) interface{} {
 		})
 		return true
 	})
+
+	if len(pager.List) == 0 {
+		return model.NewError("暂无数据")
+	}
 
 	return model.NewSuccess(pager)
 }
@@ -196,6 +204,10 @@ func (x YingshiHandler) _source(pid, vid string) interface{} {
 		}
 		return true
 	})
+
+	if len(source.Url) == 0 {
+		return model.NewError("暂无数据")
+	}
 
 	return model.NewSuccess(source)
 }
