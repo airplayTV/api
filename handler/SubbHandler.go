@@ -111,7 +111,44 @@ func (x SubbHandler) _videoList(tagName, page string) interface{} {
 }
 
 func (x SubbHandler) _search(keyword, page string) interface{} {
-	return model.NewError("尚未实现")
+	var pager = model.Pager{Limit: 25, Page: x.parsePageNumber(page)}
+	buff, err := x.requestUrlBypassCheck(fmt.Sprintf(subbSearchUrl, pager.Page, keyword))
+	if err != nil {
+		return model.NewError("获取数据失败：" + err.Error())
+	}
+	doc, err := goquery.NewDocumentFromReader(strings.NewReader(string(buff)))
+	if err != nil {
+		log.Println("[文档解析失败]", err.Error())
+		return pager
+	}
+	doc.Find(".search_list ul li").Each(func(i int, selection *goquery.Selection) {
+		name := selection.Find(".dytit a").Text()
+		tmpUrl, _ := selection.Find(".dytit a").Attr("href")
+		thumb, _ := selection.Find("img.thumb").Attr("data-original")
+		tag := selection.Find(".nostag").Text()
+		actors := selection.Find(".inzhuy").Text()
+		pager.List = append(pager.List, model.Video{
+			Id:     x.simpleRegEx(tmpUrl, `(\d+)`),
+			Name:   name,
+			Thumb:  thumb,
+			Url:    tmpUrl,
+			Actors: strings.TrimSpace(actors),
+			Tag:    tag,
+		})
+	})
+	doc.Find(".pagenavi_txt a").Each(func(i int, selection *goquery.Selection) {
+		var p = x.parsePageNumber(selection.Text())
+		if className, ok := selection.Attr("class"); ok && className == "current" {
+			pager.Page = p
+		}
+		if p >= pager.Pages {
+			pager.Pages = p
+		}
+	})
+	//pager.Page, _ = strconv.Atoi(doc.Find(".pagenavi_txt .current").Text())
+	pager.Total = pager.Pages * pager.Limit
+
+	return model.NewSuccess(pager)
 }
 
 func (x SubbHandler) _detail(id string) interface{} {
