@@ -11,7 +11,7 @@ type Handler struct {
 	httpClient util.HttpClient
 }
 
-func (x Handler) parsePageNumber(s string) int {
+func (x *Handler) parsePageNumber(s string) int {
 	n, err := strconv.Atoi(s)
 	if err != nil {
 		return 1
@@ -22,7 +22,7 @@ func (x Handler) parsePageNumber(s string) int {
 	return n
 }
 
-func (x Handler) simpleRegEx(plainText, regex string) string {
+func (x *Handler) simpleRegEx(plainText, regex string) string {
 	//regEx := regexp.MustCompile(`(\d+)`)
 	regEx := regexp.MustCompile(regex)
 	tmpList := regEx.FindStringSubmatch(plainText)
@@ -32,7 +32,16 @@ func (x Handler) simpleRegEx(plainText, regex string) string {
 	return tmpList[1]
 }
 
-func (x Handler) parseVideoType(sourceUrl string) string {
+func (x *Handler) simpleRegExList(plainText, regex string) []string {
+	regEx := regexp.MustCompile(regex)
+	tmpList := regEx.FindStringSubmatch(plainText)
+	if len(tmpList) < 2 {
+		return nil
+	}
+	return tmpList
+}
+
+func (x *Handler) parseVideoType(sourceUrl string) string {
 	if strings.Contains(sourceUrl, ".m3u8") {
 		return sourceTypeHLS
 	}

@@ -7,6 +7,7 @@ import (
 	"github.com/airplayTV/api/model"
 	"github.com/airplayTV/api/util"
 	"github.com/gin-gonic/gin"
+	"github.com/zc310/headers"
 	"log"
 	"regexp"
 	"strconv"
@@ -61,7 +62,7 @@ func (x SubbHandler) Airplay(pid, vid string) interface{} {
 //
 
 func (x SubbHandler) _videoList(tagName, page string) interface{} {
-	buff, err := x.httpClient.Get(fmt.Sprintf(subbTagUrl, tagName, x.parsePageNumber(page)))
+	buff, err := x.requestUrlBypassCheck(fmt.Sprintf(subbTagUrl, tagName, x.parsePageNumber(page)))
 	if err != nil {
 		return model.NewError("获取数据失败：" + err.Error())
 	}
@@ -114,7 +115,7 @@ func (x SubbHandler) _search(keyword, page string) interface{} {
 }
 
 func (x SubbHandler) _detail(id string) interface{} {
-	buff, err := x.httpClient.Get(fmt.Sprintf(subbDetailUrl, id))
+	buff, err := x.requestUrlBypassCheck(fmt.Sprintf(subbDetailUrl, id))
 	if err != nil {
 		return model.NewError("获取数据失败：" + err.Error())
 	}
@@ -143,7 +144,7 @@ func (x SubbHandler) _detail(id string) interface{} {
 
 func (x SubbHandler) _source(pid, vid string) interface{} {
 	var source = model.Source{Id: pid, Vid: vid}
-	buff, err := x.httpClient.Get(fmt.Sprintf(subbPlayUrl, pid))
+	buff, err := x.requestUrlBypassCheck(fmt.Sprintf(subbPlayUrl, pid))
 	if err != nil {
 		return model.NewError("获取数据失败：" + err.Error())
 	}
@@ -252,4 +253,62 @@ func (x SubbHandler) _parseVideoSource(id, js string) (model.Source, error) {
 	}
 
 	return source, nil
+}
+
+func (x SubbHandler) requestUrlBypassCheck(requestUrl string) ([]byte, error) {
+	buff, err := x.httpClient.Get(requestUrl)
+	if err != nil {
+		return nil, err
+	}
+	return x.bypassHuadongCheck(requestUrl, string(buff))
+}
+
+func (x SubbHandler) bypassHuadongCheck(requestUrl, respHtml string) ([]byte, error) {
+	var findCheckUrl = x.simpleRegEx(respHtml, `src="(\S+)"></script>`)
+	if len(findCheckUrl) == 0 && !strings.Contains(respHtml, "人机身份验证") {
+		return nil, nil
+	}
+	_, buff, err := x.httpClient.GetResponse(fmt.Sprintf("%s/%s", strings.TrimRight(subbHost, "/"), strings.TrimLeft(findCheckUrl, "/")))
+	if err != nil {
+		return nil, err
+	}
+	respHtml = string(buff)
+
+	var kvList = x.simpleRegExList(respHtml, `,key="(\S+)",value="(\S+)";`)
+	var urlList = x.simpleRegExList(respHtml, `c\.get\("(\S+)\?type=(\S+)&key=`)
+	if len(kvList) < 3 || len(urlList) < 3 {
+		return nil, errors.New("验证数据解析失败")
+	}
+
+	var checkUrl = fmt.Sprintf(
+		"%s/%s?type=%s&key=%s&value=%s",
+		strings.TrimRight(subbHost, "/"),
+		strings.TrimLeft(urlList[1], "/"),
+		urlList[2],
+		kvList[1],
+		util.StringMd5(x.bypassStringToHex(kvList[2])),
+	)
+	log.Println("[checkUrl]", checkUrl)
+
+	header, buff, err := x.httpClient.GetResponse(checkUrl)
+	if err != nil {
+		return nil, err
+	}
+
+	// 修改请求头，全局生效
+	x.httpClient.AddHeader(headers.Cookie, header.Get("Set-Cookie"))
+
+	_, buff, err = x.httpClient.GetResponse(requestUrl)
+	if err != nil {
+		return nil, err
+	}
+	return buff, nil
+}
+
+func (x SubbHandler) bypassStringToHex(str string) string {
+	var codeList []string
+	for _, r := range []rune(str) {
+		codeList = append(codeList, fmt.Sprintf("%d", int(r)+1))
+	}
+	return strings.Join(codeList, "")
 }
