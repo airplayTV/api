@@ -9,6 +9,7 @@ import (
 	"github.com/airplayTV/api/model"
 	"github.com/airplayTV/api/util"
 	"github.com/gin-gonic/gin"
+	"github.com/tidwall/gjson"
 	"github.com/zc310/headers"
 	"log"
 	"regexp"
@@ -183,8 +184,20 @@ func (x CzzyHandler) _source(pid, vid string) interface{} {
 			return model.NewError(err.Error())
 		}
 		var encryptResultV2 = x.simpleRegEx(frameContent, `var result_v2 = {"data":"(\S+?)"`)
+		var findV3Rand = x.simpleRegEx(frameContent, `var rand = "(\S+)";`)
+		var findV3Player = x.simpleRegEx(frameContent, `var player = "(\S+)";`)
 		if len(encryptResultV2) > 0 {
 			source.Source = x.parseEncryptedResultV2ToUrl(encryptResultV2)
+		} else if len(findV3Rand) > 0 && len(findV3Player) > 0 {
+			//log.Println("[findV3Rand]", findV3Rand)
+			//log.Println("[findV3Player]", findV3Player)
+			buff, err = util.DecryptByAes([]byte("VFBTzdujpR9FWBhe"), []byte(findV3Rand), findV3Player)
+			if err != nil {
+				return model.NewError("解析播放地址失败：" + err.Error())
+			} else {
+				var result = gjson.ParseBytes(buff)
+				source.Source = result.Get("url").String()
+			}
 		} else {
 			return model.NewError("未知解析逻辑1")
 		}
