@@ -178,7 +178,7 @@ func (x CzzyHandler) _source(pid, vid string) interface{} {
 	} else if doc.Find(".videoplay iframe").Length() > 0 {
 		// 解析另一种iframe嵌套的视频
 		iframeUrl, _ := doc.Find(".videoplay iframe").Attr("src")
-		log.Println("[iframeUrl]", iframeUrl)
+		//log.Println("[iframeUrl]", iframeUrl)
 		frameContent, err := x.getIframeContent(iframeUrl)
 		if err != nil {
 			return model.NewError(err.Error())
@@ -189,15 +189,7 @@ func (x CzzyHandler) _source(pid, vid string) interface{} {
 		if len(encryptResultV2) > 0 {
 			source.Source = x.parseEncryptedResultV2ToUrl(encryptResultV2)
 		} else if len(findV3Rand) > 0 && len(findV3Player) > 0 {
-			//log.Println("[findV3Rand]", findV3Rand)
-			//log.Println("[findV3Player]", findV3Player)
-			buff, err = util.DecryptByAes([]byte("VFBTzdujpR9FWBhe"), []byte(findV3Rand), findV3Player)
-			if err != nil {
-				return model.NewError("解析播放地址失败：" + err.Error())
-			} else {
-				var result = gjson.ParseBytes(buff)
-				source.Source = result.Get("url").String()
-			}
+			source.Source = x.parseEncryptedResultV3ToUrl(findV3Rand, findV3Player)
 		} else {
 			return model.NewError("未知解析逻辑1")
 		}
@@ -314,4 +306,15 @@ func (x CzzyHandler) parseEncryptedResultV2ToUrl(resultV2 string) string {
 	var tmpUrl = sb.String()
 	var tmpA = (len(tmpUrl) - 7) / 2
 	return fmt.Sprintf("%s%s", tmpUrl[0:tmpA], tmpUrl[tmpA+7:])
+}
+
+func (x CzzyHandler) parseEncryptedResultV3ToUrl(rand, player string) string {
+	buff, err := util.DecryptByAes([]byte("VFBTzdujpR9FWBhe"), []byte(rand), player)
+	if err != nil {
+		log.Println("[DecryptAesError]", err.Error())
+		return ""
+	} else {
+		var result = gjson.ParseBytes(buff)
+		return result.Get("url").String()
+	}
 }
