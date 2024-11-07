@@ -71,6 +71,7 @@ func (x *Handler) requestUrlBypassSafeLineChallenge(requestUrl string) ([]byte, 
 	if len(clientId) == 0 {
 		return buff, nil
 	}
+	log.Println("[SafeLineChallenge]", clientId)
 
 	var tmpSession = x.simpleRegEx(header.Get(headers.SetCookie), `sl-session=(\S+);`)
 
@@ -129,14 +130,15 @@ func (x *Handler) requestUrlBypassSafeLineChallenge(requestUrl string) ([]byte, 
 		return nil, errors.New("SafeLine挑战验证失败")
 	}
 
-	x.httpClient.AddHeader(headers.Cookie, fmt.Sprintf("sl-session=%s; sl-challenge-jwt=%s;", tmpSession, jsonVerify.Get("data").Get("jwt")))
-
 	httpClient.AddHeader(headers.Cookie, fmt.Sprintf("sl-session=%s; sl-challenge-jwt=%s;", tmpSession, jsonVerify.Get("data").Get("jwt")))
 	header, buff, err = httpClient.GetResponse(requestUrl)
 	if err != nil {
 		log.Println("[请求失败]", err.Error())
 		return nil, err
 	}
+
+	// 这个cookie是持久的
+	x.httpClient.AddHeader(headers.Cookie, header.Get(headers.SetCookie))
 
 	return buff, nil
 }
