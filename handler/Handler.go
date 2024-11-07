@@ -87,28 +87,19 @@ func (x *Handler) requestUrlBypassSafeLineChallenge(requestUrl string) ([]byte, 
 		//log.Println("[发生数据失败]", err.Error())
 		return nil, err
 	}
-	//log.Println("[buff]", string(buff))
 
 	var jsonResult = gjson.ParseBytes(buff)
-	//log.Println("[data]", jsonResult.Get("data").Get("data").Value())
-	//log.Println("[issue_id]", jsonResult.Get("data").Get("issue_id").String())
-	// {"message":"ok","code":200,"data":{"data":[52,5,46,77,87,1,71,94,7,69,66],"issue_id":"aSxS2P9gkfrXpG1c"}}
-
 	var intList = make([]int, 0)
 	jsonResult.Get("data").Get("data").ForEach(func(key, value gjson.Result) bool {
 		intList = append(intList, int(value.Int()))
 		return true
 	})
 
-	log.Println("[intList]", util.ToString(intList))
-
 	challenge, err := x.SafeLineChallengeWasmCalc(intList)
 	if err != nil {
 		//log.Println("[ChallengeError]", err.Error())
 		return nil, err
 	}
-
-	log.Println("[challenge]", util.ToString(challenge))
 
 	var postIssueForm2 = map[string]interface{}{
 		"issue_id": jsonResult.Get("data").Get("issue_id").String(),
@@ -124,15 +115,12 @@ func (x *Handler) requestUrlBypassSafeLineChallenge(requestUrl string) ([]byte, 
 		},
 	}
 
-	log.Println("[POST]", util.ToString(postIssueForm2))
-
 	httpClient.AddHeader("Content-Type", "application/json")
 	buff, err = httpClient.Post("https://challenge.rivers.chaitin.cn/challenge/v2/api/verify", util.ToString(postIssueForm2))
 	if err != nil {
 		log.Println("[发生数据失败]", err.Error())
 		return nil, err
 	}
-	log.Println("[buffAAAA]", string(buff))
 
 	var jsonVerify = gjson.ParseBytes(buff)
 
@@ -140,8 +128,6 @@ func (x *Handler) requestUrlBypassSafeLineChallenge(requestUrl string) ([]byte, 
 		//log.Println("【解析失败】")
 		return nil, errors.New("SafeLine挑战验证失败")
 	}
-
-	log.Println("[jwt]", jsonVerify.Get("data").Get("jwt"))
 
 	x.httpClient.AddHeader(headers.Cookie, fmt.Sprintf("sl-session=%s; sl-challenge-jwt=%s;", tmpSession, jsonVerify.Get("data").Get("jwt")))
 
@@ -151,8 +137,6 @@ func (x *Handler) requestUrlBypassSafeLineChallenge(requestUrl string) ([]byte, 
 		log.Println("[请求失败]", err.Error())
 		return nil, err
 	}
-	//log.Println("[resp]", string(buff)[:700])
-	log.Println("[header.]", util.ToString(header))
 
 	return buff, nil
 }
