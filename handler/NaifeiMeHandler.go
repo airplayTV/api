@@ -8,7 +8,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/tidwall/gjson"
 	"github.com/zc310/headers"
-	"log"
 	"strings"
 )
 
@@ -61,15 +60,23 @@ func (x NaifeiMeHandler) Airplay(pid, vid string) interface{} {
 //
 
 func (x NaifeiMeHandler) _videoList(tagName, page string) interface{} {
-	//buff, err := x.requestUrlBypassSafeLineChallenge(fmt.Sprintf(yingshiTagUrl, tagName, x.parsePageNumber(page)))
-	buff, err := x.httpClient.Get(fmt.Sprintf(yingshiTagUrl, tagName, x.parsePageNumber(page)))
+	buff, err := x.requestUrlBypassSafeLineChallenge(netflixgcHost)
 	if err != nil {
 		return model.NewError("获取数据失败：" + err.Error())
 	}
 
-	log.Println("【HHHHHHHHHHH】", string(buff))
-
 	var pager = model.Pager{Limit: 30, Page: x.parsePageNumber(page), List: make([]model.Video, 0)}
+	pager.List = append(pager.List, model.Video{
+		Id:         "",
+		Name:       "暂未解析结果数据",
+		Thumb:      "",
+		Intro:      string(buff),
+		Url:        "",
+		Actors:     "",
+		Tag:        "",
+		Resolution: "",
+		Links:      nil,
+	})
 
 	var result = gjson.ParseBytes(buff)
 

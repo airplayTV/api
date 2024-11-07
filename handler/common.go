@@ -37,3 +37,11 @@ const (
 	yingshiDetailUrl = "https://api.yingshi.tv/vod/v1/info?id=%s&tid=%s"
 	yingshiPlayUrl   = "https://api.yingshi.tv/vod/v1/info?id=%s&tid=%s"
 )
+
+const (
+	netflixgcHost      = "https://www.netflixgc.com"
+	netflixgcTagUrl    = ""
+	netflixgcSearchUrl = ""
+	netflixgcDetailUrl = ""
+	netflixgcPlayUrl   = ""
+)
