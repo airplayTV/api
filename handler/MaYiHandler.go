@@ -214,7 +214,7 @@ func (x MaYiHandler) _source(pid, vid string) interface{} {
 	//log.Println("[playerDataStr]", playerDataStr)
 	//log.Println("[encryptedUrl]", encryptedUrl)
 
-	buff, err = x.httpClient.Get(fmt.Sprintf(mayiDetailUrl, encryptedUrl))
+	buff, err = x.httpClient.Get(fmt.Sprintf(mayiParseUrl, encryptedUrl))
 	if err != nil {
 		return model.NewError("获取解析数据失败：" + err.Error())
 	}
