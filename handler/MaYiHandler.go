@@ -7,6 +7,7 @@ import (
 	"github.com/airplayTV/api/util"
 	"github.com/gin-gonic/gin"
 	"github.com/tidwall/gjson"
+	"github.com/zc310/headers"
 	"log"
 	"strings"
 )
@@ -17,6 +18,9 @@ type MaYiHandler struct {
 
 func (x MaYiHandler) Init() IVideo {
 	x.httpClient = util.HttpClient{}
+	x.httpClient.AddHeader(headers.UserAgent, useragent)
+	x.httpClient.AddHeader(headers.Origin, mayiHost)
+	x.httpClient.AddHeader(headers.Referer, mayiHost)
 	return x
 }
 
@@ -60,6 +64,8 @@ func (x MaYiHandler) _videoList(tagName, page string) interface{} {
 	if err != nil {
 		return model.NewError("获取数据失败：" + err.Error())
 	}
+	log.Println("[request]", fmt.Sprintf(mayiTagUrl, tagName, x.parsePageNumber(page)))
+	log.Println("[html]", string(buff))
 
 	doc, err := goquery.NewDocumentFromReader(strings.NewReader(string(buff)))
 	if err != nil {
