@@ -197,7 +197,7 @@ func (x MaYiHandler) _detail(id string) interface{} {
 
 func (x MaYiHandler) _source(pid, vid string) interface{} {
 	var source = model.Source{Id: pid, Vid: vid}
-	buff, err := x.httpClient.Get(fmt.Sprintf(mayiDetailUrl, vid))
+	buff, err := x.httpClient.Get(fmt.Sprintf(mayiPlayUrl, pid))
 	if err != nil {
 		return model.NewError("获取数据失败：" + err.Error())
 	}
