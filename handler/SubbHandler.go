@@ -24,7 +24,7 @@ func (x SubbHandler) Init() IVideo {
 }
 
 func (x SubbHandler) Name() string {
-	return "subaibaiys"
+	return "素白白影视"
 }
 
 func (x SubbHandler) TagList() interface{} {

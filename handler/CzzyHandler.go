@@ -29,7 +29,7 @@ func (x CzzyHandler) Init() IVideo {
 }
 
 func (x CzzyHandler) Name() string {
-	return "czzy"
+	return "厂长资源"
 }
 
 func (x CzzyHandler) TagList() interface{} {

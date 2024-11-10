@@ -24,7 +24,7 @@ func (x YingshiHandler) Init() IVideo {
 }
 
 func (x YingshiHandler) Name() string {
-	return "Yingshi"
+	return "影视TV"
 }
 
 func (x YingshiHandler) TagList() interface{} {

@@ -24,7 +24,7 @@ func (x NaifeiMeHandler) Init() IVideo {
 }
 
 func (x NaifeiMeHandler) Name() string {
-	return "naifeitv.me"
+	return "奈飞工厂"
 }
 
 func (x NaifeiMeHandler) TagList() interface{} {

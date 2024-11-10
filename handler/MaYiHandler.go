@@ -25,7 +25,7 @@ func (x MaYiHandler) Init() IVideo {
 }
 
 func (x MaYiHandler) Name() string {
-	return "MaYi"
+	return "蚂蚁影视"
 }
 
 func (x MaYiHandler) TagList() interface{} {
