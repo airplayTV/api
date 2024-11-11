@@ -9,6 +9,7 @@ import (
 	"github.com/tidwall/gjson"
 	"github.com/zc310/headers"
 	"strings"
+	"time"
 )
 
 type NaifeiMeHandler struct {
@@ -64,33 +65,41 @@ func (x NaifeiMeHandler) _videoList(tagName, page string) interface{} {
 	if err != nil {
 		return model.NewError("获取数据失败：" + err.Error())
 	}
+	var httpClient = x.httpClient.Clone()
+	buff, err = httpClient.Get(netflixgcEcScriptUrl)
+	if err != nil {
+		return model.NewError("获取加密数据失败")
+	}
+	var uid = x.simpleRegEx(string(buff), `"Uid": "(\S+)"`)
+	if len(uid) == 0 {
+		return model.NewError("获取加密数据失败2")
+	}
+	var ts = time.Now().Unix()
+	var params = fmt.Sprintf(
+		"type=%s&class=&area=&lang=&version=&state=&letter=&page=%d&time=%d&key=%s",
+		tagName,
+		page,
+		ts,
+		util.StringMd5(fmt.Sprintf("DS%d%s", ts, uid)),
+	)
+	httpClient.AddHeader(headers.ContentType, "application/x-www-form-urlencoded; charset=UTF-8")
+	buff, err = httpClient.Post(netflixgcTagUrl, params)
+	if err != nil {
+		return model.NewError("获取数据失败：" + err.Error())
+	}
 
-	var pager = model.Pager{Limit: 30, Page: x.parsePageNumber(page), List: make([]model.Video, 0)}
-	pager.List = append(pager.List, model.Video{
-		Id:         "",
-		Name:       "暂未解析结果数据",
-		Thumb:      "",
-		Intro:      string(buff),
-		Url:        "",
-		Actors:     "",
-		Tag:        "",
-		Resolution: "",
-		Links:      nil,
-	})
-
+	var pager = model.Pager{Limit: 40, Page: x.parsePageNumber(page), List: make([]model.Video, 0)}
 	var result = gjson.ParseBytes(buff)
 
-	pager.Total = int(result.Get("data").Get("Total").Int())
-	pager.Pages = int(result.Get("data").Get("TotalPageCount").Int())
-	pager.Page = int(result.Get("data").Get("Page").Int())
-	pager.Limit = int(result.Get("data").Get("Limit").Int())
-	result.Get("data").Get("List").ForEach(func(key, value gjson.Result) bool {
+	pager.Total = int(result.Get("total").Int())
+	pager.Pages = int(result.Get("pagecount").Int())
+	pager.Page = int(result.Get("page").Int())
+	result.Get("list").ForEach(func(key, value gjson.Result) bool {
 		pager.List = append(pager.List, model.Video{
-			Id:    fmt.Sprintf("%s-%s", value.Get("vod_id").String(), value.Get("type_id").String()),
+			Id:    value.Get("vod_id").String(),
 			Name:  value.Get("vod_name").String(),
 			Thumb: value.Get("vod_pic").String(),
 			Intro: value.Get("vod_blurb").String(),
-			Url:   fmt.Sprintf(yingshiDetailUrl, value.Get("vod_id").String(), value.Get("type_id").String()),
 		})
 		return true
 	})
