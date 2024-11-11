@@ -78,7 +78,7 @@ func (x NaifeiMeHandler) _videoList(tagName, page string) interface{} {
 	var params = fmt.Sprintf(
 		"type=%s&class=&area=&lang=&version=&state=&letter=&page=%d&time=%d&key=%s",
 		tagName,
-		page,
+		x.parsePageNumber(page),
 		ts,
 		util.StringMd5(fmt.Sprintf("DS%d%s", ts, uid)),
 	)
