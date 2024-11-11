@@ -3,6 +3,7 @@ package handler
 import (
 	"errors"
 	"fmt"
+	"github.com/PuerkitoBio/goquery"
 	"github.com/airplayTV/api/model"
 	"github.com/airplayTV/api/util"
 	"github.com/gin-gonic/gin"
@@ -153,40 +154,41 @@ func (x NaifeiMeHandler) parseVidTypeId(str string) (vid, tid string, err error)
 }
 
 func (x NaifeiMeHandler) _detail(id string) interface{} {
-	vid, tid, err := x.parseVidTypeId(id)
-	if err != nil {
-		return model.NewError(err.Error())
-	}
-
-	buff, err := x.httpClient.Get(fmt.Sprintf(yingshiDetailUrl, vid, tid))
+	buff, err := x.requestUrlBypassSafeLineChallenge(fmt.Sprintf(netflixgcDetailUrl, id))
 	if err != nil {
 		return model.NewError("获取数据失败：" + err.Error())
 	}
 
-	var video = model.Video{Id: id, Links: make([]model.Link, 0)}
+	doc, err := goquery.NewDocumentFromReader(strings.NewReader(string(buff)))
+	if err != nil {
+		return model.NewError("获取数据失败：" + err.Error())
+	}
 
-	var result = gjson.ParseBytes(buff)
+	var video = model.Video{Id: id}
+	video.Name = doc.Find(".vod-detail .slide-info-title").Text()
+	video.Thumb = doc.Find(".vod-detail .detail-pic .lazy").AttrOr("data-src", "")
+	video.Intro = strings.TrimSpace(doc.Find("#height_limit").Text())
 
-	video.Name = result.Get("data").Get("vod_name").String()
-	video.Thumb = result.Get("data").Get("vod_pic").String()
-	video.Intro = result.Get("data").Get("vod_content").String()
-	video.Url = fmt.Sprintf(yingshiDetailUrl, vid, tid)
-	video.Actors = result.Get("data").Get("vod_content").String()
-	result.Get("data").Get("vod_sources").ForEach(func(key, value gjson.Result) bool {
-		var tmpSourceId = value.Get("source_id").String()
-		var tmpGroup = value.Get("source_name").String()
-		if value.Get("vod_play_list").Get("url_count").Int() > 0 {
-			value.Get("vod_play_list").Get("urls").ForEach(func(key, value gjson.Result) bool {
-				video.Links = append(video.Links, model.Link{
-					Id:    fmt.Sprintf("%s-%s", tmpSourceId, value.Get("nid").String()),
-					Name:  value.Get("name").String(),
-					Url:   value.Get("url").String(),
-					Group: tmpGroup,
-				})
-				return true
-			})
+	var groupMap = make([]string, 0)
+	doc.Find(".nav-swiper a").Each(func(i int, selection *goquery.Selection) {
+		tmpHtml, _ := selection.Html()
+		tmpHtml = strings.ReplaceAll(x.simpleRegEx(tmpHtml, `i>(\S+)<span class="badge"`), "&nbsp;", "")
+		groupMap = append(groupMap, strings.TrimSpace(tmpHtml))
+	})
+
+	doc.Find(".anthology-list-box .anthology-list-play").Each(func(i int, selection *goquery.Selection) {
+		if i >= len(groupMap) {
+			return
 		}
-		return true
+		var tmpGroup = groupMap[i]
+		selection.Find(".box a").Each(func(i int, selection *goquery.Selection) {
+			video.Links = append(video.Links, model.Link{
+				Id:    x.simpleRegEx(selection.AttrOr("href", ""), `/play/(\d+-\d+-\d+).html`),
+				Name:  strings.TrimSpace(selection.Text()),
+				Url:   selection.AttrOr("href", ""),
+				Group: tmpGroup,
+			})
+		})
 	})
 
 	return model.NewSuccess(video)
