@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"github.com/PuerkitoBio/goquery"
@@ -9,6 +10,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/tidwall/gjson"
 	"github.com/zc310/headers"
+	"log"
+	"net/url"
 	"strings"
 	"time"
 )
@@ -195,42 +198,46 @@ func (x NaifeiMeHandler) _detail(id string) interface{} {
 }
 
 func (x NaifeiMeHandler) _source(pid, vid string) interface{} {
-	tmpVid, tmpTid, err := x.parseVidTypeId(vid)
+	buff, err := x.requestUrlBypassSafeLineChallenge(fmt.Sprintf(netflixgcPlayUrl, pid))
 	if err != nil {
-		return model.NewError(err.Error())
+		return model.NewError("获取数据失败：" + err.Error())
 	}
-	tmpSourceId, tmpNid, err := x.parseVidTypeId(pid)
-	if err != nil {
-		return model.NewError(err.Error())
-	}
-	buff, err := x.httpClient.Get(fmt.Sprintf(yingshiDetailUrl, tmpVid, tmpTid))
+	doc, err := goquery.NewDocumentFromReader(strings.NewReader(string(buff)))
 	if err != nil {
 		return model.NewError("获取数据失败：" + err.Error())
 	}
 
 	var source = model.Source{Id: pid, Vid: vid}
+	source.Name = doc.Find(".plist-body .player-title-link").Text()
+	source.Thumb = doc.Find(".player-vod-no1 .lazy").AttrOr("data-src", "")
 
-	var result = gjson.ParseBytes(buff)
+	var playerAAA = x.simpleRegEx(string(buff), `var player_aaaa=(\{[\s\S]*?\})</script>`)
+	log.Println("[playerAAA]", playerAAA)
 
-	source.Name = result.Get("data").Get("vod_name").String()
-	source.Thumb = result.Get("data").Get("vod_pic").String()
-	result.Get("data").Get("vod_sources").ForEach(func(key, value gjson.Result) bool {
-		if value.Get("source_id").String() == tmpSourceId && value.Get("vod_play_list").Get("url_count").Int() > 0 {
-			value.Get("vod_play_list").Get("urls").ForEach(func(key, value gjson.Result) bool {
-				if tmpNid == value.Get("nid").String() {
-					source.Url = value.Get("url").String()
-					source.Source = value.Get("url").String()
-					source.Type = x.parseVideoType(source.Source)
-				}
-				return true
-			})
-		}
-		return true
-	})
+	x.parseNetflixGCEncryptedUrl(gjson.Parse(playerAAA))
 
 	if len(source.Url) == 0 {
 		return model.NewError("暂无数据")
 	}
 
 	return model.NewSuccess(source)
+}
+
+func (x NaifeiMeHandler) parseNetflixGCEncryptedUrl(playerAAAJson gjson.Result) {
+	var tmpUrl = playerAAAJson.Get("url").String()
+	var tmpServer = playerAAAJson.Get("server").String()
+	if playerAAAJson.Get("encrypt").String() == "1" {
+		tmpUrl, _ = url.QueryUnescape(tmpUrl)
+	}
+	if playerAAAJson.Get("encrypt").String() == "2" {
+		decodeString, err := base64.StdEncoding.DecodeString(tmpUrl)
+		if err == nil {
+			tmpUrl, _ = url.QueryUnescape(string(decodeString))
+		}
+	}
+	if tmpServer == "no" {
+		tmpServer = ""
+	}
+
+	log.Println("[tmpUrl]", tmpUrl)
 }
