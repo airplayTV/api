@@ -134,3 +134,7 @@ func (x *HttpClient) Head(requestUrl string) (http.Header, error) {
 
 	return resp.Header, nil
 }
+
+func (x *HttpClient) Clone() HttpClient {
+	return HttpClient{headers: x.GetHeaders()}
+}
