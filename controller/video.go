@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"github.com/airplayTV/api/handler"
@@ -10,8 +11,10 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 	"github.com/lixiang4u/goWebsocket"
+	"github.com/zc310/headers"
 	"log"
 	"net/http"
+	"net/url"
 	"slices"
 	"strings"
 	"time"
@@ -159,6 +162,39 @@ func (x VideoController) Control(ctx *gin.Context) {
 	x.WssManager.SendToGroup(post.Group, websocket.TextMessage, x.WssManager.ToBytes(post))
 
 	x.response(ctx, model.NewSuccess(nil))
+}
+
+func (x VideoController) M3u8p(ctx *gin.Context) {
+	var tmpUrl = util.DecodeComponentUrl(ctx.Query("url"))
+	parsed, err := url.Parse(tmpUrl)
+	if err != nil {
+		x.response(ctx, model.NewError("URL地址错误"))
+		return
+	}
+	if len(parsed.Host) == 0 {
+		x.response(ctx, model.NewError("URL地址错误"))
+		return
+	}
+	if !slices.Contains(model.M3u8ProxyHosts, parsed.Host) {
+		x.response(ctx, model.NewError("不支持的代理地址："+parsed.Host))
+		return
+	}
+	var httpClient = util.HttpClient{}
+	header, buff, err := httpClient.GetResponse(tmpUrl)
+	if err != nil {
+		x.response(ctx, model.NewError("请求失败："+err.Error()))
+		return
+	}
+	for k, v := range header {
+		ctx.Header(k, v[0])
+	}
+	// 跨域
+	ctx.Header(headers.AccessControlAllowOrigin, "*")
+	ctx.Header(headers.AccessControlAllowHeaders, "*")
+	ctx.Header(headers.AccessControlAllowMethods, "*")
+	ctx.Header(headers.AccessControlExposeHeaders, "Content-Length,Hit-Cache")
+
+	ctx.DataFromReader(http.StatusOK, -1, header.Get(headers.ContentType), bytes.NewReader(buff), nil)
 }
 
 func (x VideoController) response(ctx *gin.Context, resp interface{}) {

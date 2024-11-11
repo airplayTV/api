@@ -42,6 +42,7 @@ func newRouterApi(app *gin.Engine) *gin.Engine {
 	app.GET("/api/video/detail", videoController.Detail)     // 视频详情
 	app.GET("/api/video/source", videoController.Source)     // 视频播放源
 	app.POST("/api/video/control", videoController.Control)  // 远程遥控功能
+	app.GET("/api/m3u8p", videoController.M3u8p)
 
 	return app
 }
