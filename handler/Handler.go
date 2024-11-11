@@ -3,13 +3,16 @@ package handler
 import (
 	"errors"
 	"fmt"
+	"github.com/airplayTV/api/model"
 	"github.com/airplayTV/api/util"
 	"github.com/bytecodealliance/wasmtime-go/v25"
 	"github.com/tidwall/gjson"
 	"github.com/zc310/headers"
 	"log"
+	"net/url"
 	"path"
 	"regexp"
+	"slices"
 	"strconv"
 	"strings"
 )
@@ -207,4 +210,15 @@ func (x *Handler) SafeLineChallengeWasmCalc(data []int) ([]int, error) {
 	default:
 		return nil, errors.New("wasm调用返回异常")
 	}
+}
+
+func (x *Handler) handleM3u8pUrl(tmpUrl string) string {
+	parsed, err := url.Parse(tmpUrl)
+	if err != nil {
+		return tmpUrl
+	}
+	if !slices.Contains(model.M3u8ProxyHosts, parsed.Host) {
+		return tmpUrl
+	}
+	return fmt.Sprintf("/api/m3u8p?url=%s", util.EncodeComponentUrl(tmpUrl))
 }

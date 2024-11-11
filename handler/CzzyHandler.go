@@ -203,7 +203,7 @@ func (x CzzyHandler) _source(pid, vid string) interface{} {
 
 	// 视频类型问题处理
 	source.Type = x.parseVideoType(source.Source)
-	source.Url = source.Source
+	source.Url = x.handleM3u8pUrl(source.Source)
 
 	if len(source.Source) == 0 {
 		return model.NewError("播放地址处理失败")
