@@ -193,8 +193,13 @@ func (x NaifeiMeHandler) _detail(id string) interface{} {
 	var groupMap = make([]string, 0)
 	doc.Find(".nav-swiper a").Each(func(i int, selection *goquery.Selection) {
 		tmpHtml, _ := selection.Html()
-		tmpHtml = strings.ReplaceAll(x.simpleRegEx(tmpHtml, `i>(\S+)<span class="badge"`), "&nbsp;", "")
-		groupMap = append(groupMap, strings.TrimSpace(tmpHtml))
+		if strings.Contains(tmpHtml, "badge") {
+			tmpHtml = x.simpleRegEx(tmpHtml, `i>(\S+)<span class="badge"`)
+		} else {
+			tmpHtml = selection.Text()
+		}
+		tmpHtml = strings.TrimSpace(strings.ReplaceAll(tmpHtml, "&nbsp;", ""))
+		groupMap = append(groupMap, tmpHtml)
 	})
 
 	doc.Find(".anthology-list-box .anthology-list-play").Each(func(i int, selection *goquery.Selection) {
