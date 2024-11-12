@@ -212,7 +212,6 @@ func (x NaifeiMeHandler) _source(pid, vid string) interface{} {
 	source.Thumb = doc.Find(".player-vod-no1 .lazy").AttrOr("data-src", "")
 
 	var playerAAA = x.simpleRegEx(string(buff), `var player_aaaa=(\{[\s\S]*?\})</script>`)
-	log.Println("[playerAAA]", playerAAA)
 
 	x.parseNetflixGCEncryptedUrl(gjson.Parse(playerAAA))
 
@@ -224,8 +223,10 @@ func (x NaifeiMeHandler) _source(pid, vid string) interface{} {
 }
 
 func (x NaifeiMeHandler) parseNetflixGCEncryptedUrl(playerAAAJson gjson.Result) {
+	var tmpParse = ""
 	var tmpUrl = playerAAAJson.Get("url").String()
 	var tmpServer = playerAAAJson.Get("server").String()
+	var tmpFrom = playerAAAJson.Get("from").String()
 	if playerAAAJson.Get("encrypt").String() == "1" {
 		tmpUrl, _ = url.QueryUnescape(tmpUrl)
 	}
@@ -238,6 +239,53 @@ func (x NaifeiMeHandler) parseNetflixGCEncryptedUrl(playerAAAJson gjson.Result) 
 	if tmpServer == "no" {
 		tmpServer = ""
 	}
+	playerConfig, playerList, _, serverList, err := x.getPlayerConfig()
+	if err != nil {
+		log.Println("[ERROR]", err.Error())
+		return
+	}
+	if serverList.Get(tmpServer).Exists() {
+		tmpServer = serverList.Get(tmpServer).Get("des").String()
+	}
+	if playerList.Get(tmpFrom).Exists() {
+		if playerList.Get(tmpFrom).Get("ps").String() == "1" {
+			if playerList.Get(tmpFrom).Get("parse").String() == "" {
+				tmpParse = playerConfig.Get("parse").String()
+			} else {
+				tmpParse = playerList.Get(tmpFrom).Get("parse").String()
+			}
+			tmpFrom = "parse"
+		}
+	}
+	//var tmpParseUrl = fmt.Sprintf("%s/static/player/%s.js", strings.TrimRight(netflixgcHost, "/"), tmpFrom)
+	//log.Println("[tmpParseUrl]", tmpParseUrl)
+	var tmpYul = fmt.Sprintf("%s%s", tmpParse, tmpUrl)
+	buff, err := x.httpClient.Get(tmpYul)
+	if err != nil {
+		log.Println("[GET.Error]", err.Error())
+		return
+	}
+	var findConfig = x.simpleRegEx(string(buff), `let ConFig = ([\s\S]*?),box`)
+	var uid = gjson.Parse(findConfig).Get("config").Get("uid").String()
 
-	log.Println("[tmpUrl]", tmpUrl)
+	// 解密如下数据
+	log.Println("[UID]", uid)
+	log.Println("[url]", gjson.Parse(findConfig).Get("url").String())
+
 }
+
+func (x NaifeiMeHandler) getPlayerConfig() (gjson.Result, gjson.Result, gjson.Result, gjson.Result, error) {
+	var g gjson.Result
+	buff, err := x.httpClient.Get(fmt.Sprintf("https://www.netflixgc.com/static/js/playerconfig.js?t=%s", time.Now().Format("20060102")))
+	if err != nil {
+		return g, g, g, g, err
+	}
+	var playerConfig = x.simpleRegEx(string(buff), `MacPlayerConfig=(\S+);`)
+	var matches = x.simpleRegExList(string(buff), `MacPlayerConfig.player_list=(\S+),MacPlayerConfig.downer_list=(\S+),MacPlayerConfig.server_list=(\S+);`)
+	if len(matches) != 4 {
+		return g, g, g, g, errors.New("匹配异常")
+	}
+	return gjson.Parse(playerConfig), gjson.Parse(matches[1]), gjson.Parse(matches[2]), gjson.Parse(matches[3]), nil
+}
+
+// https://www.netflixgc.com/static/player/parse.js
