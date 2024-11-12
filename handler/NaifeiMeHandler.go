@@ -7,11 +7,12 @@ import (
 	"github.com/PuerkitoBio/goquery"
 	"github.com/airplayTV/api/model"
 	"github.com/airplayTV/api/util"
+	"github.com/dop251/goja"
 	"github.com/gin-gonic/gin"
 	"github.com/tidwall/gjson"
 	"github.com/zc310/headers"
-	"log"
 	"net/url"
+	"path/filepath"
 	"strings"
 	"time"
 )
@@ -213,16 +214,18 @@ func (x NaifeiMeHandler) _source(pid, vid string) interface{} {
 
 	var playerAAA = x.simpleRegEx(string(buff), `var player_aaaa=(\{[\s\S]*?\})</script>`)
 
-	x.parseNetflixGCEncryptedUrl(gjson.Parse(playerAAA))
-
-	if len(source.Url) == 0 {
-		return model.NewError("暂无数据")
+	source.Source, err = x.parseNetflixGCEncryptedUrl(gjson.Parse(playerAAA))
+	if err != nil {
+		return model.NewError("解析加密数据失败：" + err.Error())
 	}
+
+	source.Type = x.parseVideoType(source.Source)
+	source.Url = source.Source
 
 	return model.NewSuccess(source)
 }
 
-func (x NaifeiMeHandler) parseNetflixGCEncryptedUrl(playerAAAJson gjson.Result) {
+func (x NaifeiMeHandler) parseNetflixGCEncryptedUrl(playerAAAJson gjson.Result) (string, error) {
 	var tmpParse = ""
 	var tmpUrl = playerAAAJson.Get("url").String()
 	var tmpServer = playerAAAJson.Get("server").String()
@@ -241,8 +244,7 @@ func (x NaifeiMeHandler) parseNetflixGCEncryptedUrl(playerAAAJson gjson.Result) 
 	}
 	playerConfig, playerList, _, serverList, err := x.getPlayerConfig()
 	if err != nil {
-		log.Println("[ERROR]", err.Error())
-		return
+		return "", err
 	}
 	if serverList.Get(tmpServer).Exists() {
 		tmpServer = serverList.Get(tmpServer).Get("des").String()
@@ -262,16 +264,21 @@ func (x NaifeiMeHandler) parseNetflixGCEncryptedUrl(playerAAAJson gjson.Result) 
 	var tmpYul = fmt.Sprintf("%s%s", tmpParse, tmpUrl)
 	buff, err := x.httpClient.Get(tmpYul)
 	if err != nil {
-		log.Println("[GET.Error]", err.Error())
-		return
+		return "", err
 	}
 	var findConfig = x.simpleRegEx(string(buff), `let ConFig = ([\s\S]*?),box`)
-	var uid = gjson.Parse(findConfig).Get("config").Get("uid").String()
-
 	// 解密如下数据
-	log.Println("[UID]", uid)
-	log.Println("[url]", gjson.Parse(findConfig).Get("url").String())
+	//log.Println("[UID]", gjson.Parse(findConfig).Get("config").Get("uid").String())
+	//log.Println("[url]", gjson.Parse(findConfig).Get("url").String())
+	tmpUrl, err = x.fuckNotGmCrypto(
+		gjson.Parse(findConfig).Get("config").Get("uid").String(),
+		gjson.Parse(findConfig).Get("url").String(),
+	)
+	if err != nil {
+		return "", err
+	}
 
+	return tmpUrl, nil
 }
 
 func (x NaifeiMeHandler) getPlayerConfig() (gjson.Result, gjson.Result, gjson.Result, gjson.Result, error) {
@@ -286,6 +293,24 @@ func (x NaifeiMeHandler) getPlayerConfig() (gjson.Result, gjson.Result, gjson.Re
 		return g, g, g, g, errors.New("匹配异常")
 	}
 	return gjson.Parse(playerConfig), gjson.Parse(matches[1]), gjson.Parse(matches[2]), gjson.Parse(matches[3]), nil
+}
+
+func (x NaifeiMeHandler) fuckNotGmCrypto(uid, data string) (string, error) {
+	var scriptBuff = append(util.ReadFile(filepath.Join(util.AppPath(), "file/NotGm.js")))
+	vm := goja.New()
+	_, err := vm.RunString(string(scriptBuff))
+	if err != nil {
+		//log.Println("[LoadGojaError]", err.Error())
+		return "", err
+	}
+	var fuckCryptoDecode func(uid, data string) string
+	err = vm.ExportTo(vm.Get("fuckCryptoDecode"), &fuckCryptoDecode)
+	if err != nil {
+		//log.Println("[ExportGojaFnError]", err.Error())
+		return "", err
+	}
+	var result = fuckCryptoDecode(uid, data)
+	return result, nil
 }
 
 // https://www.netflixgc.com/static/player/parse.js
