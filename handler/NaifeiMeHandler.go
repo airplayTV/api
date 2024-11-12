@@ -117,28 +117,45 @@ func (x NaifeiMeHandler) _videoList(tagName, page string) interface{} {
 }
 
 func (x NaifeiMeHandler) _search(keyword, page string) interface{} {
-	buff, err := x.httpClient.Get(fmt.Sprintf(yingshiSearchUrl, keyword, x.parsePageNumber(page)))
+	var pager = model.Pager{Limit: 10, Page: x.parsePageNumber(page), List: make([]model.Video, 0)}
+
+	buff, err := x.httpClient.Get(fmt.Sprintf(netflixgcSearchUrl, keyword, pager.Page))
 	if err != nil {
 		return model.NewError("获取数据失败：" + err.Error())
 	}
-	var pager = model.Pager{Limit: 20, Page: x.parsePageNumber(page)}
+	doc, err := goquery.NewDocumentFromReader(strings.NewReader(string(buff)))
+	if err != nil {
+		return model.NewError("获取数据失败：" + err.Error())
+	}
 
-	var result = gjson.ParseBytes(buff)
-
-	pager.Total = int(result.Get("data").Get("Total").Int())
-	pager.Pages = int(result.Get("data").Get("TotalPageCount").Int())
-	pager.Page = int(result.Get("data").Get("Page").Int())
-	pager.Limit = int(result.Get("data").Get("Limit").Int())
-	result.Get("data").Get("List").ForEach(func(key, value gjson.Result) bool {
+	doc.Find(".row-right .search-box").Each(func(i int, selection *goquery.Selection) {
 		pager.List = append(pager.List, model.Video{
-			Id:    fmt.Sprintf("%s-%s", value.Get("vod_id").String(), value.Get("type_id").String()),
-			Name:  value.Get("vod_name").String(),
-			Thumb: value.Get("vod_pic").String(),
-			Intro: value.Get("vod_blurb").String(),
-			Url:   fmt.Sprintf(yingshiDetailUrl, value.Get("vod_id").String(), value.Get("type_id").String()),
+			Id:         x.simpleRegEx(selection.Find(".public-list-exp").AttrOr("href", ""), `(\d+)`),
+			Name:       strings.TrimSpace(selection.Find(".thumb-txt").Text()),
+			Thumb:      selection.Find(".gen-movie-img").AttrOr("data-src", ""),
+			Intro:      strings.TrimSpace(selection.Find(".thumb-blurb").Text()),
+			Url:        "",
+			Actors:     "",
+			Tag:        selection.Find(".public-list-prb").Text(),
+			Resolution: "",
+			Links:      nil,
 		})
-		return true
 	})
+
+	var matches = x.simpleRegExList(doc.Find(".pages .page-tip").Text(), `共(\d+)条数据,当前(\d+)\/(\d+)页`)
+	if len(matches) == 4 {
+		pager.Total = x.parsePageNumber(matches[1])
+		pager.Page = x.parsePageNumber(matches[2])
+		pager.Pages = x.parsePageNumber(matches[3])
+	} else {
+		doc.Find(".row-right .page-link").Each(func(i int, selection *goquery.Selection) {
+			var p = x.parsePageNumber(x.simpleRegEx(selection.AttrOr("href", ""), `-(\d+)---.html`))
+			if p >= pager.Pages {
+				pager.Pages = p
+				pager.Total = pager.Pages * pager.Limit
+			}
+		})
+	}
 
 	if len(pager.List) == 0 {
 		return model.NewError("暂无数据")

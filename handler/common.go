@@ -42,7 +42,7 @@ const (
 const (
 	netflixgcHost        = "https://www.netflixgc.com"
 	netflixgcTagUrl      = "https://www.netflixgc.com/index.php/api/vod"
-	netflixgcSearchUrl   = ""
+	netflixgcSearchUrl   = "https://www.netflixgc.com/vodsearch/%s----------%d---.html"
 	netflixgcDetailUrl   = "https://www.netflixgc.com/detail/%s.html"
 	netflixgcPlayUrl     = "https://www.netflixgc.com/play/%s.html"
 	netflixgcEcScriptUrl = "https://www.netflixgc.com/static/Streamlab/js/ecscript.js"
