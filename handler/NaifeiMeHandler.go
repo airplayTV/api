@@ -30,7 +30,7 @@ func (x NaifeiMeHandler) Init() IVideo {
 }
 
 func (x NaifeiMeHandler) Name() string {
-	return "奈飞工厂[烂]"
+	return "奈飞工厂"
 }
 
 func (x NaifeiMeHandler) TagList() interface{} {

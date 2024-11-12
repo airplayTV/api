@@ -24,12 +24,16 @@ var sourceMap = map[string]struct {
 	Sort    int
 	Handler handler.IVideo
 }{
-	handler.CzzyHandler{}.Name():    {Sort: 1, Handler: handler.CzzyHandler{}.Init()},
-	handler.SubbHandler{}.Name():    {Sort: 2, Handler: handler.SubbHandler{}.Init()},
-	handler.YingshiHandler{}.Name(): {Sort: 3, Handler: handler.YingshiHandler{}.Init()},
-	//handler.MaYiHandler{}.Name():    {Sort: 4, Handler: handler.MaYiHandler{}.Init()},
-	//handler.NaifeiMeHandler{}.Name(): {Sort: 5, Handler: handler.NaifeiMeHandler{}.Init()},
-	handler.MaYiHandler{}.Name(): {Sort: 6, Handler: handler.MaYiHandler{}.Init()},
+	handler.CzzyHandler{}.Name():     {Sort: 1, Handler: handler.CzzyHandler{}.Init()},
+	handler.SubbHandler{}.Name():     {Sort: 2, Handler: handler.SubbHandler{}.Init()},
+	handler.YingshiHandler{}.Name():  {Sort: 3, Handler: handler.YingshiHandler{}.Init()},
+	handler.MaYiHandler{}.Name():     {Sort: 4, Handler: handler.MaYiHandler{}.Init()},
+	handler.NaifeiMeHandler{}.Name(): {Sort: 5, Handler: handler.NaifeiMeHandler{}.Init()},
+}
+
+// 不缓存播放数据的源
+var noCacheSourceList = []string{
+	handler.NaifeiMeHandler{}.Name(),
 }
 
 type VideoController struct {
@@ -127,7 +131,7 @@ func (x VideoController) Source(ctx *gin.Context) {
 	}
 	var cacheKey = fmt.Sprintf("Source::%s_%s_%s", ctx.Query("_source"), ctx.Query("pid"), ctx.Query("vid"))
 	data, err := globalCache.Get(context.Background(), cacheKey)
-	if err == nil {
+	if err == nil && !slices.Contains(noCacheSourceList, h.Handler.Name()) {
 		ctx.Header("Hit-Cache", "true")
 		x.response(ctx, data)
 		return
