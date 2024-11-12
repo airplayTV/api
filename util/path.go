@@ -2,6 +2,7 @@ package util
 
 import (
 	"io"
+	"io/fs"
 	"os"
 	"path/filepath"
 )
@@ -21,4 +22,16 @@ func ReadFile(filename string) []byte {
 		return nil
 	}
 	return buff
+}
+
+func WriteFile(filename string, data []byte) error {
+	fi, err := os.OpenFile(filename, os.O_CREATE|os.O_TRUNC, fs.ModePerm)
+	if err != nil {
+		return err
+	}
+	_, err = fi.Write(data)
+	if err != nil {
+		return err
+	}
+	return nil
 }
