@@ -33,7 +33,8 @@ var sourceMap = map[string]struct {
 
 // 不缓存播放数据的源
 var noCacheSourceList = []string{
-	handler.NaifeiMeHandler{}.Name(),
+	handler.SubbHandler{}.Name(),     // wangchuanxin.top 第三次请求缓存数据就不能播放
+	handler.NaifeiMeHandler{}.Name(), // ki-mi.vip解析压根不能缓存
 }
 
 type VideoController struct {
