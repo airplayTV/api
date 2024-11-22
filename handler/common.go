@@ -9,7 +9,7 @@ const (
 const (
 	czzyHost      = "https://www.czzyvideo.com"
 	czzyTagUrl    = "https://www.czzyvideo.com/%s/page/%d"
-	czzySearchUrl = "https://www.czzyvideo.com/daoyongjiekoshibushiyoubing?q=%s&f=_all&p=%d"
+	czzySearchUrl = "https://www.czzyvideo.com/daoyongjiek0shibushiyoubing?q=%s&f=_all&p=%d"
 	czzyDetailUrl = "https://www.czzyvideo.com/movie/%s.html"
 	czzyPlayUrl   = "https://www.czzyvideo.com/v_play/%s.html"
 )

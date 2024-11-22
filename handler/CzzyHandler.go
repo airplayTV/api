@@ -119,7 +119,46 @@ func (x CzzyHandler) _videoList(tagName, page string) interface{} {
 }
 
 func (x CzzyHandler) _search(keyword, page string) interface{} {
-	return model.NewError("尚未实现")
+	var pager = model.Pager{Limit: 20, Page: x.parsePageNumber(page)}
+	buff, err := x.httpClient.Get(fmt.Sprintf(czzySearchUrl, keyword, pager.Page))
+	if err != nil {
+		return model.NewError("获取数据失败：" + err.Error())
+	}
+	doc, err := goquery.NewDocumentFromReader(strings.NewReader(string(buff)))
+	if err != nil {
+		return model.NewError("文档解析失败：" + err.Error())
+	}
+	if doc.Find(".search_list ul li").Size() <= 0 {
+		return model.NewError("文档解析失败")
+	}
+	doc.Find(".search_list ul li").Each(func(i int, selection *goquery.Selection) {
+		name := selection.Find(".dytit a").Text()
+		tmpUrl, _ := selection.Find(".dytit a").Attr("href")
+		thumb, _ := selection.Find("img.thumb").Attr("data-original")
+		tag := selection.Find(".nostag").Text()
+		actors := selection.Find(".inzhuy").Text()
+		pager.List = append(pager.List, model.Video{
+			Id:     x.simpleRegEx(tmpUrl, `(\d+)`),
+			Name:   name,
+			Thumb:  thumb,
+			Url:    tmpUrl,
+			Actors: strings.TrimSpace(actors),
+			Tag:    tag,
+		})
+	})
+	doc.Find(".pagenavi_txt a").Each(func(i int, selection *goquery.Selection) {
+		var p = x.parsePageNumber(selection.Text())
+		if className, ok := selection.Attr("class"); ok && className == "current" {
+			pager.Page = p
+		}
+		if p >= pager.Pages {
+			pager.Pages = p
+		}
+	})
+	//pager.Page, _ = strconv.Atoi(doc.Find(".pagenavi_txt .current").Text())
+	pager.Total = pager.Pages * pager.Limit
+
+	return model.NewSuccess(pager)
 }
 
 func (x CzzyHandler) _detail(id string) interface{} {
@@ -316,5 +355,26 @@ func (x CzzyHandler) parseEncryptedResultV3ToUrl(rand, player string) string {
 	} else {
 		var result = gjson.ParseBytes(buff)
 		return result.Get("url").String()
+	}
+}
+
+func (x CzzyHandler) SetCookie(header map[string]string) error {
+	if header == nil {
+		return errors.New("header数据不能为空")
+	}
+	var tmpHttpClient = util.HttpClient{}
+	tmpHttpClient.SetHeaders(x.httpClient.GetHeaders())
+	for key, value := range header {
+		tmpHttpClient.AddHeader(key, value)
+	}
+
+	// 请求数据并检测Cookie是否可用
+	switch x.Search("我的", "1").(type) {
+	case model.Success:
+		// 如果可用则设置到当前上下文的http请求头
+		x.httpClient.SetHeaders(tmpHttpClient.GetHeaders())
+		return nil
+	default:
+		return errors.New("cookie无效")
 	}
 }

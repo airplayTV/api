@@ -202,6 +202,30 @@ func (x VideoController) M3u8p(ctx *gin.Context) {
 	ctx.DataFromReader(http.StatusOK, -1, header.Get(headers.ContentType), bytes.NewReader(buff), nil)
 }
 
+func (x VideoController) SetCookie(ctx *gin.Context) {
+	h, ok := sourceMap[strings.TrimSpace(ctx.Query("_source"))]
+	if !ok {
+		ctx.JSON(http.StatusOK, model.NewError("数据源错误"))
+		return
+	}
+
+	var err error
+	switch h.Handler.(type) {
+	case handler.CzzyHandler:
+		var tmpHeaders = map[string]string{
+			headers.Cookie:    ctx.PostForm("cookie"),
+			headers.UserAgent: ctx.PostForm("user-agent"),
+		}
+		err = h.Handler.(handler.CzzyHandler).SetCookie(tmpHeaders)
+	}
+
+	if err != nil {
+		x.response(ctx, model.NewError(err.Error()))
+	} else {
+		x.response(ctx, model.NewSuccess("cookie已设置"))
+	}
+}
+
 func (x VideoController) response(ctx *gin.Context, resp interface{}) {
 	switch resp.(type) {
 	case model.Success:
