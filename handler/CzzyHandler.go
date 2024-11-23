@@ -128,8 +128,8 @@ func (x CzzyHandler) _search(keyword, page string) interface{} {
 	if err != nil {
 		return model.NewError("文档解析失败：" + err.Error())
 	}
-	if doc.Find(".search_list ul li").Size() <= 0 {
-		return model.NewError("文档解析失败")
+	if bytes.Contains(buff, []byte("challenge-error-text")) {
+		return model.NewError("challenge失败")
 	}
 	doc.Find(".search_list ul li").Each(func(i int, selection *goquery.Selection) {
 		name := selection.Find(".dytit a").Text()
