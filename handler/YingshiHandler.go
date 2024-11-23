@@ -211,3 +211,11 @@ func (x YingshiHandler) _source(pid, vid string) interface{} {
 
 	return model.NewSuccess(source)
 }
+
+func (x YingshiHandler) UpdateHeader(header map[string]string) error {
+	return nil
+}
+
+func (x YingshiHandler) HoldCookie() error {
+	return nil
+}

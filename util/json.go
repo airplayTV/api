@@ -15,3 +15,17 @@ func ToString(v any, pretty ...bool) string {
 	}
 	return string(buff)
 }
+
+func ToBytes(v any, pretty ...bool) []byte {
+	var buff []byte
+	var err error
+	if len(pretty) > 0 && pretty[0] == true {
+		buff, err = json.MarshalIndent(v, "", "\t")
+	} else {
+		buff, err = json.Marshal(v)
+	}
+	if err != nil {
+		return nil
+	}
+	return buff
+}

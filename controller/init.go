@@ -1,11 +1,13 @@
 package controller
 
 import (
+	"github.com/airplayTV/api/util"
 	"github.com/dgraph-io/ristretto"
 	"github.com/eko/gocache/lib/v4/cache"
 	redis_store "github.com/eko/gocache/store/redis/v4"
 	ristretto_store "github.com/eko/gocache/store/ristretto/v4"
 	"github.com/redis/go-redis/v9"
+	"log"
 )
 
 var (
@@ -15,6 +17,9 @@ var (
 func init() {
 	initRistrettoCache()
 	//initRedisCache()// 这玩意还需要给模型实现（implement encoding.BinaryMarshaler）！！！
+
+	initHttpHeader()
+
 }
 
 func initRistrettoCache() {
@@ -42,5 +47,17 @@ func initRedisCache() {
 			Addr: "127.0.0.1:6379",
 		}))
 		globalCache = cache.New[any](redisStore)
+	}
+}
+
+func initHttpHeader() {
+	for _, h := range sourceMap {
+		header, err := util.LoadHttpHeader(h.Handler.Name())
+		if err != nil {
+			continue
+		}
+		if err = h.Handler.UpdateHeader(header); err != nil {
+			log.Println("[设置http异常]", h.Handler.Name(), err.Error())
+		}
 	}
 }

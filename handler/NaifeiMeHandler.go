@@ -335,4 +335,12 @@ func (x NaifeiMeHandler) fuckNotGmCrypto(uid, data string) (string, error) {
 	return result, nil
 }
 
+func (x NaifeiMeHandler) UpdateHeader(header map[string]string) error {
+	return nil
+}
+
+func (x NaifeiMeHandler) HoldCookie() error {
+	return nil
+}
+
 // https://www.netflixgc.com/static/player/parse.js

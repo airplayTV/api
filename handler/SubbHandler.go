@@ -325,7 +325,7 @@ func (x SubbHandler) bypassHuadongCheck(requestUrl, respHtml string) ([]byte, er
 		kvList[1],
 		util.StringMd5(x.bypassStringToHex(kvList[2])),
 	)
-	log.Println("[checkUrl]", checkUrl)
+	//log.Println("[checkUrl]", checkUrl)
 
 	header, buff, err := x.httpClient.GetResponse(checkUrl)
 	if err != nil {
@@ -339,6 +339,9 @@ func (x SubbHandler) bypassHuadongCheck(requestUrl, respHtml string) ([]byte, er
 	if err != nil {
 		return nil, err
 	}
+
+	_ = util.SaveHttpHeader(x.Name(), x.httpClient.GetHeaders())
+
 	return buff, nil
 }
 
@@ -348,4 +351,12 @@ func (x SubbHandler) bypassStringToHex(str string) string {
 		codeList = append(codeList, fmt.Sprintf("%d", int(r)+1))
 	}
 	return strings.Join(codeList, "")
+}
+
+func (x SubbHandler) UpdateHeader(header map[string]string) error {
+	return nil
+}
+
+func (x SubbHandler) HoldCookie() error {
+	return nil
 }

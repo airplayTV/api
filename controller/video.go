@@ -209,16 +209,11 @@ func (x VideoController) SetCookie(ctx *gin.Context) {
 		return
 	}
 
-	var err error
-	switch h.Handler.(type) {
-	case handler.CzzyHandler:
-		var tmpHeaders = map[string]string{
-			headers.Cookie:    ctx.PostForm("cookie"),
-			headers.UserAgent: ctx.PostForm("user-agent"),
-		}
-		err = h.Handler.(handler.CzzyHandler).SetCookie(tmpHeaders)
+	var tmpHeaders = map[string]string{
+		headers.Cookie:    ctx.PostForm("cookie"),
+		headers.UserAgent: ctx.PostForm("user-agent"),
 	}
-
+	var err = h.Handler.(handler.CzzyHandler).UpdateHeader(tmpHeaders)
 	if err != nil {
 		x.response(ctx, model.NewError(err.Error()))
 	} else {

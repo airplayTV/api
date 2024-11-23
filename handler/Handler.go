@@ -143,6 +143,8 @@ func (x *Handler) requestUrlBypassSafeLineChallenge(requestUrl string) ([]byte, 
 	// 这个cookie是持久的
 	x.httpClient.AddHeader(headers.Cookie, header.Get(headers.SetCookie))
 
+	_ = util.SaveHttpHeader(NaifeiMeHandler{}.Name(), x.httpClient.GetHeaders())
+
 	return buff, nil
 }
 

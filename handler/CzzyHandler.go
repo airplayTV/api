@@ -358,7 +358,7 @@ func (x CzzyHandler) parseEncryptedResultV3ToUrl(rand, player string) string {
 	}
 }
 
-func (x CzzyHandler) SetCookie(header map[string]string) error {
+func (x CzzyHandler) UpdateHeader(header map[string]string) error {
 	if header == nil {
 		return errors.New("header数据不能为空")
 	}
@@ -373,8 +373,21 @@ func (x CzzyHandler) SetCookie(header map[string]string) error {
 	case model.Success:
 		// 如果可用则设置到当前上下文的http请求头
 		x.httpClient.SetHeaders(tmpHttpClient.GetHeaders())
+
+		_ = util.SaveHttpHeader(x.Name(), tmpHttpClient.GetHeaders())
+
 		return nil
 	default:
 		return errors.New("cookie无效")
 	}
+}
+
+func (x CzzyHandler) HoldCookie() error {
+	switch r := x.Search("我的", "1").(type) {
+	case model.Success:
+		return nil
+	case model.Error:
+		return errors.New(r.Msg)
+	}
+	return errors.New("未知错误")
 }

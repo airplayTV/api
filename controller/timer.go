@@ -2,7 +2,6 @@ package controller
 
 import (
 	"github.com/airplayTV/api/handler"
-	"github.com/airplayTV/api/model"
 	"log"
 	"time"
 )
@@ -25,19 +24,10 @@ func holdCookie(h handler.IVideo) {
 			log.Println("[HoldCookieError]", h.Name(), err)
 		}
 	}()
-	var resp interface{}
-	switch h.(type) {
-	case handler.CzzyHandler:
-		resp = h.(handler.CzzyHandler).Search("我的", "1")
-	}
 
-	switch resp.(type) {
-	case model.Success:
-		log.Println("[HoldCookieSuccess]", h.Name(), resp.(model.Success).Code)
-		break
-	case model.Error:
-		log.Println("[HoldCookieError]", h.Name(), resp.(model.Error))
-		break
+	if err := h.HoldCookie(); err != nil {
+		log.Println("[HoldCookieError]", h.Name(), err.Error())
+	} else {
+		log.Println("[HoldCookieSuccess]", h.Name())
 	}
-
 }

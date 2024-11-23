@@ -25,10 +25,11 @@ func ReadFile(filename string) []byte {
 }
 
 func WriteFile(filename string, data []byte) error {
-	fi, err := os.OpenFile(filename, os.O_CREATE|os.O_TRUNC, fs.ModePerm)
+	fi, err := os.OpenFile(filename, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, fs.ModePerm)
 	if err != nil {
 		return err
 	}
+	defer func() { _ = fi.Close() }()
 	_, err = fi.Write(data)
 	if err != nil {
 		return err

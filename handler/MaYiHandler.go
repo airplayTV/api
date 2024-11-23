@@ -233,3 +233,11 @@ func (x MaYiHandler) _source(pid, vid string) interface{} {
 func (x MaYiHandler) _getPlayInfo(pid string) interface{} {
 	return nil
 }
+
+func (x MaYiHandler) UpdateHeader(header map[string]string) error {
+	return nil
+}
+
+func (x MaYiHandler) HoldCookie() error {
+	return nil
+}
