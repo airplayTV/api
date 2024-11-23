@@ -25,6 +25,8 @@ type CzzyHandler struct {
 func (x CzzyHandler) Init() IVideo {
 	x.httpClient = util.HttpClient{}
 	x.httpClient.AddHeader(headers.UserAgent, useragent)
+	x.httpClient.AddHeader(headers.Referer, czzyHost)
+
 	return x
 }
 

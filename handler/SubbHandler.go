@@ -20,6 +20,7 @@ type SubbHandler struct {
 
 func (x SubbHandler) Init() IVideo {
 	x.httpClient = util.HttpClient{}
+	x.httpClient.AddHeader(headers.Referer, subbHost)
 	return x
 }
 
@@ -302,8 +303,8 @@ func (x SubbHandler) requestUrlBypassCheck(requestUrl string) ([]byte, error) {
 
 func (x SubbHandler) bypassHuadongCheck(requestUrl, respHtml string) ([]byte, error) {
 	var findCheckUrl = x.simpleRegEx(respHtml, `src="(\S+)"></script>`)
-	if len(findCheckUrl) == 0 && !strings.Contains(respHtml, "人机身份验证") {
-		return nil, nil
+	if !strings.Contains(findCheckUrl, "huadong") && !strings.Contains(respHtml, "人机身份验证") {
+		return []byte(respHtml), nil
 	}
 	_, buff, err := x.httpClient.GetResponse(fmt.Sprintf("%s/%s", strings.TrimRight(subbHost, "/"), strings.TrimLeft(findCheckUrl, "/")))
 	if err != nil {
@@ -325,7 +326,7 @@ func (x SubbHandler) bypassHuadongCheck(requestUrl, respHtml string) ([]byte, er
 		kvList[1],
 		util.StringMd5(x.bypassStringToHex(kvList[2])),
 	)
-	//log.Println("[checkUrl]", checkUrl)
+	log.Println("[checkUrl]", checkUrl)
 
 	header, buff, err := x.httpClient.GetResponse(checkUrl)
 	if err != nil {
@@ -354,9 +355,35 @@ func (x SubbHandler) bypassStringToHex(str string) string {
 }
 
 func (x SubbHandler) UpdateHeader(header map[string]string) error {
-	return nil
+	if header == nil {
+		return errors.New("header数据不能为空")
+	}
+	var tmpHttpClient = util.HttpClient{}
+	tmpHttpClient.SetHeaders(x.httpClient.GetHeaders())
+	for key, value := range header {
+		tmpHttpClient.AddHeader(key, value)
+	}
+
+	// 请求数据并检测Cookie是否可用
+	switch x.Search("我的", "1").(type) {
+	case model.Success:
+		// 如果可用则设置到当前上下文的http请求头
+		x.httpClient.SetHeaders(tmpHttpClient.GetHeaders())
+
+		_ = util.SaveHttpHeader(x.Name(), tmpHttpClient.GetHeaders())
+
+		return nil
+	default:
+		return errors.New("cookie无效")
+	}
 }
 
 func (x SubbHandler) HoldCookie() error {
-	return nil
+	switch r := x.Search("我的", "1").(type) {
+	case model.Success:
+		return nil
+	case model.Error:
+		return errors.New(r.Msg)
+	}
+	return errors.New("未知错误")
 }
