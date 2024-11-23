@@ -336,11 +336,37 @@ func (x NaifeiMeHandler) fuckNotGmCrypto(uid, data string) (string, error) {
 }
 
 func (x NaifeiMeHandler) UpdateHeader(header map[string]string) error {
-	return nil
+	if header == nil {
+		return errors.New("header数据不能为空")
+	}
+	var tmpHttpClient = util.HttpClient{}
+	tmpHttpClient.SetHeaders(x.httpClient.GetHeaders())
+	for key, value := range header {
+		tmpHttpClient.AddHeader(key, value)
+	}
+
+	// 请求数据并检测Cookie是否可用
+	switch x.Search("我的", "1").(type) {
+	case model.Success:
+		// 如果可用则设置到当前上下文的http请求头
+		x.httpClient.SetHeaders(tmpHttpClient.GetHeaders())
+
+		_ = util.SaveHttpHeader(x.Name(), tmpHttpClient.GetHeaders())
+
+		return nil
+	default:
+		return errors.New("cookie无效")
+	}
 }
 
 func (x NaifeiMeHandler) HoldCookie() error {
-	return nil
+	switch r := x.Search("我的", "1").(type) {
+	case model.Success:
+		return nil
+	case model.Error:
+		return errors.New(r.Msg)
+	}
+	return errors.New("未知错误")
 }
 
 // https://www.netflixgc.com/static/player/parse.js
