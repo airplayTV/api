@@ -47,3 +47,11 @@ const (
 	netflixgcPlayUrl     = "https://www.netflixgc.com/play/%s.html"
 	netflixgcEcScriptUrl = "https://www.netflixgc.com/static/Streamlab/js/ecscript.js"
 )
+
+const (
+	meiyidaHost      = "https://www.mydys1.com"
+	meiyidaTagUrl    = "https://www.mydys1.com/vodshow/%s--------%d---.html"
+	meiyidaSearchUrl = "https://www.mydys1.com/vodsearch/%s----------%d---.html"
+	meiyidaDetailUrl = "https://www.mydys1.com/voddetail/%s.html"
+	meiyidaPlayUrl   = "https://www.mydys1.com/vodplay/%s.html"
+)
