@@ -206,7 +206,6 @@ func (x MeiYiDaHandler) _source(pid, vid string) interface{} {
 	}
 
 	var findJson = x.simpleRegEx(string(buff), `player_aaaa=(\{[\s\S]*?\})</script>`)
-	log.Println("[player_aaaa]", findJson)
 	var result = gjson.Parse(findJson)
 	source.Url = result.Get("url").String()
 	source.Name = doc.Find(".module-player-side .module-info-heading a").AttrOr("title", "")
@@ -245,7 +244,6 @@ func (x MeiYiDaHandler) HoldCookie() error {
 }
 
 func (x MeiYiDaHandler) handleEncryptUrl(playFrameUrl string, playerAAA gjson.Result, header http.Header) string {
-	log.Println("[playFrameUrl]", playFrameUrl)
 
 	var parse = ""
 	var playServer = playerAAA.Get("server").String()
@@ -292,7 +290,6 @@ func (x MeiYiDaHandler) handleEncryptUrl(playFrameUrl string, playerAAA gjson.Re
 
 	// MacPlayer.Parse + MacPlayer.PlayUrl
 	var reqUrl = fmt.Sprintf("%s/%s%s", strings.TrimRight(meiyidaHost, "/"), strings.TrimLeft(parse, "/"), playUrl)
-	log.Println("[player.request.url]", reqUrl)
 
 	// 需要带Cookie
 	x.httpClient.AddHeader(headers.Cookie, header.Get("Set-Cookie"))
