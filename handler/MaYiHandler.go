@@ -64,8 +64,6 @@ func (x MaYiHandler) _videoList(tagName, page string) interface{} {
 	if err != nil {
 		return model.NewError("获取数据失败：" + err.Error())
 	}
-	log.Println("[request]", fmt.Sprintf(mayiTagUrl, tagName, x.parsePageNumber(page)))
-	log.Println("[html]", string(buff))
 
 	doc, err := goquery.NewDocumentFromReader(strings.NewReader(string(buff)))
 	if err != nil {
