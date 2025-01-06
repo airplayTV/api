@@ -113,7 +113,7 @@ func (x SubbHandler) _videoList(tagName, page string) interface{} {
 
 func (x SubbHandler) _search(keyword, page string) interface{} {
 	var pager = model.Pager{Limit: 25, Page: x.parsePageNumber(page)}
-	buff, err := x.requestUrlBypassCheck(fmt.Sprintf(subbSearchUrl, pager.Page, keyword))
+	buff, err := x.requestUrlBypassCheck(fmt.Sprintf(subbSearchUrl, keyword, pager.Page))
 	if err != nil {
 		return model.NewError("获取数据失败：" + err.Error())
 	}

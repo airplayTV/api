@@ -17,6 +17,7 @@ import (
 	"net/url"
 	"slices"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -80,6 +81,74 @@ func (x VideoController) Search(ctx *gin.Context) {
 		_ = globalCache.Set(context.Background(), cacheKey, resp, store.WithExpiration(time.Hour*2))
 	}
 	x.response(ctx, resp)
+}
+
+func (x VideoController) SearchV2(ctx *gin.Context) {
+	_, ok := sourceMap[strings.TrimSpace(ctx.Query("_source"))]
+	if !ok {
+		ctx.JSON(http.StatusOK, model.NewError("数据源错误"))
+		return
+	}
+
+	var keyword = ctx.Query("keyword")
+	var page = ctx.Query("page")
+
+	var cacheKey = fmt.Sprintf("SearchV2::%s_%s", keyword, page)
+	data, err := globalCache.Get(context.Background(), cacheKey)
+	if err == nil {
+		ctx.Header("Hit-Cache", "true")
+		x.response(ctx, data)
+		return
+	}
+
+	type TmpSearchResult struct {
+		model.Pager
+		Source string `json:"source"`
+		Msg    string `json:"msg,omitempty"`
+		Time   int64  `json:"time"`
+	}
+
+	var errorNo = 0
+	var ts = time.Now().UnixMilli()
+	var respMap = make([]interface{}, 0)
+	var wg sync.WaitGroup
+	wg.Add(len(sourceMap))
+	for tmpSourceName, h := range sourceMap {
+		go func(name string, handler handler.IVideo) {
+			defer func() {
+				wg.Done()
+			}()
+			var tmpResp = handler.Search(keyword, page)
+			switch tmpResp.(type) {
+			case model.Success:
+				respMap = append(respMap, TmpSearchResult{
+					Pager:  tmpResp.(model.Success).Data.(model.Pager),
+					Source: name,
+					Time:   time.Now().UnixMilli() - ts,
+				})
+			case model.Error:
+				respMap = append(respMap, TmpSearchResult{
+					Pager:  model.Pager{},
+					Source: name,
+					Msg:    tmpResp.(model.Error).Msg,
+					Time:   time.Now().UnixMilli() - ts,
+				})
+				errorNo++
+			}
+		}(tmpSourceName, h.Handler)
+	}
+	wg.Wait()
+
+	if errorNo == 0 {
+		_ = globalCache.Set(
+			context.Background(),
+			cacheKey,
+			model.NewSuccess(respMap),
+			store.WithExpiration(time.Hour*2),
+		)
+	}
+
+	x.response(ctx, model.NewSuccess(respMap))
 }
 
 func (x VideoController) VideoList(ctx *gin.Context) {

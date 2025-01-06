@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/http"
 	"strings"
+	"time"
 )
 
 type HttpClient struct {
@@ -62,7 +63,7 @@ func (x *HttpClient) Get(requestUrl string) ([]byte, error) {
 	}
 	x.addHeaderParams(req)
 
-	resp, err := (&http.Client{}).Do(req)
+	resp, err := (&http.Client{Timeout: time.Second * 10}).Do(req)
 	if err != nil {
 		return nil, err
 	}
