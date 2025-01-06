@@ -119,7 +119,7 @@ func (x NaifeiMeHandler) _videoList(tagName, page string) interface{} {
 func (x NaifeiMeHandler) _search(keyword, page string) interface{} {
 	var pager = model.Pager{Limit: 10, Page: x.parsePageNumber(page), List: make([]model.Video, 0)}
 
-	buff, err := x.httpClient.Get(fmt.Sprintf(netflixgcSearchUrl, keyword, pager.Page))
+	buff, err := x.requestUrlBypassSafeLineChallenge(fmt.Sprintf(netflixgcSearchUrl, keyword, pager.Page))
 	if err != nil {
 		return model.NewError("获取数据失败：" + err.Error())
 	}
