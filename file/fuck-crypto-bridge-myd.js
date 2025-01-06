@@ -21,6 +21,7 @@ function rc4Decode(data, _key, t) {
 
 
   let data_length = data.length;
+  let i = 0;
 
   for (let i = 0; i < 256; i++) {
     key[i] = pwd[i % pwd_length].charCodeAt();

@@ -11,6 +11,7 @@ import (
 	"github.com/tidwall/gjson"
 	"github.com/zc310/headers"
 	"log"
+	"net/http"
 	"net/url"
 	"path/filepath"
 	"strings"
@@ -195,7 +196,7 @@ func (x MeiYiDaHandler) _detail(id string) interface{} {
 
 func (x MeiYiDaHandler) _source(pid, vid string) interface{} {
 	var source = model.Source{Id: pid, Vid: vid}
-	buff, err := x.httpClient.Get(fmt.Sprintf(meiyidaPlayUrl, pid))
+	h, buff, err := x.httpClient.GetResponse(fmt.Sprintf(meiyidaPlayUrl, pid))
 	if err != nil {
 		return model.NewError("获取数据失败：" + err.Error())
 	}
@@ -209,7 +210,7 @@ func (x MeiYiDaHandler) _source(pid, vid string) interface{} {
 	var result = gjson.Parse(findJson)
 	source.Url = result.Get("url").String()
 	source.Name = doc.Find(".module-player-side .module-info-heading a").AttrOr("title", "")
-	source.Thumb = x.simpleRegEx(string(buff), `vod_image='(\S+)',`)
+	source.Thumb = x.simpleRegEx(string(buff), `vod_image='(\S+)',vod_url`)
 
 	var _type = result.Get("encrypt").Int()
 	switch _type {
@@ -225,8 +226,12 @@ func (x MeiYiDaHandler) _source(pid, vid string) interface{} {
 	}
 
 	source.Source = result.Get("url").String()
-	source.Url = x.handleEncryptUrl(fmt.Sprintf("%s/player/?type=%d&url=%s", meiyidaHost, _type, source.Url), result)
+	source.Url = x.handleEncryptUrl(fmt.Sprintf("%s/player/?type=%d&url=%s", meiyidaHost, _type, source.Url), result, h)
 	source.Type = x.parseVideoType(source.Url)
+
+	if len(source.Url) == 0 {
+		return model.NewError("解析加密数据失败：" + err.Error())
+	}
 
 	return model.NewSuccess(source)
 }
@@ -239,7 +244,7 @@ func (x MeiYiDaHandler) HoldCookie() error {
 	return nil
 }
 
-func (x MeiYiDaHandler) handleEncryptUrl(playFrameUrl string, playerAAA gjson.Result) string {
+func (x MeiYiDaHandler) handleEncryptUrl(playFrameUrl string, playerAAA gjson.Result, header http.Header) string {
 	log.Println("[playFrameUrl]", playFrameUrl)
 
 	var parse = ""
@@ -290,7 +295,7 @@ func (x MeiYiDaHandler) handleEncryptUrl(playFrameUrl string, playerAAA gjson.Re
 	log.Println("[player.request.url]", reqUrl)
 
 	// 需要带Cookie
-	//x.httpClient.AddHeader(headers.Cookie, header.Get("Set-Cookie"))
+	x.httpClient.AddHeader(headers.Cookie, header.Get("Set-Cookie"))
 
 	// 获取配置
 	b, err = x.httpClient.Get(reqUrl)
