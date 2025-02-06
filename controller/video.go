@@ -31,6 +31,7 @@ var sourceMap = map[string]struct {
 	handler.MaYiHandler{}.Name():     {Sort: 4, Handler: handler.MaYiHandler{}.Init()},
 	handler.NaifeiMeHandler{}.Name(): {Sort: 5, Handler: handler.NaifeiMeHandler{}.Init()},
 	handler.MeiYiDaHandler{}.Name():  {Sort: 6, Handler: handler.MeiYiDaHandler{}.Init()},
+	handler.Huawei8Handler{}.Name():  {Sort: 7, Handler: handler.Huawei8Handler{}.Init()},
 }
 
 // 不缓存播放数据的源

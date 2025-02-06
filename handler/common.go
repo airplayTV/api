@@ -55,3 +55,11 @@ const (
 	meiyidaDetailUrl = "https://www.mydys1.com/voddetail/%s.html"
 	meiyidaPlayUrl   = "https://www.mydys1.com/vodplay/%s.html"
 )
+
+const (
+	huawei8Host      = "https://huaweiba.live/"
+	huawei8TagUrl    = "https://huaweiba.live/index.php/vod/type/id/%s/page/%d.html"
+	huawei8SearchUrl = "https://huaweiba.live/index.php/vod/search/page/%d/wd/%s.html"
+	huawei8DetailUrl = "https://huaweiba.live/index.php/vod/detail/id/%s.html"
+	huawei8PlayUrl   = "https://huaweiba.live/index.php/vod/detail/id/%s.html"
+)
