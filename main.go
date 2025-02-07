@@ -36,15 +36,16 @@ func newRouterApi(app *gin.Engine) *gin.Engine {
 		ws.Handler(ctx.Writer, ctx.Request, nil)
 	})
 	// api接口
-	app.GET("/api/video/provider", videoController.Provider)  // 来源
-	app.GET("/api/video/search", videoController.Search)      // 视频搜索
-	app.GET("/api/video/search/v2", videoController.SearchV2) // 视频搜索
-	app.GET("/api/video/list", videoController.VideoList)     // 视频列表（根据来源-TAG确定）
-	app.GET("/api/video/detail", videoController.Detail)      // 视频详情
-	app.GET("/api/video/source", videoController.Source)      // 视频播放源
-	app.POST("/api/video/control", videoController.Control)   // 远程遥控功能
+	app.GET("/api/video/provider", videoController.Provider) // 来源
+	app.GET("/api/video/search", videoController.Search)     // 视频搜索
+	app.GET("/api/video/list", videoController.VideoList)    // 视频列表（根据来源-TAG确定）
+	app.GET("/api/video/detail", videoController.Detail)     // 视频详情
+	app.GET("/api/video/source", videoController.Source)     // 视频播放源
+	app.POST("/api/video/control", videoController.Control)  // 远程遥控功能
 	app.GET("/api/m3u8p", videoController.M3u8p)
 	app.POST("/api/cookie", videoController.SetCookie) // 手动设置cookie用
+
+	app.GET("/api/sse/video/search", videoController.SearchV2) // 视频搜索SSE
 
 	return app
 }

@@ -121,7 +121,7 @@ func (x MeiYiDaHandler) _search(keyword, page string) interface{} {
 		log.Println("[文档解析失败]", err.Error())
 		return pager
 	}
-	log.Println("[SSSSS]", string(buff))
+	//log.Println("[SSSSS]", string(buff))
 	doc.Find(".module .module-item").Each(func(i int, selection *goquery.Selection) {
 		name := selection.Find(".module-card-item-title").Text()
 		tmpUrl, _ := selection.Find(".module-card-item-title a").Attr("href")

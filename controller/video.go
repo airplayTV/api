@@ -95,24 +95,10 @@ func (x VideoController) SearchV2(ctx *gin.Context) {
 	var keyword = ctx.Query("keyword")
 	var page = ctx.Query("page")
 
-	var cacheKey = fmt.Sprintf("SearchV2::%s_%s", keyword, page)
-	data, err := globalCache.Get(context.Background(), cacheKey)
-	if err == nil {
-		ctx.Header("Hit-Cache", "true")
-		x.response(ctx, data)
-		return
-	}
+	ctx.Header("Content-Type", "text/event-stream")
+	ctx.Header("Cache-Control", "no-cache")
+	ctx.Header("Connection", "keep-alive")
 
-	type TmpSearchResult struct {
-		model.Pager
-		Source string `json:"source"`
-		Msg    string `json:"msg,omitempty"`
-		Time   int64  `json:"time"`
-	}
-
-	var errorNo = 0
-	var ts = time.Now().UnixMilli()
-	var respMap = make([]interface{}, 0)
 	var wg sync.WaitGroup
 	wg.Add(len(sourceMap))
 	for tmpSourceName, h := range sourceMap {
@@ -120,37 +106,14 @@ func (x VideoController) SearchV2(ctx *gin.Context) {
 			defer func() {
 				wg.Done()
 			}()
-			var tmpResp = handler.Search(keyword, page)
-			switch tmpResp.(type) {
-			case model.Success:
-				respMap = append(respMap, TmpSearchResult{
-					Pager:  tmpResp.(model.Success).Data.(model.Pager),
-					Source: name,
-					Time:   time.Now().UnixMilli() - ts,
-				})
-			case model.Error:
-				respMap = append(respMap, TmpSearchResult{
-					Pager:  model.Pager{},
-					Source: name,
-					Msg:    tmpResp.(model.Error).Msg,
-					Time:   time.Now().UnixMilli() - ts,
-				})
-				errorNo++
-			}
+			ctx.SSEvent("update", goWebsocket.ToJson(gin.H{
+				"source": name,
+				"data":   handler.Search(keyword, page),
+			}))
 		}(tmpSourceName, h.Handler)
 	}
 	wg.Wait()
-
-	if errorNo == 0 {
-		_ = globalCache.Set(
-			context.Background(),
-			cacheKey,
-			model.NewSuccess(respMap),
-			store.WithExpiration(time.Hour*2),
-		)
-	}
-
-	x.response(ctx, model.NewSuccess(respMap))
+	ctx.SSEvent("finish", len(sourceMap))
 }
 
 func (x VideoController) VideoList(ctx *gin.Context) {
