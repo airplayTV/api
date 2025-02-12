@@ -79,7 +79,7 @@ func (x Huawei8Handler) _videoList(tagName, page string) interface{} {
 
 	doc.Find(".xing_vb ul li").Each(func(i int, selection *goquery.Selection) {
 		if selection.Find(".xing_vb4").Size() > 0 {
-			name := selection.Find(".xing_vb4 a").Text()
+			name := x.splitHW8VideoTitle(selection.Find(".xing_vb4 a").Text())
 			tmpUrl := selection.Find(".xing_vb4 a").AttrOr("href", "")
 			tag := selection.Find(".xing_vb5").Text()
 			pager.List = append(pager.List, model.Video{
@@ -127,7 +127,7 @@ func (x Huawei8Handler) _search(keyword, page string) interface{} {
 
 	doc.Find(".xing_vb ul li").Each(func(i int, selection *goquery.Selection) {
 		if selection.Find(".xing_vb4").Size() > 0 {
-			name := selection.Find(".xing_vb4 a").Text()
+			name := x.splitHW8VideoTitle(selection.Find(".xing_vb4 a").Text())
 			tmpUrl := selection.Find(".xing_vb4 a").AttrOr("href", "")
 			tag := selection.Find(".xing_vb5").Text()
 			pager.List = append(pager.List, model.Video{
@@ -229,6 +229,14 @@ func (x Huawei8Handler) _source(pid, vid string) interface{} {
 	}
 
 	return model.NewSuccess(source)
+}
+
+func (x Huawei8Handler) splitHW8VideoTitle(name string) string {
+	var lst = strings.Split(name, " ")
+	if len(lst) == 0 {
+		return ""
+	}
+	return lst[0]
 }
 
 func (x Huawei8Handler) UpdateHeader(header map[string]string) error {
