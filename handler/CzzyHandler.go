@@ -36,14 +36,14 @@ func (x CzzyHandler) Name() string {
 
 func (x CzzyHandler) TagList() interface{} {
 	var tags = make([]gin.H, 0)
-	tags = append(tags, gin.H{"name": "豆瓣Top250", "value": "dbtop250"})
 	tags = append(tags, gin.H{"name": "电影", "value": "movie_bt"})
-	tags = append(tags, gin.H{"name": "高分影视", "value": "gaofenyingshi"})
-	tags = append(tags, gin.H{"name": "最新电影", "value": "zuixindianying"})
 	tags = append(tags, gin.H{"name": "国产剧", "value": "gcj"})
 	tags = append(tags, gin.H{"name": "美剧", "value": "meijutt"})
 	tags = append(tags, gin.H{"name": "韩剧", "value": "hanjutv"})
 	tags = append(tags, gin.H{"name": "番剧", "value": "fanju"})
+	tags = append(tags, gin.H{"name": "最新电影", "value": "zuixindianying"})
+	tags = append(tags, gin.H{"name": "豆瓣Top250", "value": "dbtop250"})
+	tags = append(tags, gin.H{"name": "高分影视", "value": "gaofenyingshi"})
 	return tags
 }
 
