@@ -222,5 +222,5 @@ func (x *Handler) handleM3u8pUrl(tmpUrl string) string {
 	if !slices.Contains(model.M3u8ProxyHosts, parsed.Host) {
 		return tmpUrl
 	}
-	return fmt.Sprintf("https://airplay-tv.lixiang4u.xyz/api/m3u8p?url=%s", util.EncodeComponentUrl(tmpUrl))
+	return fmt.Sprintf("%s?url=%s", apiM3U8ProxyUrl, util.EncodeComponentUrl(tmpUrl))
 }

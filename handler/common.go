@@ -6,6 +6,8 @@ const (
 	useragent      = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"
 )
 
+const apiM3U8ProxyUrl = "https://airplay-api.artools.cc/api/m3u8p"
+
 const (
 	czzyHost      = "https://www.czzyvideo.com"
 	czzyTagUrl    = "https://www.czzyvideo.com/%s/page/%d"
