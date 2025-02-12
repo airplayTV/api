@@ -30,7 +30,7 @@ const (
 	mayiSearchUrl = "https://www.mayiyingshi.tv/vodsearch/%s----------%d---.html"
 	mayiDetailUrl = "https://www.mayiyingshi.tv/voddetail/%s.html"
 	mayiPlayUrl   = "https://www.mayiyingshi.tv/vodplay/%s.html"
-	mayiParseUrl  = "https://vip.sp-flv.com:8443/?url=%s" // 云解析
+	mayiParseUrl  = "https://zj.sp-flv.com:8443/?url=%s" // 云解析
 )
 
 const (
