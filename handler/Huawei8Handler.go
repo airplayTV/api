@@ -40,7 +40,7 @@ func (x Huawei8Handler) TagList() interface{} {
 }
 
 func (x Huawei8Handler) defaultThumb() string {
-	return "https://huaweiba.live/template/ziyuan/images/logo2.png"
+	return "https://iph.href.lu/360x528?text=HW8&fg=bcbcbc&bg=eeeeee"
 }
 
 func (x Huawei8Handler) VideoList(tag, page string) interface{} {
