@@ -44,6 +44,7 @@ func newRouterApi(app *gin.Engine) *gin.Engine {
 	app.POST("/api/video/control", videoController.Control)  // 远程遥控功能
 	app.GET("/api/m3u8p", videoController.M3u8p)
 	app.POST("/api/cookie", videoController.SetCookie) // 手动设置cookie用
+	app.GET("/api/qrcode", videoController.QrCode)     // 根据文本生成二维码图
 
 	app.GET("/api/sse/video/search", videoController.SearchV2) // 视频搜索SSE
 
