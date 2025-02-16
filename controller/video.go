@@ -3,6 +3,7 @@ package controller
 import (
 	"bytes"
 	"context"
+	"encoding/base64"
 	"fmt"
 	"github.com/airplayTV/api/handler"
 	"github.com/airplayTV/api/model"
@@ -11,6 +12,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 	"github.com/lixiang4u/goWebsocket"
+	"github.com/skip2/go-qrcode"
 	"github.com/zc310/headers"
 	"log"
 	"net/http"
@@ -253,6 +255,30 @@ func (x VideoController) SetCookie(ctx *gin.Context) {
 	} else {
 		x.response(ctx, model.NewSuccess("cookie已设置"))
 	}
+}
+
+func (x VideoController) QrCode(ctx *gin.Context) {
+	tmpUrl, err := url.QueryUnescape(ctx.Query("url"))
+	if err != nil {
+		x.response(ctx, model.NewError("参数错误"))
+		return
+	}
+	//_, err = url.Parse(tmpUrl)
+	//if err != nil {
+	//	x.response(ctx, model.NewError("参数错误"))
+	//	return
+	//}
+
+	var png []byte
+	png, err = qrcode.Encode(tmpUrl, qrcode.High, 256)
+	if err != nil {
+		x.response(ctx, model.NewError("二维码生成失败："+err.Error()))
+		return
+	}
+
+	x.response(ctx, model.NewSuccess(gin.H{
+		"base64": "data:image/jpg;base64," + base64.StdEncoding.EncodeToString(png),
+	}))
 }
 
 func (x VideoController) response(ctx *gin.Context, resp interface{}) {
