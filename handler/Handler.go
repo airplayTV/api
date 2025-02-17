@@ -225,7 +225,7 @@ func (x *Handler) handleM3u8pUrl(tmpUrl string) string {
 	return fmt.Sprintf("%s?url=%s", apiM3U8ProxyUrl, util.EncodeComponentUrl(tmpUrl))
 }
 
-func (x *Handler) handleVideoListThumb(videos []model.Video) []model.Video {
+func (x *Handler) handleVideoListThumb(detailApiUrl string, videos []model.Video) []model.Video {
 	if len(videos) == 0 {
 		return videos
 	}
@@ -233,7 +233,7 @@ func (x *Handler) handleVideoListThumb(videos []model.Video) []model.Video {
 	for _, video := range videos {
 		ids = append(ids, video.Id)
 	}
-	buff, err := x.httpClient.Get(fmt.Sprintf(bfzyDetailUrl, strings.Join(ids, ",")))
+	buff, err := x.httpClient.Get(fmt.Sprintf(detailApiUrl, strings.Join(ids, ",")))
 	if err != nil {
 		return videos
 	}

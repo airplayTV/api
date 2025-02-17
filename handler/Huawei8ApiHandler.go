@@ -87,7 +87,7 @@ func (x Huawei8ApiHandler) _videoList(tagName, page string) interface{} {
 		return true
 	})
 
-	pager.List = x.handleVideoListThumb(pager.List)
+	pager.List = x.handleVideoListThumb(huawei8ApiDetailUrl, pager.List)
 
 	if len(pager.List) == 0 {
 		return model.NewError("暂无数据")
