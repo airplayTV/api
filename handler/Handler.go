@@ -224,3 +224,28 @@ func (x *Handler) handleM3u8pUrl(tmpUrl string) string {
 	}
 	return fmt.Sprintf("%s?url=%s", apiM3U8ProxyUrl, util.EncodeComponentUrl(tmpUrl))
 }
+
+func (x BfzyHandler) handleVideoListThumb(videos []model.Video) []model.Video {
+	if len(videos) == 0 {
+		return videos
+	}
+	var ids = make([]string, 0)
+	for _, video := range videos {
+		ids = append(ids, video.Id)
+	}
+	buff, err := x.httpClient.Get(fmt.Sprintf(bfzyDetailUrl, strings.Join(ids, ",")))
+	if err != nil {
+		return videos
+	}
+	var videoThumbMap = make(map[string]string)
+	gjson.ParseBytes(buff).Get("list").ForEach(func(key, value gjson.Result) bool {
+		videoThumbMap[value.Get("vod_id").String()] = value.Get("vod_pic").String()
+		return true
+	})
+	for idx, video := range videos {
+		if v, ok := videoThumbMap[video.Id]; ok {
+			videos[idx].Thumb = v
+		}
+	}
+	return videos
+}
