@@ -25,7 +25,7 @@ func (x KczyHandler) Init() IVideo {
 }
 
 func (x KczyHandler) Name() string {
-	return "暴风资源"
+	return "快车资源"
 }
 
 func (x KczyHandler) TagList() interface{} {
