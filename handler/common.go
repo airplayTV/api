@@ -65,3 +65,12 @@ const (
 	huawei8DetailUrl = "https://huaweiba.live/index.php/vod/detail/id/%s.html"
 	huawei8PlayUrl   = "https://huaweiba.live/index.php/vod/detail/id/%s.html"
 )
+
+const (
+	// https://bfzy9.tv/help/?home
+	bfzyHost      = "https://bfzy9.tv"
+	bfzyTagUrl    = "https://bfzyapi.com/api.php/provide/vod/?ac=list&pg=%d&t=%s"
+	bfzySearchUrl = "https://bfzyapi.com/api.php/provide/vod/?ac=list&pg=%d&t=&wd=%s"
+	bfzyDetailUrl = "https://bfzyapi.com/api.php/provide/vod/?ac=detail&ids=%s"
+	bfzyPlayUrl   = ""
+)
