@@ -36,6 +36,7 @@ var sourceMap = map[string]struct {
 	handler.Huawei8Handler{}.Name():    {Sort: 7, Handler: handler.Huawei8Handler{}.Init()},
 	handler.Huawei8ApiHandler{}.Name(): {Sort: 8, Handler: handler.Huawei8ApiHandler{}.Init()},
 	handler.BfzyHandler{}.Name():       {Sort: 9, Handler: handler.BfzyHandler{}.Init()},
+	handler.KczyHandler{}.Name():       {Sort: 10, Handler: handler.KczyHandler{}.Init()},
 }
 
 // 不缓存播放数据的源

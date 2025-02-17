@@ -82,3 +82,12 @@ const (
 	bfzyDetailUrl = "https://bfzyapi.com/api.php/provide/vod/?ac=detail&ids=%s"
 	bfzyPlayUrl   = ""
 )
+
+const (
+	// https://help.kczyapi.com/
+	kczyHost      = "https://bfzy9.tv"
+	kczyTagUrl    = "https://caiji.kczyapi.com/api.php/provide/vod/?ac=list&pg=%d&t=%s"
+	kczySearchUrl = "https://caiji.kczyapi.com/api.php/provide/vod/?ac=list&pg=%d&t=&wd=%s"
+	kczyDetailUrl = "https://caiji.kczyapi.com/api.php/provide/vod/?ac=detail&ids=%s"
+	kczyPlayUrl   = ""
+)
