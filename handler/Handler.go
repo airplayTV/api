@@ -225,7 +225,7 @@ func (x *Handler) handleM3u8pUrl(tmpUrl string) string {
 	return fmt.Sprintf("%s?url=%s", apiM3U8ProxyUrl, util.EncodeComponentUrl(tmpUrl))
 }
 
-func (x BfzyHandler) handleVideoListThumb(videos []model.Video) []model.Video {
+func (x *Handler) handleVideoListThumb(videos []model.Video) []model.Video {
 	if len(videos) == 0 {
 		return videos
 	}

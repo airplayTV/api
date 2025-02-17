@@ -67,6 +67,14 @@ const (
 )
 
 const (
+	huawei8ApiHost      = "https://huaweiba.live/"
+	huawei8ApiTagUrl    = "https://cjhwba.com/api.php/provide/vod/?ac=list&pg=%d&t=%s"
+	huawei8ApiSearchUrl = "https://cjhwba.com/api.php/provide/vod/?ac=list&pg=%d&t=&wd=%s"
+	huawei8ApiDetailUrl = "https://cjhwba.com/api.php/provide/vod/?ac=detail&ids=%s"
+	huawei8ApiPlayUrl   = ""
+)
+
+const (
 	// https://bfzy9.tv/help/?home
 	bfzyHost      = "https://bfzy9.tv"
 	bfzyTagUrl    = "https://bfzyapi.com/api.php/provide/vod/?ac=list&pg=%d&t=%s"
