@@ -174,6 +174,8 @@ func (x CmsZyHandler) _search(keyword, page string) interface{} {
 		return model.NewError("暂无数据")
 	}
 
+	pager.List = x.handleVideoListThumb(fmt.Sprintf("%s/?ac=detail&ids=%%s", x.getApiUrl()), pager.List)
+
 	return model.NewSuccess(pager)
 }
 
