@@ -14,6 +14,11 @@ import (
 	"strings"
 )
 
+// 采集源
+// https://bgm.tv/m/topic/group/406236
+// https://woodchen.ink/archives/1207
+// https://www.x-lsp.com/category/资源采集
+
 type CmsZyHandler struct {
 	Handler
 }

@@ -77,6 +77,30 @@
       "name": "鲨鱼资源",
       "host": "https://shayuzy5.com/",
       "api": "https://shayuapi.com/api.php/provide/vod/at/json/"
+    },
+    {
+      "id": "lebozy",
+      "name": "乐播资源",
+      "host": "http://lebozy.com",
+      "api": "https://lbapi9.com/api.php/provide/vod/at/json/"
+    },
+    {
+      "id": "subocaiji",
+      "name": "速播资源",
+      "host": "https://subocaiji.com/",
+      "api": "https://subocaiji.com/api.php/provide/vod"
+    },
+    {
+      "id": "huyaziyuan",
+      "name": "虎牙资源",
+      "host": "https://www.huyaziyuan.com/",
+      "api": "https://www.huyaapi.com/api.php/provide/vod/at/json"
+    },
+    {
+      "id": "yayazy",
+      "name": "鸭鸭资源",
+      "host": "https://yayazy1.com/",
+      "api": "https://cj.yayazy.net/api.php/provide/vod/?ac=list"
     }
   ]
 }
