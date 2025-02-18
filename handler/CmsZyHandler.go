@@ -23,7 +23,7 @@ func (x CmsZyHandler) Init(options interface{}) IVideo {
 	x.httpClient.AddHeader(headers.UserAgent, useragent)
 
 	var o = options.(model.CmsZyOption)
-	x.option = model.CmsZyOption{Name: o.Name, Api: o.Api}
+	x.option = model.CmsZyOption{Name: o.Name, Api: o.Api, Id: o.Id}
 
 	return x
 }
@@ -51,7 +51,7 @@ func (x CmsZyHandler) TagList() interface{} {
 		return x.formatTags(data.(map[string]string))
 	}
 	var tmpTags map[string]string
-	//log.Println("[req]", x.option.GetName(), x.getApiUrl(), len(x.option.GetTags()))
+	log.Println("[req]", x.option.GetName(), x.getApiUrl())
 	buff, err := x.httpClient.Get(x.getApiUrl())
 	if err != nil {
 		tmpTags = map[string]string{}
@@ -202,7 +202,7 @@ func (x CmsZyHandler) _detail(id string) interface{} {
 						Id:    fmt.Sprintf("%s-%d", video.Id, idx),
 						Name:  tmpList[0],
 						Url:   tmpList[1],
-						Group: "bfzym3u8",
+						Group: x.option.GetId(),
 					})
 				}
 			}

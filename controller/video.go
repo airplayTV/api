@@ -48,7 +48,11 @@ func init() {
 	var idx = 20
 	for _, tmpConfig := range cmsApiConfig {
 		idx += 1
-		var h = handler.CmsZyHandler{}.Init(model.CmsZyOption{Name: tmpConfig.Name, Api: tmpConfig.Api})
+		var h = handler.CmsZyHandler{}.Init(model.CmsZyOption{
+			Name: tmpConfig.Name,
+			Api:  tmpConfig.Api,
+			Id:   tmpConfig.Id,
+		})
 		sourceMap[tmpConfig.Name] = struct {
 			Sort    int
 			Handler handler.IVideo

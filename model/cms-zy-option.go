@@ -6,9 +6,17 @@ type KV1 struct {
 }
 
 type CmsZyOption struct {
+	Id   string
 	Name string
 	Api  string
 	//Tags map[string]string // 换其他类型就不行。。。
+}
+
+func (x *CmsZyOption) SetId(id string) {
+	x.Id = id
+}
+func (x *CmsZyOption) GetId() string {
+	return x.Id
 }
 
 func (x *CmsZyOption) SetName(name string) {
