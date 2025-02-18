@@ -78,13 +78,19 @@ func (x VideoController) Provider(ctx *gin.Context) {
 		Tags interface{} `json:"tags"`
 	}
 	var providers = make([]ProviderItem, 0)
+	var wg sync.WaitGroup
 	for tmpName, tmpValue := range sourceMap {
-		providers = append(providers, ProviderItem{
-			Name: tmpName,
-			Sort: tmpValue.Sort,
-			Tags: tmpValue.Handler.TagList(),
-		})
+		wg.Add(1)
+		go func(tmpName string, sort int, h handler.IVideo) {
+			providers = append(providers, ProviderItem{
+				Name: tmpName,
+				Sort: sort,
+				Tags: h.TagList(),
+			})
+			wg.Done()
+		}(tmpName, tmpValue.Sort, tmpValue.Handler)
 	}
+	wg.Wait()
 	slices.SortFunc(providers, func(a, b ProviderItem) int {
 		return a.Sort - b.Sort
 	})
