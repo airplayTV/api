@@ -1,20 +1,34 @@
 package controller
 
 import (
+	"github.com/airplayTV/api/model"
 	"github.com/airplayTV/api/util"
 	"github.com/dgraph-io/ristretto"
 	"github.com/eko/gocache/lib/v4/cache"
 	redis_store "github.com/eko/gocache/store/redis/v4"
 	ristretto_store "github.com/eko/gocache/store/ristretto/v4"
 	"github.com/redis/go-redis/v9"
+	"github.com/spf13/viper"
 	"log"
 )
 
 var (
-	globalCache *cache.Cache[any]
+	globalCache  *cache.Cache[any]
+	cmsApiConfig []model.CmsApiConfig
 )
 
 func init() {
+	viper.AddConfigPath(".")    // optionally look for config in the working directory
+	err := viper.ReadInConfig() // Find and read the config file
+	if err != nil {             // Handle errors reading the config file
+		log.Panicln("[ConfigError]", err.Error())
+		return
+	}
+	if err = viper.UnmarshalKey("source", &cmsApiConfig); err != nil {
+		log.Println("[ConfigUnmarshalError]", err.Error())
+		return
+	}
+
 	initRistrettoCache()
 	//initRedisCache()// 这玩意还需要给模型实现（implement encoding.BinaryMarshaler）！！！
 

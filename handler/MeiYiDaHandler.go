@@ -21,7 +21,7 @@ type MeiYiDaHandler struct {
 	Handler
 }
 
-func (x MeiYiDaHandler) Init() IVideo {
+func (x MeiYiDaHandler) Init(options interface{}) IVideo {
 	x.httpClient = util.HttpClient{}
 	x.httpClient.AddHeader(headers.UserAgent, useragent)
 	x.httpClient.AddHeader(headers.Origin, mayiHost)

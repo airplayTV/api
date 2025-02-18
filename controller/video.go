@@ -23,20 +23,38 @@ import (
 	"time"
 )
 
-var sourceMap = map[string]struct {
+var sourceMap map[string]struct {
 	Sort    int
 	Handler handler.IVideo
-}{
-	handler.CzzyHandler{}.Name():       {Sort: 1, Handler: handler.CzzyHandler{}.Init()},
-	handler.SubbHandler{}.Name():       {Sort: 2, Handler: handler.SubbHandler{}.Init()},
-	handler.YingshiHandler{}.Name():    {Sort: 3, Handler: handler.YingshiHandler{}.Init()},
-	handler.MaYiHandler{}.Name():       {Sort: 4, Handler: handler.MaYiHandler{}.Init()},
-	handler.NaifeiMeHandler{}.Name():   {Sort: 5, Handler: handler.NaifeiMeHandler{}.Init()},
-	handler.MeiYiDaHandler{}.Name():    {Sort: 6, Handler: handler.MeiYiDaHandler{}.Init()},
-	handler.Huawei8Handler{}.Name():    {Sort: 7, Handler: handler.Huawei8Handler{}.Init()},
-	handler.Huawei8ApiHandler{}.Name(): {Sort: 8, Handler: handler.Huawei8ApiHandler{}.Init()},
-	handler.BfzyHandler{}.Name():       {Sort: 9, Handler: handler.BfzyHandler{}.Init()},
-	handler.KczyHandler{}.Name():       {Sort: 10, Handler: handler.KczyHandler{}.Init()},
+}
+
+func init() {
+	sourceMap = map[string]struct {
+		Sort    int
+		Handler handler.IVideo
+	}{
+		handler.CzzyHandler{}.Name():     {Sort: 1, Handler: handler.CzzyHandler{}.Init(nil)},
+		handler.SubbHandler{}.Name():     {Sort: 2, Handler: handler.SubbHandler{}.Init(nil)},
+		handler.YingshiHandler{}.Name():  {Sort: 3, Handler: handler.YingshiHandler{}.Init(nil)},
+		handler.MaYiHandler{}.Name():     {Sort: 4, Handler: handler.MaYiHandler{}.Init(nil)},
+		handler.NaifeiMeHandler{}.Name(): {Sort: 5, Handler: handler.NaifeiMeHandler{}.Init(nil)},
+		handler.MeiYiDaHandler{}.Name():  {Sort: 6, Handler: handler.MeiYiDaHandler{}.Init(nil)},
+		//handler.Huawei8Handler{}.Name():  {Sort: 7, Handler: handler.Huawei8Handler{}.Init()},
+		//handler.Huawei8ApiHandler{}.Name(): {Sort: 8, Handler: handler.Huawei8ApiHandler{}.Init()},
+		//handler.BfzyHandler{}.Name():       {Sort: 9, Handler: handler.BfzyHandler{}.Init()},
+		//handler.KczyHandler{}.Name():       {Sort: 10, Handler: handler.KczyHandler{}.Init()},
+	}
+
+	var idx = 20
+	for _, tmpConfig := range cmsApiConfig {
+		idx += 1
+		var h = handler.CmsZyHandler{}.Init(model.CmsZyOption{Name: tmpConfig.Name, Api: tmpConfig.Api})
+		sourceMap[tmpConfig.Name] = struct {
+			Sort    int
+			Handler handler.IVideo
+		}{Sort: idx, Handler: h}
+	}
+
 }
 
 // 不缓存播放数据的源

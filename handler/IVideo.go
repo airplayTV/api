@@ -1,7 +1,7 @@
 package handler
 
 type IVideo interface {
-	Init() IVideo
+	Init(options interface{}) IVideo
 	Name() string
 	TagList() interface{}
 	VideoList(tag, page string) interface{}

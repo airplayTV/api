@@ -19,6 +19,7 @@ import (
 
 type Handler struct {
 	httpClient util.HttpClient
+	option     model.CmsZyOption
 }
 
 func (x *Handler) parsePageNumber(s string) int {

@@ -9,62 +9,107 @@ import (
 	"github.com/tidwall/gjson"
 	"github.com/zc310/headers"
 	"log"
+	"net/url"
 	"strings"
 )
 
-type Huawei8ApiHandler struct {
+type CmsZyHandler struct {
 	Handler
 }
 
-func (x Huawei8ApiHandler) Init(options interface{}) IVideo {
+func (x CmsZyHandler) Init(options interface{}) IVideo {
 	x.httpClient = util.HttpClient{}
 	x.httpClient.AddHeader(headers.UserAgent, useragent)
-	x.httpClient.AddHeader(headers.Origin, huawei8Host)
-	x.httpClient.AddHeader(headers.Referer, huawei8Host)
+	x.httpClient.AddHeader(headers.Origin, kczyHost)
+	x.httpClient.AddHeader(headers.Referer, kczyHost)
+
+	var o = options.(model.CmsZyOption)
+	x.option = model.CmsZyOption{
+		Name: o.Name,
+		Api:  o.Api,
+		Tags: make(map[string]string),
+	}
+
 	return x
 }
 
-func (x Huawei8ApiHandler) Name() string {
-	return "华为吧api"
+func (x CmsZyHandler) Name() string {
+	return x.option.GetName()
 }
 
-func (x Huawei8ApiHandler) TagList() interface{} {
-	// tag列表：https://bfzyapi.com/api.php/provide/vod/?ac=list&pg=1&t=1
-	var tags = make([]gin.H, 0)
-	tags = append(tags, gin.H{"name": "电影", "value": "20"})
-	tags = append(tags, gin.H{"name": "电视剧", "value": "60"})
-	tags = append(tags, gin.H{"name": "综艺", "value": "82"})
-	tags = append(tags, gin.H{"name": "动漫", "value": "80"})
-	tags = append(tags, gin.H{"name": "纪录片", "value": "86"})
-	tags = append(tags, gin.H{"name": "短剧", "value": "120"})
-	tags = append(tags, gin.H{"name": "其它", "value": "58"})
-	return tags
+func (x CmsZyHandler) getApiUrl() string {
+	tmpUrl, err := url.Parse(x.option.GetApi())
+	if err != nil {
+		return ""
+	}
+	if len(tmpUrl.Scheme) > 0 && len(tmpUrl.Host) > 0 {
+		return fmt.Sprintf("%s://%s/%s", tmpUrl.Scheme, tmpUrl.Host, strings.Trim(tmpUrl.Path, "/"))
+	}
+	return ""
 }
 
-func (x Huawei8ApiHandler) VideoList(tag, page string) interface{} {
+func (x CmsZyHandler) TagList() interface{} {
+	var tmpTags = x.option.GetTags()
+
+	log.Println("[AA]", x.option.GetName(), len(tmpTags), util.ToString(tmpTags))
+
+	if len(tmpTags) > 0 {
+		return x.formatTags(tmpTags)
+	}
+	buff, err := x.httpClient.Get(x.getApiUrl())
+	if err != nil {
+		tmpTags = map[string]string{}
+		tmpTags["全部"] = ""
+
+		log.Println("[ResolveTagError]", err.Error())
+		return x.formatTags(tmpTags)
+	}
+	tmpTags = map[string]string{}
+	tmpTags["全部"] = ""
+	var result = gjson.ParseBytes(buff)
+	result.Get("class").ForEach(func(key, value gjson.Result) bool {
+		tmpTags[value.Get("type_name").String()] = value.Get("type_id").String()
+		return true
+	})
+	x.option.SetTags(tmpTags)
+	return x.formatTags(tmpTags)
+}
+
+func (x CmsZyHandler) formatTags(tags map[string]string) []model.KV1 {
+	var result = make([]model.KV1, 0)
+	for k, v := range tags {
+		result = append(result, model.KV1{
+			Name:  k,
+			Value: v,
+		})
+	}
+	return result
+}
+
+func (x CmsZyHandler) VideoList(tag, page string) interface{} {
 	return x._videoList(tag, page)
 }
 
-func (x Huawei8ApiHandler) Search(keyword, page string) interface{} {
+func (x CmsZyHandler) Search(keyword, page string) interface{} {
 	return x._search(keyword, page)
 }
 
-func (x Huawei8ApiHandler) Detail(id string) interface{} {
+func (x CmsZyHandler) Detail(id string) interface{} {
 	return x._detail(id)
 }
 
-func (x Huawei8ApiHandler) Source(pid, vid string) interface{} {
+func (x CmsZyHandler) Source(pid, vid string) interface{} {
 	return x._source(pid, vid)
 }
 
-func (x Huawei8ApiHandler) Airplay(pid, vid string) interface{} {
+func (x CmsZyHandler) Airplay(pid, vid string) interface{} {
 	return gin.H{}
 }
 
 //
 
-func (x Huawei8ApiHandler) _videoList(tagName, page string) interface{} {
-	buff, err := x.httpClient.Get(fmt.Sprintf(huawei8ApiTagUrl, x.parsePageNumber(page), tagName))
+func (x CmsZyHandler) _videoList(tagName, page string) interface{} {
+	buff, err := x.httpClient.Get(fmt.Sprintf("%s/?ac=list&pg=%d&t=%s", x.getApiUrl(), x.parsePageNumber(page), tagName))
 	if err != nil {
 		return model.NewError("获取数据失败：" + err.Error())
 	}
@@ -87,7 +132,7 @@ func (x Huawei8ApiHandler) _videoList(tagName, page string) interface{} {
 		return true
 	})
 
-	pager.List = x.handleVideoListThumb(huawei8ApiDetailUrl, pager.List)
+	pager.List = x.handleVideoListThumb(fmt.Sprintf("%s/?ac=detail&ids=%%s", x.getApiUrl()), pager.List)
 
 	if len(pager.List) == 0 {
 		return model.NewError("暂无数据")
@@ -96,8 +141,8 @@ func (x Huawei8ApiHandler) _videoList(tagName, page string) interface{} {
 	return model.NewSuccess(pager)
 }
 
-func (x Huawei8ApiHandler) _search(keyword, page string) interface{} {
-	buff, err := x.httpClient.Get(fmt.Sprintf(huawei8ApiSearchUrl, x.parsePageNumber(page), keyword))
+func (x CmsZyHandler) _search(keyword, page string) interface{} {
+	buff, err := x.httpClient.Get(fmt.Sprintf("%s/?ac=list&pg=%d&t=&wd=%s", x.getApiUrl(), x.parsePageNumber(page), keyword))
 	if err != nil {
 		return model.NewError("获取数据失败：" + err.Error())
 	}
@@ -127,7 +172,7 @@ func (x Huawei8ApiHandler) _search(keyword, page string) interface{} {
 	return model.NewSuccess(pager)
 }
 
-func (x Huawei8ApiHandler) parseVidTypeId(str string) (vid, tid string, err error) {
+func (x CmsZyHandler) parseVidTypeId(str string) (vid, tid string, err error) {
 	var tmpList = strings.Split(str, "-")
 	if len(tmpList) != 2 {
 		return "", "", errors.New("请求参数错误")
@@ -137,8 +182,8 @@ func (x Huawei8ApiHandler) parseVidTypeId(str string) (vid, tid string, err erro
 	return vid, tid, nil
 }
 
-func (x Huawei8ApiHandler) _detail(id string) interface{} {
-	buff, err := x.httpClient.Get(fmt.Sprintf(huawei8ApiDetailUrl, id))
+func (x CmsZyHandler) _detail(id string) interface{} {
+	buff, err := x.httpClient.Get(fmt.Sprintf("%s/?ac=detail&ids=%s", x.getApiUrl(), id))
 	if err != nil {
 		return model.NewError("获取数据失败：" + err.Error())
 	}
@@ -157,7 +202,7 @@ func (x Huawei8ApiHandler) _detail(id string) interface{} {
 						Id:    fmt.Sprintf("%s-%d", video.Id, idx),
 						Name:  tmpList[0],
 						Url:   tmpList[1],
-						Group: "华为吧",
+						Group: "bfzym3u8",
 					})
 				}
 			}
@@ -168,12 +213,12 @@ func (x Huawei8ApiHandler) _detail(id string) interface{} {
 	return model.NewSuccess(video)
 }
 
-func (x Huawei8ApiHandler) _source(pid, vid string) interface{} {
+func (x CmsZyHandler) _source(pid, vid string) interface{} {
 	tmpVid, tmpTid, err := x.parseVidTypeId(pid)
 	if err != nil {
 		return model.NewError(err.Error())
 	}
-	buff, err := x.httpClient.Get(fmt.Sprintf(huawei8ApiDetailUrl, tmpVid))
+	buff, err := x.httpClient.Get(fmt.Sprintf("%s/?ac=detail&ids=%s", x.getApiUrl(), tmpVid))
 	if err != nil {
 		return model.NewError("获取数据失败：" + err.Error())
 	}
@@ -207,10 +252,10 @@ func (x Huawei8ApiHandler) _source(pid, vid string) interface{} {
 	return model.NewSuccess(source)
 }
 
-func (x Huawei8ApiHandler) UpdateHeader(header map[string]string) error {
+func (x CmsZyHandler) UpdateHeader(header map[string]string) error {
 	return nil
 }
 
-func (x Huawei8ApiHandler) HoldCookie() error {
+func (x CmsZyHandler) HoldCookie() error {
 	return nil
 }

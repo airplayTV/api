@@ -15,7 +15,7 @@ type YingshiHandler struct {
 	Handler
 }
 
-func (x YingshiHandler) Init() IVideo {
+func (x YingshiHandler) Init(options interface{}) IVideo {
 	x.httpClient = util.HttpClient{}
 	x.httpClient.AddHeader(headers.UserAgent, useragent)
 	x.httpClient.AddHeader(headers.Origin, yingshiHost)
