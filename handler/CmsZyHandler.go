@@ -20,8 +20,6 @@ type CmsZyHandler struct {
 func (x CmsZyHandler) Init(options interface{}) IVideo {
 	x.httpClient = util.HttpClient{}
 	x.httpClient.AddHeader(headers.UserAgent, useragent)
-	x.httpClient.AddHeader(headers.Origin, kczyHost)
-	x.httpClient.AddHeader(headers.Referer, kczyHost)
 
 	var o = options.(model.CmsZyOption)
 	x.option = model.CmsZyOption{
