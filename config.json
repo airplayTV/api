@@ -7,6 +7,18 @@
       "api": "https://cjhwba.com/api.php/provide/vod/?ac=list"
     },
     {
+      "id": "dbzy",
+      "name": "豆瓣资源",
+      "host": "https://dbzy1.com/",
+      "api": "https://caiji.dbzy.tv/api.php/provide/vod/at/josn/"
+    },
+    {
+      "id": "suonizy",
+      "name": "索尼资源",
+      "host": "https://suonizy.net/",
+      "api": "https://suoniapi.com/api.php/provide/vod/from/snm3u8/"
+    },
+    {
       "id": "bfzy",
       "name": "暴风资源",
       "host": "https://bfzy9.tv/",
@@ -19,10 +31,46 @@
       "api": "https://caiji.kczyapi.com/api.php/provide/vod/?ac=list"
     },
     {
+      "id": "ukuzy",
+      "name": "U酷资源",
+      "host": "https://ukuzy0.com/",
+      "api": "https://api.ukuapi88.com/api.php/provide/vod/?ac=list"
+    },
+    {
       "id": "senlinzy",
       "name": "森林资源",
       "host": "https://senlinzy.com",
       "api": "https://slapibf.com/api.php/provide/vod/?ac=list"
+    },
+    {
+      "id": "naixxzy",
+      "name": "奶香香资源",
+      "host": "https://naixxzy.com/",
+      "api": "https://naixxzy.com/api.php/provide/vod/?ac=list"
+    },
+    {
+      "id": "155zy",
+      "name": "155资源",
+      "host": "http://155zy.com/",
+      "api": "https://155api.com/api.php/provide/vod/?ac=list"
+    },
+    {
+      "id": "didizy",
+      "name": "滴滴资源",
+      "host": "https://didizy.com/",
+      "api": "https://api.ddapi.cc/api.php/provide/vod/?ac=list"
+    },
+    {
+      "id": "avre00",
+      "name": "黄瓜资源",
+      "host": "https://avre.club/",
+      "api": "https://www.avre06.com/api.php/provide/vod/?ac=list"
+    },
+    {
+      "id": "shayuzy",
+      "name": "鲨鱼资源",
+      "host": "https://shayuzy5.com/",
+      "api": "https://shayuapi.com/api.php/provide/vod/at/json/"
     }
   ]
 }
