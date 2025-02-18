@@ -8,7 +8,7 @@ type KV1 struct {
 type CmsZyOption struct {
 	Name string
 	Api  string
-	Tags map[string]string // 换其他类型就不行。。。
+	//Tags map[string]string // 换其他类型就不行。。。
 }
 
 func (x *CmsZyOption) SetName(name string) {
@@ -25,9 +25,9 @@ func (x *CmsZyOption) GetApi() string {
 	return x.Api
 }
 
-func (x *CmsZyOption) SetTags(tags map[string]string) {
-	x.Tags = tags
-}
-func (x *CmsZyOption) GetTags() map[string]string {
-	return x.Tags
-}
+//func (x *CmsZyOption) SetTags(tags map[string]string) {
+//	x.Tags = tags
+//}
+//func (x *CmsZyOption) GetTags() map[string]string {
+//	return x.Tags
+//}

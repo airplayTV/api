@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"github.com/airplayTV/api/model"
@@ -22,11 +23,7 @@ func (x CmsZyHandler) Init(options interface{}) IVideo {
 	x.httpClient.AddHeader(headers.UserAgent, useragent)
 
 	var o = options.(model.CmsZyOption)
-	x.option = model.CmsZyOption{
-		Name: o.Name,
-		Api:  o.Api,
-		Tags: make(map[string]string),
-	}
+	x.option = model.CmsZyOption{Name: o.Name, Api: o.Api}
 
 	return x
 }
@@ -47,10 +44,14 @@ func (x CmsZyHandler) getApiUrl() string {
 }
 
 func (x CmsZyHandler) TagList() interface{} {
-	var tmpTags = x.option.GetTags()
-	if len(tmpTags) > 0 {
-		return x.formatTags(tmpTags)
+	var key = fmt.Sprintf("tag-list-%s", x.option.GetName())
+
+	data, err := handlerCache.Get(context.Background(), key)
+	if err == nil {
+		return x.formatTags(data.(map[string]string))
 	}
+	var tmpTags map[string]string
+	//log.Println("[req]", x.option.GetName(), x.getApiUrl(), len(x.option.GetTags()))
 	buff, err := x.httpClient.Get(x.getApiUrl())
 	if err != nil {
 		tmpTags = map[string]string{}
@@ -59,14 +60,18 @@ func (x CmsZyHandler) TagList() interface{} {
 		log.Println("[ResolveTagError]", err.Error())
 		return x.formatTags(tmpTags)
 	}
-	tmpTags = map[string]string{}
+	tmpTags = make(map[string]string)
 	tmpTags["全部"] = ""
 	var result = gjson.ParseBytes(buff)
 	result.Get("class").ForEach(func(key, value gjson.Result) bool {
 		tmpTags[value.Get("type_name").String()] = value.Get("type_id").String()
 		return true
 	})
-	x.option.SetTags(tmpTags)
+
+	if err = handlerCache.Set(context.Background(), key, tmpTags); err != nil {
+		log.Println("[CacheSetError]", err.Error())
+	}
+
 	return x.formatTags(tmpTags)
 }
 
