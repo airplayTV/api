@@ -202,7 +202,7 @@ func (x CmsZyHandler) _detail(id string) interface{} {
 						Id:    fmt.Sprintf("%s-%d", video.Id, idx),
 						Name:  tmpList[0],
 						Url:   tmpList[1],
-						Group: x.option.GetId(),
+						Group: x.option.GetName(),
 					})
 				}
 			}
