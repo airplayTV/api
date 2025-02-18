@@ -31,6 +31,12 @@
       "api": "https://caiji.kczyapi.com/api.php/provide/vod/?ac=list"
     },
     {
+      "id": "jinyingzy",
+      "name": "金鹰资源",
+      "host": "http://jinyingzy.com/",
+      "api": "https://jyzyapi.com/provide/vod/from/jinyingm3u8/at/json"
+    },
+    {
       "id": "ukuzy",
       "name": "U酷资源",
       "host": "https://ukuzy0.com/",
