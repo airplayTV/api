@@ -48,9 +48,6 @@ func (x CmsZyHandler) getApiUrl() string {
 
 func (x CmsZyHandler) TagList() interface{} {
 	var tmpTags = x.option.GetTags()
-
-	log.Println("[AA]", x.option.GetName(), len(tmpTags), util.ToString(tmpTags))
-
 	if len(tmpTags) > 0 {
 		return x.formatTags(tmpTags)
 	}

@@ -1,7 +1,5 @@
 package model
 
-import "log"
-
 type KV1 struct {
 	Name  string `json:"name"`
 	Value string `json:"value"`
@@ -24,7 +22,6 @@ func (x *CmsZyOption) SetApi(api string) {
 	x.Api = api
 }
 func (x *CmsZyOption) GetApi() string {
-	log.Println("[GetApi]", x.Name, x.Api)
 	return x.Api
 }
 
