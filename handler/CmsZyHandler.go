@@ -37,60 +37,6 @@ func (x CmsZyHandler) Name() string {
 	return x.option.GetName()
 }
 
-func (x CmsZyHandler) getApiUrl() string {
-	tmpUrl, err := url.Parse(x.option.GetApi())
-	if err != nil {
-		return ""
-	}
-	if len(tmpUrl.Scheme) > 0 && len(tmpUrl.Host) > 0 {
-		return fmt.Sprintf("%s://%s/%s", tmpUrl.Scheme, tmpUrl.Host, strings.Trim(tmpUrl.Path, "/"))
-	}
-	return ""
-}
-
-func (x CmsZyHandler) TagList() interface{} {
-	var key = fmt.Sprintf("tag-list-%s", x.option.GetName())
-
-	data, err := handlerCache.Get(context.Background(), key)
-	if err == nil {
-		return x.formatTags(data.(map[string]string))
-	}
-	var tmpTags map[string]string
-	log.Println("[req]", x.option.GetName(), x.getApiUrl())
-	buff, err := x.httpClient.Get(x.getApiUrl())
-	if err != nil {
-		tmpTags = map[string]string{}
-		tmpTags["全部"] = ""
-
-		log.Println("[ResolveTagError]", err.Error())
-		return x.formatTags(tmpTags)
-	}
-	tmpTags = make(map[string]string)
-	tmpTags["全部"] = ""
-	var result = gjson.ParseBytes(buff)
-	result.Get("class").ForEach(func(key, value gjson.Result) bool {
-		tmpTags[value.Get("type_name").String()] = value.Get("type_id").String()
-		return true
-	})
-
-	if err = handlerCache.Set(context.Background(), key, tmpTags); err != nil {
-		log.Println("[CacheSetError]", err.Error())
-	}
-
-	return x.formatTags(tmpTags)
-}
-
-func (x CmsZyHandler) formatTags(tags map[string]string) []model.KV1 {
-	var result = make([]model.KV1, 0)
-	for k, v := range tags {
-		result = append(result, model.KV1{
-			Name:  k,
-			Value: v,
-		})
-	}
-	return result
-}
-
 func (x CmsZyHandler) VideoList(tag, page string) interface{} {
 	return x._videoList(tag, page)
 }
@@ -257,6 +203,60 @@ func (x CmsZyHandler) _source(pid, vid string) interface{} {
 	}
 
 	return model.NewSuccess(source)
+}
+
+func (x CmsZyHandler) getApiUrl() string {
+	tmpUrl, err := url.Parse(x.option.GetApi())
+	if err != nil {
+		return ""
+	}
+	if len(tmpUrl.Scheme) > 0 && len(tmpUrl.Host) > 0 {
+		return fmt.Sprintf("%s://%s/%s", tmpUrl.Scheme, tmpUrl.Host, strings.Trim(tmpUrl.Path, "/"))
+	}
+	return ""
+}
+
+func (x CmsZyHandler) TagList() interface{} {
+	var key = fmt.Sprintf("tag-list-%s", x.option.GetName())
+
+	data, err := handlerCache.Get(context.Background(), key)
+	if err == nil {
+		return x.formatTags(data.(map[string]string))
+	}
+	var tmpTags map[string]string
+	log.Println("[req]", x.option.GetName(), x.getApiUrl())
+	buff, err := x.httpClient.Get(x.getApiUrl())
+	if err != nil {
+		tmpTags = map[string]string{}
+		tmpTags["全部"] = ""
+
+		log.Println("[ResolveTagError]", err.Error())
+		return x.formatTags(tmpTags)
+	}
+	tmpTags = make(map[string]string)
+	tmpTags["全部"] = ""
+	var result = gjson.ParseBytes(buff)
+	result.Get("class").ForEach(func(key, value gjson.Result) bool {
+		tmpTags[value.Get("type_name").String()] = value.Get("type_id").String()
+		return true
+	})
+
+	if err = handlerCache.Set(context.Background(), key, tmpTags); err != nil {
+		log.Println("[CacheSetError]", err.Error())
+	}
+
+	return x.formatTags(tmpTags)
+}
+
+func (x CmsZyHandler) formatTags(tags map[string]string) []model.KV1 {
+	var result = make([]model.KV1, 0)
+	for k, v := range tags {
+		result = append(result, model.KV1{
+			Name:  k,
+			Value: v,
+		})
+	}
+	return result
 }
 
 func (x CmsZyHandler) UpdateHeader(header map[string]string) error {
