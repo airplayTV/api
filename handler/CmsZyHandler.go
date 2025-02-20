@@ -148,7 +148,7 @@ func (x CmsZyHandler) _detail(id string) interface{} {
 			video.Thumb = value.Get("vod_pic").String()
 			video.Intro = value.Get("vod_content").String()
 			video.Actors = value.Get("vod_actor").String()
-			for idx, tmpUrl := range strings.Split(value.Get("vod_play_url").String(), "#") {
+			for idx, tmpUrl := range strings.Split(value.Get("vod_play_url").String(), x.parseSourceSplit(value.Get("vod_play_note").String())) {
 				var tmpList = strings.Split(tmpUrl, "$")
 				if len(tmpList) == 2 {
 					video.Links = append(video.Links, model.Link{
@@ -185,7 +185,7 @@ func (x CmsZyHandler) _source(pid, vid string) interface{} {
 		result.Get("list").ForEach(func(key, value gjson.Result) bool {
 			source.Name = value.Get("vod_name").String()
 			source.Thumb = value.Get("vod_pic").String()
-			for idx, tmpUrl := range strings.Split(value.Get("vod_play_url").String(), "#") {
+			for idx, tmpUrl := range strings.Split(value.Get("vod_play_url").String(), x.parseSourceSplit(value.Get("vod_play_note").String())) {
 				if idx == tmpNid {
 					var tmpList = strings.Split(tmpUrl, "$")
 					if len(tmpList) == 2 {
@@ -203,6 +203,13 @@ func (x CmsZyHandler) _source(pid, vid string) interface{} {
 	}
 
 	return model.NewSuccess(source)
+}
+
+func (x CmsZyHandler) parseSourceSplit(vodPlayNote string) string {
+	if len(vodPlayNote) == 0 {
+		return "#"
+	}
+	return vodPlayNote
 }
 
 func (x CmsZyHandler) getApiUrl() string {
