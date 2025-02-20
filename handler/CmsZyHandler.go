@@ -148,17 +148,13 @@ func (x CmsZyHandler) _detail(id string) interface{} {
 			video.Thumb = value.Get("vod_pic").String()
 			video.Intro = value.Get("vod_content").String()
 			video.Actors = value.Get("vod_actor").String()
-			for idx, tmpUrl := range strings.Split(value.Get("vod_play_url").String(), x.parseSourceSplit(value.Get("vod_play_note").String())) {
-				var tmpList = strings.Split(tmpUrl, "$")
-				if len(tmpList) == 2 {
-					video.Links = append(video.Links, model.Link{
-						Id:    fmt.Sprintf("%s-%d", video.Id, idx),
-						Name:  tmpList[0],
-						Url:   tmpList[1],
-						Group: x.option.GetName(),
-					})
-				}
-			}
+			video.Links, _ = x.parseSourceList(
+				x.option.GetName(),
+				value.Get("vod_play_from").String(),
+				value.Get("vod_play_note").String(),
+				value.Get("vod_play_url").String(),
+				"",
+			)
 			return true
 		})
 	}
@@ -167,11 +163,7 @@ func (x CmsZyHandler) _detail(id string) interface{} {
 }
 
 func (x CmsZyHandler) _source(pid, vid string) interface{} {
-	tmpVid, tmpTid, err := x.parseVidTypeId(pid)
-	if err != nil {
-		return model.NewError(err.Error())
-	}
-	buff, err := x.httpClient.Get(fmt.Sprintf("%s/?ac=detail&ids=%s", x.getApiUrl(), tmpVid))
+	buff, err := x.httpClient.Get(fmt.Sprintf("%s/?ac=detail&ids=%s", x.getApiUrl(), vid))
 	if err != nil {
 		return model.NewError("获取数据失败：" + err.Error())
 	}
@@ -181,19 +173,19 @@ func (x CmsZyHandler) _source(pid, vid string) interface{} {
 	log.Println("[NNN]", result.Get("total").Int())
 
 	if result.Get("total").Int() > 0 {
-		var tmpNid = util.ParseNumber(tmpTid)
 		result.Get("list").ForEach(func(key, value gjson.Result) bool {
 			source.Name = value.Get("vod_name").String()
 			source.Thumb = value.Get("vod_pic").String()
-			for idx, tmpUrl := range strings.Split(value.Get("vod_play_url").String(), x.parseSourceSplit(value.Get("vod_play_note").String())) {
-				if idx == tmpNid {
-					var tmpList = strings.Split(tmpUrl, "$")
-					if len(tmpList) == 2 {
-						source.Url = tmpList[1]
-						source.Source = tmpList[1]
-					}
-				}
-			}
+			_, tmpLink := x.parseSourceList(
+				x.option.GetName(),
+				value.Get("vod_play_from").String(),
+				value.Get("vod_play_note").String(),
+				value.Get("vod_play_url").String(),
+				pid,
+			)
+			source.Url = tmpLink.Url
+			source.Source = tmpLink.Url
+
 			return true
 		})
 	}
@@ -264,6 +256,41 @@ func (x CmsZyHandler) formatTags(tags map[string]string) []model.KV1 {
 		})
 	}
 	return result
+}
+
+func (x CmsZyHandler) parseSourceList(sourceName, vodPlayFrom, vodPlayNote, vodPlayUrl, pid string) ([]model.Link, model.Link) {
+	var sourceNameList = []string{sourceName}
+	var sourceList = []string{vodPlayUrl}
+	if len(vodPlayNote) > 0 {
+		sourceNameList = strings.Split(vodPlayFrom, vodPlayNote)
+		sourceList = strings.Split(vodPlayUrl, vodPlayNote)
+	}
+
+	var links = make([]model.Link, 0)
+	var link model.Link
+
+	for i, tmpString := range sourceList {
+		for j, tmpSource := range strings.Split(tmpString, "#") {
+			var tmpList = strings.Split(tmpSource, "$")
+			var tmpPid = fmt.Sprintf("%d-%d", i, j)
+			links = append(links, model.Link{
+				Id:    tmpPid,
+				Name:  tmpList[0],
+				Url:   tmpList[1],
+				Group: sourceNameList[i],
+			})
+			if tmpPid == pid {
+				link = model.Link{
+					Id:    tmpPid,
+					Name:  tmpList[0],
+					Url:   tmpList[1],
+					Group: sourceNameList[i],
+				}
+			}
+		}
+	}
+
+	return links, link
 }
 
 func (x CmsZyHandler) UpdateHeader(header map[string]string) error {
