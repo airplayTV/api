@@ -73,6 +73,12 @@
       "api": "https://www.avre06.com/api.php/provide/vod/?ac=list"
     },
     {
+      "id": "fhzy",
+      "name": "番号资源",
+      "host": "http://fhzy10.com/help",
+      "api": "http://fhapi9.com/api.php/provide/vod/"
+    },
+    {
       "id": "shayuzy",
       "name": "鲨鱼资源",
       "host": "https://shayuzy5.com/",
@@ -101,6 +107,24 @@
       "name": "鸭鸭资源",
       "host": "https://yayazy1.com/",
       "api": "https://cj.yayazy.net/api.php/provide/vod/?ac=list"
+    },
+    {
+      "id": "okzyw",
+      "name": "ok资源",
+      "host": "https://okzyw.me/",
+      "api": "https://api.okzy.org/api.php/provide/vod/"
+    },
+    {
+      "id": "hongniuziyuan",
+      "name": "红牛资源",
+      "host": "https://hongniuziyuan.com",
+      "api": "https://www.hongniuzy2.com/api.php/provide/vod/"
+    },
+    {
+      "id": "xinlangzy",
+      "name": "新浪资源",
+      "host": "https://xinlangzy.com",
+      "api": "https://api.xinlangapi.com/xinlangapi.php/provide/vod/"
     }
   ]
 }
