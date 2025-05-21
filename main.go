@@ -10,6 +10,7 @@ import (
 
 func main() {
 	var app = gin.Default()
+	app.Use(gin.Recovery())
 	if err := newRouterApi(app).Run(":8082"); err != nil {
 		log.Fatalln(err)
 	}
