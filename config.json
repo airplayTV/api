@@ -16,7 +16,8 @@
       "id": "suonizy",
       "name": "索尼资源",
       "host": "https://suonizy.net/",
-      "api": "https://suoniapi.com/api.php/provide/vod/from/snm3u8/"
+      "api": "https://suoniapi.com/api.php/provide/vod/from/snm3u8/",
+      "description": "不支持搜索"
     },
     {
       "id": "bfzy",

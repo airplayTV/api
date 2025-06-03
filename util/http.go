@@ -57,6 +57,7 @@ func (x *HttpClient) decodeEncoding(resp *http.Response) ([]byte, error) {
 }
 
 func (x *HttpClient) Get(requestUrl string) ([]byte, error) {
+	// requestUrl 包含中文可能导致 400 Bad Request
 	req, err := http.NewRequest("GET", requestUrl, nil)
 	if err != nil {
 		return nil, err

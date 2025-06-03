@@ -93,7 +93,8 @@ func (x CmsZyHandler) _videoList(tagName, page string) interface{} {
 }
 
 func (x CmsZyHandler) _search(keyword, page string) interface{} {
-	buff, err := x.httpClient.Get(fmt.Sprintf("%s/?ac=list&pg=%d&t=&wd=%s", x.getApiUrl(), x.parsePageNumber(page), keyword))
+	var reqUrl = fmt.Sprintf("%s/?ac=list&pg=%d&t=&wd=%s", x.getApiUrl(), x.parsePageNumber(page), url.QueryEscape(keyword))
+	buff, err := x.httpClient.Get(reqUrl)
 	if err != nil {
 		return model.NewError("获取数据失败：" + err.Error())
 	}
