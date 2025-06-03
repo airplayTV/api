@@ -146,7 +146,7 @@ func (x CmsZyHandler) _detail(id string) interface{} {
 		result.Get("list").ForEach(func(key, value gjson.Result) bool {
 			video.Name = value.Get("vod_name").String()
 			video.Thumb = value.Get("vod_pic").String()
-			video.Intro = value.Get("vod_content").String()
+			video.Intro = util.HtmlToText(value.Get("vod_content").String())
 			video.Actors = value.Get("vod_actor").String()
 			video.Links, _ = x.parseSourceList(
 				x.option.GetName(),
