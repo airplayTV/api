@@ -13,6 +13,7 @@ import (
 	"github.com/gorilla/websocket"
 	"github.com/lixiang4u/goWebsocket"
 	"github.com/skip2/go-qrcode"
+	"github.com/spf13/cast"
 	"github.com/zc310/headers"
 	"log"
 	"net/http"
@@ -197,7 +198,8 @@ func (x VideoController) Source(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, model.NewError("数据源错误"))
 		return
 	}
-	var cacheKey = fmt.Sprintf("Source::%s_%s_%s", ctx.Query("_source"), ctx.Query("pid"), ctx.Query("vid"))
+	var p = cast.ToBool(ctx.Query("_m3u8p"))
+	var cacheKey = fmt.Sprintf("Source::%s_%s_%s_%s", ctx.Query("_source"), ctx.Query("pid"), ctx.Query("vid"), ctx.Query("_m3u8p"))
 	data, err := globalCache.Get(context.Background(), cacheKey)
 	if err == nil && !slices.Contains(noCacheSourceList, h.Handler.Name()) {
 		ctx.Header("Hit-Cache", "true")
@@ -207,9 +209,28 @@ func (x VideoController) Source(ctx *gin.Context) {
 	var resp = h.Handler.Source(ctx.Query("pid"), ctx.Query("vid"))
 	switch resp.(type) {
 	case model.Success:
+		resp = x.m3u8pHandler(p, resp)
 		_ = globalCache.Set(context.Background(), cacheKey, resp, store.WithExpiration(time.Hour*1))
 	}
 	x.response(ctx, resp)
+}
+
+func (x VideoController) m3u8pHandler(m3u8p bool, resp interface{}) interface{} {
+	if !m3u8p {
+		return resp
+	}
+	switch resp.(type) {
+	case model.Success:
+		var tmpResp = resp.(model.Success)
+		switch tmpResp.Data.(type) {
+		case model.Source:
+			var tmpSource = tmpResp.Data.(model.Source)
+			tmpSource.Url = fmt.Sprintf("%s?url=%s", handler.ApiM3U8ProxyUrl, util.EncodeComponentUrl(tmpSource.Url))
+			tmpResp.Data = tmpSource
+			resp = tmpResp
+		}
+	}
+	return resp
 }
 
 func (x VideoController) Airplay(ctx *gin.Context) {

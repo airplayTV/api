@@ -7,6 +7,7 @@ const (
 )
 
 const apiM3U8ProxyUrl = "https://airplay-api.artools.cc/api/m3u8p"
+const ApiM3U8ProxyUrl = apiM3U8ProxyUrl
 
 const (
 	czzyHost      = "https://www.cz233.com"
