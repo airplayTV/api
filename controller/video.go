@@ -34,8 +34,8 @@ func init() {
 		Sort    int
 		Handler handler.IVideo
 	}{
-		handler.CzzyHandler{}.Name():     {Sort: 1, Handler: handler.CzzyHandler{}.Init(nil)},
-		handler.SubbHandler{}.Name():     {Sort: 2, Handler: handler.SubbHandler{}.Init(nil)},
+		handler.CzzyHandler{}.Name(): {Sort: 1, Handler: handler.CzzyHandler{}.Init(nil)},
+		//handler.SubbHandler{}.Name():     {Sort: 2, Handler: handler.SubbHandler{}.Init(nil)}, // 限制国内IP访问
 		handler.YingshiHandler{}.Name():  {Sort: 3, Handler: handler.YingshiHandler{}.Init(nil)},
 		handler.MaYiHandler{}.Name():     {Sort: 4, Handler: handler.MaYiHandler{}.Init(nil)},
 		handler.NaifeiMeHandler{}.Name(): {Sort: 5, Handler: handler.NaifeiMeHandler{}.Init(nil)},
