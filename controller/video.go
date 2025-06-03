@@ -268,10 +268,10 @@ func (x VideoController) M3u8p(ctx *gin.Context) {
 		x.response(ctx, model.NewError("URL地址错误"))
 		return
 	}
-	if !slices.Contains(model.M3u8ProxyHosts, parsed.Host) {
-		x.response(ctx, model.NewError("不支持的代理地址："+parsed.Host))
-		return
-	}
+	//if !slices.Contains(model.M3u8ProxyHosts, parsed.Host) {
+	//	x.response(ctx, model.NewError("不支持的代理地址："+parsed.Host))
+	//	return
+	//}
 	var httpClient = util.HttpClient{}
 	header, buff, err := httpClient.GetResponse(tmpUrl)
 	if err != nil {
