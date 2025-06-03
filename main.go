@@ -2,10 +2,12 @@ package main
 
 import (
 	"github.com/airplayTV/api/controller"
+	"github.com/airplayTV/api/model"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/lixiang4u/goWebsocket"
 	"log"
+	"net/http"
 )
 
 func main() {
@@ -48,6 +50,12 @@ func newRouterApi(app *gin.Engine) *gin.Engine {
 	app.GET("/api/qrcode", videoController.QrCode)     // 根据文本生成二维码图
 
 	app.GET("/api/sse/video/search", videoController.SearchV2) // 视频搜索SSE
+
+	app.GET("/api/debug/http-ctx", func(ctx *gin.Context) {
+		ctx.JSON(http.StatusOK, model.NewSuccess(map[string]interface{}{
+			"header": ctx.Request.Header,
+		}))
+	})
 
 	return app
 }
