@@ -219,7 +219,7 @@ func (x CzzyHandler) _source(pid, vid string) interface{} {
 	} else if doc.Find(".videoplay iframe").Length() > 0 {
 		// 解析另一种iframe嵌套的视频
 		iframeUrl, _ := doc.Find(".videoplay iframe").Attr("src")
-		//log.Println("[iframeUrl]", iframeUrl)
+		log.Println("[iframeUrl]", iframeUrl)
 		frameContent, err := x.getIframeContent(iframeUrl)
 		if err != nil {
 			return model.NewError(err.Error())
@@ -227,7 +227,10 @@ func (x CzzyHandler) _source(pid, vid string) interface{} {
 		var encryptResultV2 = x.simpleRegEx(frameContent, `var result_v2 = {"data":"(\S+?)"`)
 		var findV3Rand = x.simpleRegEx(frameContent, `var rand = "(\S+)";`)
 		var findV3Player = x.simpleRegEx(frameContent, `var player = "(\S+)";`)
-		if len(encryptResultV2) > 0 {
+		var tmpPlayUrl = x.simpleRegEx(frameContent, `const mysvg = '(\S+)';`)
+		if len(tmpPlayUrl) > 0 {
+			source.Source = tmpPlayUrl
+		} else if len(encryptResultV2) > 0 {
 			source.Source = x.parseEncryptedResultV2ToUrl(encryptResultV2)
 		} else if len(findV3Rand) > 0 && len(findV3Player) > 0 {
 			source.Source = x.parseEncryptedResultV3ToUrl(findV3Rand, findV3Player)
