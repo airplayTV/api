@@ -90,7 +90,7 @@ func (x CzzyHandler) _videoList(tagName, page string) interface{} {
 		resolution := selection.Find(".hdinfo span").Text()
 
 		pager.List = append(pager.List, model.Video{
-			Id:         x.simpleRegEx(tmpUrl, `(\d+)`),
+			Id:         x.simpleRegEx(tmpUrl, `(\d+).html`),
 			Name:       name,
 			Thumb:      thumb,
 			Url:        tmpUrl,
