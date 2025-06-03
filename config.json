@@ -112,7 +112,8 @@
       "id": "okzyw",
       "name": "ok资源",
       "host": "https://okzyw.me/",
-      "api": "https://api.okzy.org/api.php/provide/vod/"
+      "api": "https://api.okzy.org/api.php/provide/vod/",
+      "disable": true
     },
     {
       "id": "hongniuziyuan",

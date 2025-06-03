@@ -48,11 +48,15 @@ func init() {
 
 	var idx = 20
 	for _, tmpConfig := range cmsApiConfig {
+		if tmpConfig.Disable {
+			continue
+		}
 		idx += 1
 		var h = handler.CmsZyHandler{}.Init(model.CmsZyOption{
-			Name: tmpConfig.Name,
-			Api:  tmpConfig.Api,
-			Id:   tmpConfig.Id,
+			Name:    tmpConfig.Name,
+			Api:     tmpConfig.Api,
+			Id:      tmpConfig.Id,
+			Disable: tmpConfig.Disable,
 		})
 		sourceMap[tmpConfig.Name] = struct {
 			Sort    int

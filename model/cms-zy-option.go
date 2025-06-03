@@ -6,9 +6,10 @@ type KV1 struct {
 }
 
 type CmsZyOption struct {
-	Id   string
-	Name string
-	Api  string
+	Id      string
+	Name    string
+	Api     string
+	Disable bool
 	//Tags map[string]string // 换其他类型就不行。。。
 }
 
