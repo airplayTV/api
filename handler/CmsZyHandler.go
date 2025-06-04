@@ -9,8 +9,11 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/tidwall/gjson"
 	"github.com/zc310/headers"
+	"io/fs"
 	"log"
 	"net/url"
+	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -218,34 +221,43 @@ func (x CmsZyHandler) getApiUrl() string {
 
 func (x CmsZyHandler) TagList() interface{} {
 	var key = fmt.Sprintf("tag-list-%s", x.option.GetName())
-
 	data, err := handlerCache.Get(context.Background(), key)
 	if err == nil {
 		return x.formatTags(data.(map[string]string))
 	}
-	var tmpTags map[string]string
-	log.Println("[req]", x.option.GetName(), x.option.GetApi())
-	buff, err := x.httpClient.Get(x.option.GetApi())
-	if err != nil {
-		tmpTags = map[string]string{}
-		tmpTags["全部"] = ""
-
-		log.Println("[ResolveTagError]", err.Error())
-		return x.formatTags(tmpTags)
+	var tagCacheFile = filepath.Join(util.AppPath(), fmt.Sprintf("cache/tags/%s.json", x.option.GetId()))
+	var buff = util.ReadFile(tagCacheFile)
+	if buff == nil || len(buff) == 0 {
+		go x.saveTagListLocal(tagCacheFile)
 	}
-	tmpTags = make(map[string]string)
-	tmpTags["全部"] = ""
+	var tmpTags = map[string]string{"全部": ""}
 	var result = gjson.ParseBytes(buff)
 	result.Get("class").ForEach(func(key, value gjson.Result) bool {
 		tmpTags[value.Get("type_name").String()] = value.Get("type_id").String()
 		return true
 	})
-
-	if err = handlerCache.Set(context.Background(), key, tmpTags); err != nil {
-		log.Println("[CacheSetError]", err.Error())
-	}
-
 	return x.formatTags(tmpTags)
+}
+
+func (x CmsZyHandler) saveTagListLocal(filename string) {
+	_, err := os.Stat(filepath.Dir(filename))
+	if err != nil {
+		_ = os.MkdirAll(filepath.Dir(filename), fs.ModePerm)
+	}
+	log.Println("[req]", x.option.GetName(), x.option.GetApi())
+	buff, err := x.httpClient.Get(x.option.GetApi())
+	if err != nil {
+		log.Println("[TagError]", err.Error())
+		_ = util.WriteFile(fmt.Sprintf("%s.error", filename), []byte(err.Error()))
+		return
+	}
+	var result = gjson.ParseBytes(buff)
+	if len(result.Get("class").Array()) > 0 {
+		_ = util.WriteFile(filename, buff)
+	} else {
+		log.Println("[TagEmpty]", string(buff))
+		_ = util.WriteFile(fmt.Sprintf("%s.error", filename), buff)
+	}
 }
 
 func (x CmsZyHandler) formatTags(tags map[string]string) []model.KV1 {
