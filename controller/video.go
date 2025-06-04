@@ -16,6 +16,7 @@ import (
 	"github.com/spf13/cast"
 	"github.com/zc310/headers"
 	"log"
+	"net"
 	"net/http"
 	"net/url"
 	"slices"
@@ -347,4 +348,53 @@ func (x VideoController) response(ctx *gin.Context, resp interface{}) {
 		log.Println("[resp]", util.ToString(resp))
 		ctx.JSON(http.StatusInternalServerError, model.NewError("接口返回数据格式不支持"))
 	}
+}
+
+func (x VideoController) CheckNetwork(ctx *gin.Context) {
+	queryUrl, err := url.QueryUnescape(ctx.Query("url"))
+	if err != nil {
+		x.response(ctx, model.NewError("参数错误"))
+		return
+	}
+	queryUrl = "https://hd.ijycnd.com/play/YaOO5Ypa/index.m3u8"
+	queryUrl = "https://b.gg155gg1.com/20250603/jZCHlnld/index.m3u8"
+	//queryUrl = "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8"
+	//queryUrl = "https://test-streams.mux.dev/x36xhzz/url_0/193039199_mp4_h264_aac_hd_7.m3u8"
+
+	type Resp struct {
+		Host string `json:"host"`
+		Ip   string `json:"ip"`
+		Addr string `json:"addr"`
+		Url  string `json:"url"`
+	}
+
+	var resolvedUrlAddr = make([]Resp, 0)
+	playList, err := util.ParsePlayUrlList(queryUrl)
+	if err != nil {
+		x.response(ctx, model.NewError("播放文件处理失败："+err.Error()))
+	}
+	for _, tmpUrl := range playList {
+		parsed, err := url.Parse(tmpUrl)
+		if err != nil {
+			continue
+		}
+		addrs, err := net.LookupHost(parsed.Hostname())
+		if err != nil {
+			continue
+		}
+		var region = util.IpAddress(addrs[0])
+
+		resolvedUrlAddr = append(resolvedUrlAddr, Resp{
+			Host: parsed.Hostname(),
+			Ip:   addrs[0],
+			Addr: fmt.Sprintf("%s %s", region.Country, region.Province),
+			Url:  tmpUrl,
+		})
+
+	}
+
+	x.response(ctx, model.NewSuccess(gin.H{
+		"queryUrl":        queryUrl,
+		"resolvedUrlAddr": resolvedUrlAddr,
+	}))
 }
