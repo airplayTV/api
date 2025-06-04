@@ -225,7 +225,7 @@ func (x CmsZyHandler) TagList() interface{} {
 	}
 	var tmpTags map[string]string
 	log.Println("[req]", x.option.GetName(), x.option.GetApi())
-	buff, err := x.httpClient.Get(x.getApiUrl())
+	buff, err := x.httpClient.Get(x.option.GetApi())
 	if err != nil {
 		tmpTags = map[string]string{}
 		tmpTags["全部"] = ""
