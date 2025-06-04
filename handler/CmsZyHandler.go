@@ -9,7 +9,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/tidwall/gjson"
 	"github.com/zc310/headers"
-	"io/fs"
 	"log"
 	"net/url"
 	"os"
@@ -242,7 +241,7 @@ func (x CmsZyHandler) TagList() interface{} {
 func (x CmsZyHandler) saveTagListLocal(filename string) {
 	_, err := os.Stat(filepath.Dir(filename))
 	if err != nil {
-		_ = os.MkdirAll(filepath.Dir(filename), fs.ModePerm)
+		_ = os.MkdirAll(filepath.Dir(filename), 0644)
 	}
 	log.Println("[req]", x.option.GetName(), x.option.GetApi())
 	buff, err := x.httpClient.Get(x.option.GetApi())
