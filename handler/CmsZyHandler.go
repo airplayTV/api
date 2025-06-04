@@ -14,6 +14,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 )
 
 // 采集源
@@ -226,27 +227,30 @@ func (x CmsZyHandler) TagList() interface{} {
 	}
 	var tagCacheFile = filepath.Join(util.AppPath(), fmt.Sprintf("cache/tags/%s.json", x.option.GetId()))
 	var buff = util.ReadFile(tagCacheFile)
-	if buff == nil || len(buff) == 0 {
-		go x.saveTagListLocal(tagCacheFile)
-	}
 	var tmpTags = map[string]string{"全部": ""}
 	var result = gjson.ParseBytes(buff)
 	result.Get("class").ForEach(func(key, value gjson.Result) bool {
 		tmpTags[value.Get("type_name").String()] = value.Get("type_id").String()
 		return true
 	})
+	go x.saveTagListLocal(tagCacheFile)
+
 	return x.formatTags(tmpTags)
 }
 
 func (x CmsZyHandler) saveTagListLocal(filename string) {
-	_, err := os.Stat(filepath.Dir(filename))
+	stat, err := os.Stat(filepath.Dir(filename))
 	if err != nil {
 		_ = os.MkdirAll(filepath.Dir(filename), 0644)
 	}
+	if time.Now().Unix()-stat.ModTime().Unix() <= 86400*2 {
+		return
+	}
+	_ = os.Remove(filename)
+
 	log.Println("[req]", x.option.GetName(), x.option.GetApi())
 	buff, err := x.httpClient.Get(x.option.GetApi())
 	if err != nil {
-		log.Println("[TagError]", err.Error())
 		_ = util.WriteFile(fmt.Sprintf("%s.error", filename), []byte(err.Error()))
 		return
 	}
@@ -254,7 +258,6 @@ func (x CmsZyHandler) saveTagListLocal(filename string) {
 	if len(result.Get("class").Array()) > 0 {
 		_ = util.WriteFile(filename, buff)
 	} else {
-		log.Println("[TagEmpty]", string(buff))
 		_ = util.WriteFile(fmt.Sprintf("%s.error", filename), buff)
 	}
 }
