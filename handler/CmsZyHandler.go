@@ -224,7 +224,7 @@ func (x CmsZyHandler) TagList() interface{} {
 		return x.formatTags(data.(map[string]string))
 	}
 	var tmpTags map[string]string
-	log.Println("[req]", x.option.GetName(), x.getApiUrl())
+	log.Println("[req]", x.option.GetName(), x.option.GetApi())
 	buff, err := x.httpClient.Get(x.getApiUrl())
 	if err != nil {
 		tmpTags = map[string]string{}
