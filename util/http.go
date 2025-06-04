@@ -64,7 +64,7 @@ func (x *HttpClient) Get(requestUrl string) ([]byte, error) {
 	}
 	x.addHeaderParams(req)
 
-	resp, err := (&http.Client{Timeout: time.Second * 10}).Do(req)
+	resp, err := (&http.Client{Timeout: time.Second * 15}).Do(req)
 	if err != nil {
 		return nil, err
 	}
