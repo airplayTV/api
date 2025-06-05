@@ -136,7 +136,7 @@ func (x CzzyHandler) _search(keyword, page string) interface{} {
 	doc.Find(".search_list ul li").Each(func(i int, selection *goquery.Selection) {
 		name := selection.Find(".dytit a").Text()
 		tmpUrl, _ := selection.Find(".dytit a").Attr("href")
-		thumb, _ := selection.Find("img.thumb").Attr("data-original")
+		thumb := selection.Find("img").AttrOr("src", "")
 		tag := selection.Find(".nostag").Text()
 		actors := selection.Find(".inzhuy").Text()
 		pager.List = append(pager.List, model.Video{
