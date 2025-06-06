@@ -1,8 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"github.com/airplayTV/api/controller"
 	"github.com/airplayTV/api/model"
+	"github.com/airplayTV/api/util"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/lixiang4u/goWebsocket"
@@ -39,18 +41,18 @@ func newRouterApi(app *gin.Engine) *gin.Engine {
 		ws.Handler(ctx.Writer, ctx.Request, nil)
 	})
 	// api接口
-	app.GET("/api/video/provider", videoController.Provider) // 来源
-	app.GET("/api/video/search", videoController.Search)     // 视频搜索
-	app.GET("/api/video/list", videoController.VideoList)    // 视频列表（根据来源-TAG确定）
-	app.GET("/api/video/detail", videoController.Detail)     // 视频详情
-	app.GET("/api/video/source", videoController.Source)     // 视频播放源
-	app.POST("/api/video/control", videoController.Control)  // 远程遥控功能
-	app.GET("/api/m3u8p", videoController.M3u8p)
-	app.POST("/api/cookie", videoController.SetCookie)               // 手动设置cookie用
-	app.GET("/api/qrcode", videoController.QrCode)                   // 根据文本生成二维码图
-	app.GET("/api/m3u8/network-check", videoController.CheckNetwork) // 检测视频播放的网络
+	app.GET("/api/video/provider", UseRecovery(videoController.Provider)) // 来源
+	app.GET("/api/video/search", UseRecovery(videoController.Search))     // 视频搜索
+	app.GET("/api/video/list", UseRecovery(videoController.VideoList))    // 视频列表（根据来源-TAG确定）
+	app.GET("/api/video/detail", UseRecovery(videoController.Detail))     // 视频详情
+	app.GET("/api/video/source", UseRecovery(videoController.Source))     // 视频播放源
+	app.POST("/api/video/control", UseRecovery(videoController.Control))  // 远程遥控功能
+	app.GET("/api/m3u8p", UseRecovery(videoController.M3u8p))
+	app.POST("/api/cookie", UseRecovery(videoController.SetCookie))               // 手动设置cookie用
+	app.GET("/api/qrcode", UseRecovery(videoController.QrCode))                   // 根据文本生成二维码图
+	app.GET("/api/m3u8/network-check", UseRecovery(videoController.CheckNetwork)) // 检测视频播放的网络
 
-	app.GET("/api/sse/video/search", videoController.SearchV2) // 视频搜索SSE
+	app.GET("/api/sse/video/search", UseRecovery(videoController.SearchV2)) // 视频搜索SSE
 
 	app.GET("/api/debug/http-ctx", func(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, model.NewSuccess(map[string]interface{}{
@@ -59,4 +61,22 @@ func newRouterApi(app *gin.Engine) *gin.Engine {
 	})
 
 	return app
+}
+
+func UseRecovery(h func(ctx *gin.Context)) func(ctx *gin.Context) {
+	return func(ctx *gin.Context) {
+		defer func() {
+			if err := recover(); err != nil {
+				log.Println(fmt.Sprintf("服务器异常：%s", util.ToString(gin.H{
+					"method": ctx.Request.Method,
+					"path":   ctx.Request.URL.Path,
+					"ip":     ctx.RemoteIP(),
+					"ips":    ctx.ClientIP(),
+					"err":    err,
+				})))
+				ctx.JSON(http.StatusOK, model.NewError("服务器异常", 500))
+			}
+		}()
+		h(ctx)
+	}
 }
