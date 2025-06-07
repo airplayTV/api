@@ -3,6 +3,7 @@ package util
 import (
 	"compress/flate"
 	"compress/gzip"
+	"crypto/tls"
 	"github.com/andybalholm/brotli"
 	"github.com/zc310/headers"
 	"io"
@@ -64,7 +65,11 @@ func (x *HttpClient) Get(requestUrl string) ([]byte, error) {
 	}
 	x.addHeaderParams(req)
 
-	resp, err := (&http.Client{Timeout: time.Second * 15}).Do(req)
+	var transport = &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+
+	resp, err := (&http.Client{Timeout: time.Second * 15, Transport: transport}).Do(req)
 	if err != nil {
 		return nil, err
 	}
