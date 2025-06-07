@@ -88,6 +88,12 @@
       "api": "http://fhapi9.com/api.php/provide/vod/"
     },
     {
+      "id": "danaizi",
+      "name": "大奶子资源",
+      "host": "https://helpdanaizi.com/",
+      "api": "https://apidanaizi.com/api.php/provide/vod/"
+    },
+    {
       "id": "shayuzy",
       "name": "鲨鱼资源",
       "host": "https://shayuzy5.com/",
@@ -132,6 +138,30 @@
       "host": "https://xinlangzy.com",
       "api": "https://api.xinlangapi.com/xinlangapi.php/provide/vod/",
       "description": "搜索不了"
+    },
+    {
+      "id": "maotaizy",
+      "name": "茅台资源",
+      "host": "https://mtzy5.com",
+      "api": "https://caiji.maotaizy.cc/api.php/provide/vod/"
+    },
+    {
+      "id": "dbm3u8",
+      "name": "百度资源",
+      "host": "https://mtzy5.com",
+      "api": "https://api.apibdzy.com/api.php/provide/vod/"
+    },
+    {
+      "id": "iqiyizy",
+      "name": "iQiYi资源",
+      "host": "https://iqiyizy.com/",
+      "api": "https://www.iqiyizyapi.com/api.php/provide/vod/"
+    },
+    {
+      "id": "dyttzyw",
+      "name": "电影天堂资源",
+      "host": "http://dyttzyw.tv/",
+      "api": "http://caiji.dyttzyapi.com/api.php/provide/vod/"
     }
   ]
 }
