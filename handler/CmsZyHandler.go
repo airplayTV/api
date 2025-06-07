@@ -241,10 +241,16 @@ func (x CmsZyHandler) TagList() interface{} {
 func (x CmsZyHandler) saveTagListLocal(filename string) {
 	stat, err := os.Stat(filepath.Dir(filename))
 	if err != nil {
-		_ = os.MkdirAll(filepath.Dir(filename), 0644)
+		if err = os.MkdirAll(filepath.Dir(filename), 0644); err != nil {
+			log.Println("[目录创建失败]", err.Error())
+			return
+		}
 	}
-	if time.Now().Unix()-stat.ModTime().Unix() <= 86400*2 {
-		return
+	stat, err = os.Stat(filename)
+	if err == nil {
+		if time.Now().Unix()-stat.ModTime().Unix() <= 86400*2 {
+			return
+		}
 	}
 	_ = os.Remove(filename)
 
