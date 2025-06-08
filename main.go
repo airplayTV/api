@@ -67,6 +67,7 @@ func UseRecovery(h func(ctx *gin.Context)) func(ctx *gin.Context) {
 	return func(ctx *gin.Context) {
 		defer func() {
 			if err := recover(); err != nil {
+				log.Println("[Err]", err)
 				log.Println(fmt.Sprintf("服务器异常：%s", util.ToString(gin.H{
 					"method": ctx.Request.Method,
 					"path":   ctx.Request.URL.Path,
