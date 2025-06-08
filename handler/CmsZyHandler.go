@@ -13,6 +13,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 	"time"
 )
@@ -276,6 +277,9 @@ func (x CmsZyHandler) formatTags(tags map[string]string) []model.KV1 {
 			Value: v,
 		})
 	}
+	slices.SortFunc(result, func(a, b model.KV1) int {
+		return strings.Compare(a.Value, b.Value)
+	})
 	return result
 }
 
