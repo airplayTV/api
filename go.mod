@@ -15,7 +15,7 @@ require (
 	github.com/gin-gonic/gin v1.10.0
 	github.com/goccy/go-json v0.10.2
 	github.com/gorilla/websocket v1.5.3
-	github.com/lixiang4u/goWebsocket v0.0.0-20241101151902-934f284d9fcc
+	github.com/lixiang4u/goWebsocket v0.0.0-20250606085004-d3507b1a072e
 	github.com/redis/go-redis/v9 v9.0.2
 	github.com/tidwall/gjson v1.18.0
 	github.com/zc310/headers v0.0.0-20210220023006-06acd8c1c220
@@ -54,6 +54,7 @@ require (
 	github.com/leodido/go-urn v1.4.0 // indirect
 	github.com/lionsoul2014/ip2region v2.11.2+incompatible // indirect
 	github.com/lionsoul2014/ip2region/binding/golang v0.0.0-20250508043914-ed57fa5c5274 // indirect
+	github.com/lixiang4u/concurrent-map v0.0.0-20250319060614-67b87a31cef3 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.1 // indirect

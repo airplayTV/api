@@ -10,7 +10,6 @@ import (
 	"github.com/airplayTV/api/util"
 	"github.com/eko/gocache/lib/v4/store"
 	"github.com/gin-gonic/gin"
-	"github.com/gorilla/websocket"
 	"github.com/lixiang4u/goWebsocket"
 	"github.com/skip2/go-qrcode"
 	"github.com/spf13/cast"
@@ -257,7 +256,7 @@ func (x VideoController) Control(ctx *gin.Context) {
 		return
 	}
 
-	x.WssManager.SendToGroup(post.Group, websocket.TextMessage, x.WssManager.ToBytes(post))
+	x.WssManager.SendToGroup(post.Group, x.WssManager.ToBytes(post))
 
 	x.response(ctx, model.NewSuccess(nil))
 }
