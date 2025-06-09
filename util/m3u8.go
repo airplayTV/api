@@ -4,11 +4,16 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"github.com/go-http-utils/headers"
 	"github.com/grafov/m3u8"
 	"golang.org/x/exp/slices"
 	"net/url"
 	"path"
 	"strings"
+)
+
+const (
+	useragent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"
 )
 
 // FormatM3u8Url m3u8地址格式化（修正地址问题）
@@ -107,6 +112,7 @@ func parseM3u8FileType(data []byte) m3u8.ListType {
 func ParsePlayUrlList(m3u8Url string) (urls []string, err error) {
 	var maxLen = 3
 	var httpClient = HttpClient{}
+	httpClient.AddHeader(headers.UserAgent, useragent)
 	_, buff, err := httpClient.GetResponse(m3u8Url)
 	if err != nil {
 		return

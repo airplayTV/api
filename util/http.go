@@ -4,6 +4,8 @@ import (
 	"compress/flate"
 	"compress/gzip"
 	"crypto/tls"
+	"errors"
+	"fmt"
 	"github.com/andybalholm/brotli"
 	"github.com/zc310/headers"
 	"io"
@@ -106,6 +108,12 @@ func (x *HttpClient) GetResponse(requestUrl string) (http.Header, []byte, error)
 	b, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, nil, err
+	}
+	if resp.StatusCode != 200 {
+		if len(resp.Status) > 0 {
+			return resp.Header, b, errors.New(resp.Status)
+		}
+		return resp.Header, b, errors.New(fmt.Sprintf("上游服务器返回错误(%d)", resp.StatusCode))
 	}
 	return resp.Header, b, nil
 }
