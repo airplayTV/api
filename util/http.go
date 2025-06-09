@@ -7,7 +7,8 @@ import (
 	"errors"
 	"fmt"
 	"github.com/andybalholm/brotli"
-	"github.com/zc310/headers"
+	"github.com/go-http-utils/headers"
+	"github.com/spf13/cast"
 	"io"
 	"net/http"
 	"strings"
@@ -108,6 +109,11 @@ func (x *HttpClient) GetResponse(requestUrl string) (http.Header, []byte, error)
 		return nil, nil, err
 	}
 	defer func() { _ = resp.Body.Close() }()
+
+	var contentLength = cast.ToInt64(resp.Header.Get(headers.ContentLength))
+	if contentLength > 1024*1024*1 {
+		return resp.Header, nil, errors.New(fmt.Sprintf("请求内容太大(%s)", resp.Header.Get(headers.ContentType)))
+	}
 
 	b, err := io.ReadAll(resp.Body)
 	if err != nil {
