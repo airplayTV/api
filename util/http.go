@@ -75,6 +75,7 @@ func (x *HttpClient) Get(requestUrl string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer func() { _ = resp.Body.Close() }()
 
 	return x.decodeEncoding(resp)
 }
@@ -90,6 +91,7 @@ func (x *HttpClient) Post(requestUrl, rawBody string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer func() { _ = resp.Body.Close() }()
 
 	return x.decodeEncoding(resp)
 }
@@ -105,6 +107,8 @@ func (x *HttpClient) GetResponse(requestUrl string) (http.Header, []byte, error)
 	if err != nil {
 		return nil, nil, err
 	}
+	defer func() { _ = resp.Body.Close() }()
+
 	b, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, nil, err
@@ -115,6 +119,7 @@ func (x *HttpClient) GetResponse(requestUrl string) (http.Header, []byte, error)
 		}
 		return resp.Header, b, errors.New(fmt.Sprintf("上游服务器返回错误(%d)", resp.StatusCode))
 	}
+
 	return resp.Header, b, nil
 }
 
@@ -129,6 +134,7 @@ func (x *HttpClient) PostResponse(requestUrl, rawBody string) (map[string][]stri
 	if err != nil {
 		return nil, nil, err
 	}
+	defer func() { _ = resp.Body.Close() }()
 
 	b, err := x.decodeEncoding(resp)
 
@@ -146,6 +152,7 @@ func (x *HttpClient) Head(requestUrl string) (http.Header, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer func() { _ = resp.Body.Close() }()
 
 	return resp.Header, nil
 }
