@@ -15,7 +15,7 @@ require (
 	github.com/gin-gonic/gin v1.10.0
 	github.com/goccy/go-json v0.10.2
 	github.com/gorilla/websocket v1.5.3
-	github.com/lixiang4u/goWebsocket v0.0.0-20250606085004-d3507b1a072e
+	github.com/lixiang4u/goWebsocket v0.0.0-20250609052941-a5be9d755d2a
 	github.com/redis/go-redis/v9 v9.0.2
 	github.com/tidwall/gjson v1.18.0
 	github.com/zc310/headers v0.0.0-20210220023006-06acd8c1c220

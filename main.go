@@ -32,13 +32,14 @@ func newRouterApi(app *gin.Engine) *gin.Engine {
 	}))
 
 	var websocketController = new(controller.WebsocketController)
-	var ws = goWebsocket.NewWebsocketManager(true)
-	var videoController = controller.VideoController{WssManager: ws}
+	var videoController = controller.VideoController{WssManager: controller.AppSocket}
 
 	// websocket
-	ws.On("/", websocketController.Index)
+	controller.AppSocket.On(goWebsocket.Event(goWebsocket.EventConnect).String(), websocketController.Connect)
+	controller.AppSocket.On("join-group", websocketController.JoinGroup)
+	controller.AppSocket.On("send-to-group", websocketController.SendToGroup)
 	app.GET("/api/wss", func(ctx *gin.Context) {
-		ws.Handler(ctx.Writer, ctx.Request, nil)
+		controller.AppSocket.Handler(ctx.Writer, ctx.Request, nil)
 	})
 	// api接口
 	app.GET("/api/video/provider", UseRecovery(videoController.Provider)) // 来源
