@@ -10,9 +10,15 @@ import (
 	"github.com/lixiang4u/goWebsocket"
 	"log"
 	"net/http"
+	_ "net/http/pprof"
 )
 
 func main() {
+
+	go func() {
+		_ = http.ListenAndServe(":8096", nil)
+	}()
+
 	var app = gin.Default()
 	app.Use(gin.Recovery())
 	if err := newRouterApi(app).Run(":8082"); err != nil {
@@ -33,6 +39,7 @@ func newRouterApi(app *gin.Engine) *gin.Engine {
 
 	var websocketController = new(controller.WebsocketController)
 	var videoController = controller.VideoController{WssManager: controller.AppSocket}
+	var homeController = controller.HomeController{}
 
 	// websocket
 	controller.AppSocket.On(goWebsocket.Event(goWebsocket.EventConnect).String(), websocketController.Connect)
@@ -41,7 +48,9 @@ func newRouterApi(app *gin.Engine) *gin.Engine {
 	app.GET("/api/wss", func(ctx *gin.Context) {
 		controller.AppSocket.Handler(ctx.Writer, ctx.Request, nil)
 	})
+
 	// api接口
+	app.GET("/", UseRecovery(homeController.Index))                       // 来源
 	app.GET("/api/video/provider", UseRecovery(videoController.Provider)) // 来源
 	app.GET("/api/video/search", UseRecovery(videoController.Search))     // 视频搜索
 	app.GET("/api/video/list", UseRecovery(videoController.VideoList))    // 视频列表（根据来源-TAG确定）
@@ -52,14 +61,18 @@ func newRouterApi(app *gin.Engine) *gin.Engine {
 	app.POST("/api/cookie", UseRecovery(videoController.SetCookie))               // 手动设置cookie用
 	app.GET("/api/qrcode", UseRecovery(videoController.QrCode))                   // 根据文本生成二维码图
 	app.GET("/api/m3u8/network-check", UseRecovery(videoController.CheckNetwork)) // 检测视频播放的网络
+	app.GET("/api/sse/video/search", UseRecovery(videoController.SearchV2))       // 视频搜索SSE
 
-	app.GET("/api/sse/video/search", UseRecovery(videoController.SearchV2)) // 视频搜索SSE
-
-	app.GET("/api/debug/http-ctx", func(ctx *gin.Context) {
-		ctx.JSON(http.StatusOK, model.NewSuccess(map[string]interface{}{
-			"header": ctx.Request.Header,
-		}))
-	})
+	//app.GET("/api/debug/http-ctx", func(ctx *gin.Context) {
+	//	ctx.JSON(http.StatusOK, model.NewSuccess(map[string]interface{}{
+	//		"header": ctx.Request.Header,
+	//	}))
+	//})
+	//app.GET("/api/debug/pprof", func(ctx *gin.Context) {
+	//	ctx.JSON(http.StatusOK, model.NewSuccess(map[string]interface{}{
+	//		"header": ctx.Request.Header,
+	//	}))
+	//})
 
 	return app
 }
