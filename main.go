@@ -10,15 +10,9 @@ import (
 	"github.com/lixiang4u/goWebsocket"
 	"log"
 	"net/http"
-	_ "net/http/pprof"
 )
 
 func main() {
-
-	go func() {
-		_ = http.ListenAndServe(":8096", nil)
-	}()
-
 	var app = gin.Default()
 	app.Use(gin.Recovery())
 	if err := newRouterApi(app).Run(":8082"); err != nil {
