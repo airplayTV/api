@@ -9,5 +9,6 @@ type Video struct {
 	Actors     string `json:"actors"`
 	Tag        string `json:"tag"`
 	Resolution string `json:"resolution"`
+	UpdatedAt  string `json:"updated_at"`
 	Links      []Link `json:"links"`
 }

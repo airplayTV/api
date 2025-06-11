@@ -83,6 +83,7 @@ func (x CmsZyHandler) _videoList(tagName, page string) interface{} {
 			Thumb:      value.Get("vod_pic").String(),
 			Intro:      value.Get("vod_blurb").String(),
 			Resolution: value.Get("vod_remarks").String(),
+			UpdatedAt:  value.Get("vod_time").String(),
 		})
 		return true
 	})
@@ -117,6 +118,7 @@ func (x CmsZyHandler) _search(keyword, page string) interface{} {
 			Thumb:      value.Get("vod_pic").String(),
 			Intro:      value.Get("vod_blurb").String(),
 			Resolution: value.Get("vod_remarks").String(),
+			UpdatedAt:  value.Get("vod_time").String(),
 		})
 		return true
 	})
@@ -153,6 +155,7 @@ func (x CmsZyHandler) _detail(id string) interface{} {
 			video.Thumb = value.Get("vod_pic").String()
 			video.Intro = util.HtmlToText(value.Get("vod_content").String())
 			video.Actors = value.Get("vod_actor").String()
+			video.UpdatedAt = value.Get("vod_time").String()
 			video.Links, _ = x.parseSourceList(
 				x.option.GetName(),
 				value.Get("vod_play_from").String(),

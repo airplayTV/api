@@ -142,6 +142,9 @@ func (x VideoController) SearchV2(ctx *gin.Context) {
 	for tmpSourceName, h := range sourceMap {
 		go func(name string, handler handler.IVideo) {
 			defer func() {
+				if err := recover(); err != nil {
+					log.Println("[SearchV2.Error]", name, err)
+				}
 				wg.Done()
 			}()
 			ctx.SSEvent("update", goWebsocket.ToJson(gin.H{
