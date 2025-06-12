@@ -162,6 +162,96 @@
       "name": "电影天堂资源",
       "host": "http://dyttzyw.tv/",
       "api": "http://caiji.dyttzyapi.com/api.php/provide/vod/"
+    },
+    {
+      "id": "moduzy",
+      "name": "魔都资源",
+      "host": "https://moduzy.com/",
+      "api": "https://www.mdzyapi.com/api.php/provide/vod/?ac=list"
+    },
+    {
+      "id": "apiyhzy",
+      "name": "樱花资源",
+      "host": "https://help.apiyhzy.com/",
+      "api": "https://m3u8.apiyhzy.com/api.php/provide/vod/?ac=list"
+    },
+    {
+      "id": "wujinzy",
+      "name": "无尽资源",
+      "host": "https://wujinzy.com/",
+      "api": "https://api.wujinapi.me/api.php/provide/vod/"
+    },
+    {
+      "id": "lzizy",
+      "name": "量子资源",
+      "host": "https://lzizy.net/",
+      "api": "https://cj.lziapi.com/api.php/provide/vod/"
+    },
+    {
+      "id": "ffzy5",
+      "name": "非凡资源",
+      "host": "http://ffzy5.tv/",
+      "api": "http://api.ffzyapi.com/api.php/provide/vod/"
+    },
+    {
+      "id": "guangsuzy",
+      "name": "光速资源",
+      "host": "https://www.guangsuzy.com/",
+      "api": "https://api.guangsuapi.com/api.php/provide/vod/"
+    },
+    {
+      "id": "ikunzy",
+      "name": "iKun资源",
+      "host": "https://ikunzy.com/",
+      "api": "https://ikunzyapi.com/api.php/provide/vod/"
+    },
+    {
+      "id": "heimuer",
+      "name": "黑木耳资源",
+      "host": "https://heimuer.tv/",
+      "api": "https://json.heimuer.xyz/api.php/provide/vod/?ac=list"
+    },
+    {
+      "id": "jisuzy",
+      "name": "极速资源",
+      "host": "https://www.jisuzy.com/",
+      "api": "https://jszyapi.com/api.php/provide/vod"
+    },
+    {
+      "id": "shandianzy",
+      "name": "闪电资源",
+      "host": "https://shandianzy.com/",
+      "api": "https://xsd.sdzyapi.com/api.php/provide/vod/"
+    },
+    {
+      "id": "wolongzyw",
+      "name": "卧龙资源",
+      "host": "https://wolongzyw.com/",
+      "api": "https://collect.wolongzy.cc/api.php/provide/vod/"
+    },
+    {
+      "id": "zuidazy",
+      "name": "最大资源",
+      "host": "https://zuidazy.me/",
+      "api": "https://api.zuidapi.com/api.php/provide/vod/"
+    },
+    {
+      "id": "aosikazy",
+      "name": "奥斯卡资源",
+      "host": "http://aosikazy.com/",
+      "api": "https://aosikazy.com/api.php/provide/vod/"
+    },
+    {
+      "id": "caoliuzyw",
+      "name": "草榴资源",
+      "host": "https://www.caoliuzyw.com/",
+      "api": "https://www.caoliuzyw.com/api.php/provide/vod/"
+    },
+    {
+      "id": "apilsbzy1",
+      "name": "lsb资源",
+      "host": "https://apilsbzy1.com/",
+      "api": "https://apilsbzy1.com/api.php/provide/vod/"
     }
   ]
 }
