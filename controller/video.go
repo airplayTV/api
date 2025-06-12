@@ -138,17 +138,17 @@ func (x VideoController) SearchV2(ctx *gin.Context) {
 	ctx.Header("Cache-Control", "no-cache")
 	ctx.Header("Connection", "keep-alive")
 
-	var wg sync.WaitGroup
-	wg.Add(len(sourceMap))
+	var sourceLength = len(sourceMap)
+	var ch = make(chan interface{}, sourceLength)
 	for tmpSourceName, h := range sourceMap {
 		go func(name string, handler handler.IVideo) {
+			var resp interface{}
 			defer func() {
 				if err := recover(); err != nil {
 					log.Println("[SearchV2.Error]", name, err)
 				}
-				wg.Done()
+				ch <- gin.H{"source": name, "data": resp}
 			}()
-			var resp interface{}
 			if handler.Option().Disable { // 废了
 				resp = model.NewError("数据源异常")
 			} else if handler.Option().Searchable == false { // 不支持搜
@@ -156,15 +156,13 @@ func (x VideoController) SearchV2(ctx *gin.Context) {
 			} else {
 				resp = handler.Search(keyword, page)
 			}
-			// 不支持 concurrent
-			ctx.SSEvent("update", goWebsocket.ToJson(gin.H{
-				"source": name,
-				"data":   resp,
-			}))
 		}(tmpSourceName, h.Handler)
 	}
-	wg.Wait()
-	ctx.SSEvent("finish", len(sourceMap))
+	for i := 0; i < sourceLength; i++ {
+		ctx.SSEvent("update", goWebsocket.ToJson(<-ch))
+	}
+
+	ctx.SSEvent("finish", sourceLength)
 }
 
 func (x VideoController) VideoList(ctx *gin.Context) {
