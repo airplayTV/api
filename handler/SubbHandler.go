@@ -28,6 +28,10 @@ func (x SubbHandler) Name() string {
 	return "素白白影视"
 }
 
+func (x SubbHandler) Option() model.CmsZyOption {
+	return x.option
+}
+
 func (x SubbHandler) TagList() interface{} {
 	var tags = make([]gin.H, 0)
 	tags = append(tags, gin.H{"name": "电影", "value": "new-movie"})

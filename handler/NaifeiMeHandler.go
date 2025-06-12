@@ -33,6 +33,10 @@ func (x NaifeiMeHandler) Name() string {
 	return "奈飞工厂"
 }
 
+func (x NaifeiMeHandler) Option() model.CmsZyOption {
+	return x.option
+}
+
 func (x NaifeiMeHandler) TagList() interface{} {
 	var tags = make([]gin.H, 0)
 	tags = append(tags, gin.H{"name": "电影", "value": "2"})

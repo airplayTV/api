@@ -53,10 +53,11 @@ func init() {
 		}
 		idx += 1
 		var h = handler.CmsZyHandler{}.Init(model.CmsZyOption{
-			Name:    tmpConfig.Name,
-			Api:     tmpConfig.Api,
-			Id:      tmpConfig.Id,
-			Disable: tmpConfig.Disable,
+			Name:       tmpConfig.Name,
+			Api:        tmpConfig.Api,
+			Id:         tmpConfig.Id,
+			Disable:    tmpConfig.Disable,
+			Searchable: tmpConfig.Searchable,
 		})
 		sourceMap[tmpConfig.Name] = struct {
 			Sort    int
@@ -147,9 +148,18 @@ func (x VideoController) SearchV2(ctx *gin.Context) {
 				}
 				wg.Done()
 			}()
+			var resp interface{}
+			if handler.Option().Disable { // 废了
+				resp = model.NewError("数据源异常")
+			} else if handler.Option().Searchable == false { // 不支持搜
+				resp = model.NewError("不支持搜索")
+			} else {
+				resp = handler.Search(keyword, page)
+			}
+			// 不支持 concurrent
 			ctx.SSEvent("update", goWebsocket.ToJson(gin.H{
 				"source": name,
-				"data":   handler.Search(keyword, page),
+				"data":   resp,
 			}))
 		}(tmpSourceName, h.Handler)
 	}

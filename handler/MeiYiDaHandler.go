@@ -33,6 +33,10 @@ func (x MeiYiDaHandler) Name() string {
 	return "美益达影视"
 }
 
+func (x MeiYiDaHandler) Option() model.CmsZyOption {
+	return x.option
+}
+
 func (x MeiYiDaHandler) TagList() interface{} {
 	var tags = make([]gin.H, 0)
 	tags = append(tags, gin.H{"name": "电影", "value": "1"})

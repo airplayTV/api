@@ -34,6 +34,10 @@ func (x CzzyHandler) Name() string {
 	return "厂长资源"
 }
 
+func (x CzzyHandler) Option() model.CmsZyOption {
+	return x.option
+}
+
 func (x CzzyHandler) TagList() interface{} {
 	var tags = make([]gin.H, 0)
 	tags = append(tags, gin.H{"name": "电影", "value": "movie_bt"})

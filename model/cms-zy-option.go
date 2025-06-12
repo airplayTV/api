@@ -6,10 +6,11 @@ type KV1 struct {
 }
 
 type CmsZyOption struct {
-	Id      string
-	Name    string
-	Api     string
-	Disable bool
+	Id         string
+	Name       string
+	Api        string
+	Disable    bool
+	Searchable bool // 是否可搜索
 	//Tags map[string]string // 换其他类型就不行。。。
 }
 

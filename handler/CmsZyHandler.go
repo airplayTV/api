@@ -31,14 +31,16 @@ func (x CmsZyHandler) Init(options interface{}) IVideo {
 	x.httpClient = util.HttpClient{}
 	x.httpClient.AddHeader(headers.UserAgent, useragent)
 
-	var o = options.(model.CmsZyOption)
-	x.option = model.CmsZyOption{Name: o.Name, Api: o.Api, Id: o.Id}
-
+	x.option = options.(model.CmsZyOption)
 	return x
 }
 
 func (x CmsZyHandler) Name() string {
 	return x.option.GetName()
+}
+
+func (x CmsZyHandler) Option() model.CmsZyOption {
+	return x.option
 }
 
 func (x CmsZyHandler) VideoList(tag, page string) interface{} {

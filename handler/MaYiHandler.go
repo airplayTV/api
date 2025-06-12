@@ -28,6 +28,10 @@ func (x MaYiHandler) Name() string {
 	return "蚂蚁影视"
 }
 
+func (x MaYiHandler) Option() model.CmsZyOption {
+	return x.option
+}
+
 func (x MaYiHandler) TagList() interface{} {
 	var tags = make([]gin.H, 0)
 	tags = append(tags, gin.H{"name": "电影", "value": "1"})

@@ -28,6 +28,10 @@ func (x Huawei8Handler) Name() string {
 	return "华为吧"
 }
 
+func (x Huawei8Handler) Option() model.CmsZyOption {
+	return x.option
+}
+
 func (x Huawei8Handler) TagList() interface{} {
 	var tags = make([]gin.H, 0)
 	tags = append(tags, gin.H{"name": "电影", "value": "20"})

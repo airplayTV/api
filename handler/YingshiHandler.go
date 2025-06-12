@@ -27,6 +27,10 @@ func (x YingshiHandler) Name() string {
 	return "影视TV"
 }
 
+func (x YingshiHandler) Option() model.CmsZyOption {
+	return x.option
+}
+
 func (x YingshiHandler) TagList() interface{} {
 	var tags = make([]gin.H, 0)
 	tags = append(tags, gin.H{"name": "电影", "value": "2"})
