@@ -11,8 +11,9 @@ import (
 )
 
 var (
-	globalCache  = util.NewCacheManager()
-	cmsApiConfig []model.CmsApiConfig
+	globalCache   = util.NewCacheManager()
+	cmsApiConfig  []model.CmsApiConfig
+	sourceModeMap map[string][]string
 )
 
 func init() {
@@ -23,7 +24,11 @@ func init() {
 		return
 	}
 	if err = viper.UnmarshalKey("source", &cmsApiConfig); err != nil {
-		log.Println("[ConfigUnmarshalError]", err.Error())
+		log.Println("[ConfigUnmarshalError.source]", err.Error())
+		return
+	}
+	if err = viper.UnmarshalKey("mode", &sourceModeMap); err != nil {
+		log.Println("[ConfigUnmarshalError.mode]", err.Error())
 		return
 	}
 

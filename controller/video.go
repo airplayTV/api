@@ -24,21 +24,34 @@ import (
 	"time"
 )
 
-var sourceMap map[string]struct {
+type SourceHandler struct {
 	Sort    int
 	Handler handler.IVideo
 }
 
+var sourceMap map[string]SourceHandler
+
+var sourceModeListMap = make(map[string]map[string]SourceHandler)
+
 func init() {
-	sourceMap = map[string]struct {
-		Sort    int
-		Handler handler.IVideo
-	}{
-		handler.CzzyHandler{}.Name(): {Sort: 1, Handler: handler.CzzyHandler{}.Init(nil)},
+	sourceMap = map[string]SourceHandler{
+		handler.CzzyHandler{}.Name(): {Sort: 1, Handler: handler.CzzyHandler{}.Init(model.CmsZyOption{
+			Id:         "czzy",
+			Name:       handler.CzzyHandler{}.Name(),
+			Searchable: true,
+		})},
 		//handler.SubbHandler{}.Name():     {Sort: 2, Handler: handler.SubbHandler{}.Init(nil)}, // 限制国内IP访问
 		//handler.YingshiHandler{}.Name():  {Sort: 3, Handler: handler.YingshiHandler{}.Init(nil)}, // api挂了
-		handler.MaYiHandler{}.Name():     {Sort: 4, Handler: handler.MaYiHandler{}.Init(nil)},
-		handler.NaifeiMeHandler{}.Name(): {Sort: 5, Handler: handler.NaifeiMeHandler{}.Init(nil)},
+		handler.MaYiHandler{}.Name(): {Sort: 4, Handler: handler.MaYiHandler{}.Init(model.CmsZyOption{
+			Id:         "mayi",
+			Name:       handler.MaYiHandler{}.Name(),
+			Searchable: true,
+		})},
+		handler.NaifeiMeHandler{}.Name(): {Sort: 5, Handler: handler.NaifeiMeHandler{}.Init(model.CmsZyOption{
+			Id:         "naifeigc",
+			Name:       handler.NaifeiMeHandler{}.Name(),
+			Searchable: true,
+		})},
 		//handler.MeiYiDaHandler{}.Name():  {Sort: 6, Handler: handler.MeiYiDaHandler{}.Init(nil)}, // 不可达
 		//handler.Huawei8Handler{}.Name():  {Sort: 7, Handler: handler.Huawei8Handler{}.Init()},
 		//handler.Huawei8ApiHandler{}.Name(): {Sort: 8, Handler: handler.Huawei8ApiHandler{}.Init()},
@@ -65,6 +78,21 @@ func init() {
 		}{Sort: idx, Handler: h}
 	}
 
+	// 根据 mode 分类
+	for tmpMode, tmpList := range sourceModeMap {
+		tmpV, ok := sourceModeListMap[tmpMode]
+		if !ok {
+			sourceModeListMap[tmpMode] = make(map[string]SourceHandler)
+			tmpV = sourceModeListMap[tmpMode]
+		}
+		for tmpName, tmpValue := range sourceMap {
+			if slices.Contains(tmpList, tmpName) {
+				log.Println("[---->]", tmpMode, tmpName)
+				tmpV[tmpName] = tmpValue
+			}
+		}
+		sourceModeListMap[tmpMode] = tmpV
+	}
 }
 
 // 不缓存播放数据的源
@@ -77,6 +105,20 @@ type VideoController struct {
 	WssManager *goWebsocket.WebsocketManager
 }
 
+func (x VideoController) getSourceMap(ctx *gin.Context) map[string]SourceHandler {
+	var mode = ctx.GetHeader("x-source-mode")
+	if len(mode) == 0 {
+		mode = ctx.Query("_mode")
+	}
+	if v, ok := sourceModeListMap[mode]; ok {
+		return v
+	}
+	if mode == "aptv-all" {
+		return sourceMap
+	}
+	return sourceModeListMap["default"]
+}
+
 func (x VideoController) Provider(ctx *gin.Context) {
 	type ProviderItem struct {
 		Name string      `json:"name"`
@@ -85,7 +127,7 @@ func (x VideoController) Provider(ctx *gin.Context) {
 	}
 	var providers = make([]ProviderItem, 0)
 	var wg sync.WaitGroup
-	for tmpName, tmpValue := range sourceMap {
+	for tmpName, tmpValue := range x.getSourceMap(ctx) {
 		wg.Add(1)
 		go func(tmpName string, sort int, h handler.IVideo) {
 			providers = append(providers, ProviderItem{
@@ -104,7 +146,7 @@ func (x VideoController) Provider(ctx *gin.Context) {
 }
 
 func (x VideoController) Search(ctx *gin.Context) {
-	h, ok := sourceMap[strings.TrimSpace(ctx.Query("_source"))]
+	h, ok := x.getSourceMap(ctx)[strings.TrimSpace(ctx.Query("_source"))]
 	if !ok {
 		ctx.JSON(http.StatusOK, model.NewError("数据源错误"))
 		return
@@ -132,9 +174,10 @@ func (x VideoController) SearchV2(ctx *gin.Context) {
 	ctx.Header("Cache-Control", "no-cache")
 	ctx.Header("Connection", "keep-alive")
 
-	var sourceLength = len(sourceMap)
+	var tmpSourceList = x.getSourceMap(ctx)
+	var sourceLength = len(tmpSourceList)
 	var ch = make(chan interface{}, sourceLength)
-	for tmpSourceName, h := range sourceMap {
+	for tmpSourceName, h := range tmpSourceList {
 		go func(name string, handler handler.IVideo) {
 			var resp interface{}
 			defer func() {
@@ -160,7 +203,7 @@ func (x VideoController) SearchV2(ctx *gin.Context) {
 }
 
 func (x VideoController) VideoList(ctx *gin.Context) {
-	h, ok := sourceMap[strings.TrimSpace(ctx.Query("_source"))]
+	h, ok := x.getSourceMap(ctx)[strings.TrimSpace(ctx.Query("_source"))]
 	if !ok {
 		ctx.JSON(http.StatusOK, model.NewError("数据源错误"))
 		return
@@ -181,7 +224,7 @@ func (x VideoController) VideoList(ctx *gin.Context) {
 }
 
 func (x VideoController) Detail(ctx *gin.Context) {
-	h, ok := sourceMap[strings.TrimSpace(ctx.Query("_source"))]
+	h, ok := x.getSourceMap(ctx)[strings.TrimSpace(ctx.Query("_source"))]
 	if !ok {
 		ctx.JSON(http.StatusOK, model.NewError("数据源错误"))
 		return
@@ -202,7 +245,7 @@ func (x VideoController) Detail(ctx *gin.Context) {
 }
 
 func (x VideoController) Source(ctx *gin.Context) {
-	h, ok := sourceMap[strings.TrimSpace(ctx.Query("_source"))]
+	h, ok := x.getSourceMap(ctx)[strings.TrimSpace(ctx.Query("_source"))]
 	if !ok {
 		ctx.JSON(http.StatusOK, model.NewError("数据源错误"))
 		return
@@ -243,7 +286,7 @@ func (x VideoController) m3u8pHandler(m3u8p bool, resp interface{}) interface{} 
 }
 
 func (x VideoController) Airplay(ctx *gin.Context) {
-	h, ok := sourceMap[strings.TrimSpace(ctx.Query("_source"))]
+	h, ok := x.getSourceMap(ctx)[strings.TrimSpace(ctx.Query("_source"))]
 	if !ok {
 		ctx.JSON(http.StatusOK, model.NewError("数据源错误"))
 		return
@@ -300,7 +343,7 @@ func (x VideoController) M3u8p(ctx *gin.Context) {
 }
 
 func (x VideoController) SetCookie(ctx *gin.Context) {
-	h, ok := sourceMap[strings.TrimSpace(ctx.Query("_source"))]
+	h, ok := x.getSourceMap(ctx)[strings.TrimSpace(ctx.Query("_source"))]
 	if !ok {
 		ctx.JSON(http.StatusOK, model.NewError("数据源错误"))
 		return
