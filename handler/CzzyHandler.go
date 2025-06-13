@@ -9,6 +9,7 @@ import (
 	"github.com/airplayTV/api/model"
 	"github.com/airplayTV/api/util"
 	"github.com/gin-gonic/gin"
+	"github.com/spf13/cast"
 	"github.com/tidwall/gjson"
 	"github.com/zc310/headers"
 	"log"
@@ -163,8 +164,7 @@ func (x CzzyHandler) _search(keyword, page string) interface{} {
 			pager.Pages = p
 		}
 	})
-	//pager.Page, _ = strconv.Atoi(doc.Find(".pagenavi_txt .current").Text())
-	pager.Total = pager.Pages * pager.Limit
+	pager.Total = cast.ToInt(doc.Find(".mi_ne_kd .dy_tit_big span").Eq(0).Text())
 
 	return model.NewSuccess(pager)
 }
