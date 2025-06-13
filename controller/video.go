@@ -162,7 +162,7 @@ func (x VideoController) SearchV2(ctx *gin.Context) {
 		ctx.SSEvent("update", goWebsocket.ToJson(<-ch))
 	}
 
-	ctx.SSEvent("finish", sourceLength)
+	ctx.SSEvent("finish", model.NewSuccess(nil))
 }
 
 func (x VideoController) VideoList(ctx *gin.Context) {
