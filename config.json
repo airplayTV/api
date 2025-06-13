@@ -45,8 +45,8 @@
       "name": "速播资源",
       "host": "https://subocaiji.com/",
       "api": "https://subocaiji.com/api.php/provide/vod",
-      "searchable": false,
-      "description": "搜索返回全部，去你妈证书用的api.guangsuapi.com"
+      "searchable": true,
+      "description": ""
     },
     {
       "id": "suonizy",
