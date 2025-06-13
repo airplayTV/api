@@ -83,7 +83,7 @@ func (x CmsZyHandler) _videoList(tagName, page string) interface{} {
 			Id:         value.Get("vod_id").String(),
 			Name:       value.Get("vod_name").String(),
 			Thumb:      value.Get("vod_pic").String(),
-			Intro:      value.Get("vod_blurb").String(),
+			Intro:      strings.TrimSpace(value.Get("vod_blurb").String()),
 			Resolution: value.Get("vod_remarks").String(),
 			UpdatedAt:  value.Get("vod_time").String(),
 		})
@@ -118,7 +118,7 @@ func (x CmsZyHandler) _search(keyword, page string) interface{} {
 			Id:         value.Get("vod_id").String(),
 			Name:       value.Get("vod_name").String(),
 			Thumb:      value.Get("vod_pic").String(),
-			Intro:      value.Get("vod_blurb").String(),
+			Intro:      strings.TrimSpace(value.Get("vod_blurb").String()),
 			Resolution: value.Get("vod_remarks").String(),
 			UpdatedAt:  value.Get("vod_time").String(),
 		})
