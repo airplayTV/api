@@ -125,12 +125,6 @@ func (x VideoController) Search(ctx *gin.Context) {
 }
 
 func (x VideoController) SearchV2(ctx *gin.Context) {
-	_, ok := sourceMap[strings.TrimSpace(ctx.Query("_source"))]
-	if !ok {
-		ctx.JSON(http.StatusOK, model.NewError("数据源错误"))
-		return
-	}
-
 	var keyword = ctx.Query("keyword")
 	var page = ctx.Query("page")
 
