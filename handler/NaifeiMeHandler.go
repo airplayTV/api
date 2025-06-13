@@ -26,6 +26,9 @@ func (x NaifeiMeHandler) Init(options interface{}) IVideo {
 	x.httpClient.AddHeader(headers.UserAgent, useragent)
 	x.httpClient.AddHeader(headers.Origin, yingshiHost)
 	x.httpClient.AddHeader(headers.Referer, yingshiHost)
+
+	x.option = options.(model.CmsZyOption)
+
 	return x
 }
 

@@ -21,6 +21,9 @@ func (x MaYiHandler) Init(options interface{}) IVideo {
 	x.httpClient.AddHeader(headers.UserAgent, useragent)
 	x.httpClient.AddHeader(headers.Origin, mayiHost)
 	x.httpClient.AddHeader(headers.Referer, mayiHost)
+
+	x.option = options.(model.CmsZyOption)
+
 	return x
 }
 

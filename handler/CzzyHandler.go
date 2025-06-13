@@ -27,6 +27,8 @@ func (x CzzyHandler) Init(options interface{}) IVideo {
 	x.httpClient.AddHeader(headers.UserAgent, useragent)
 	x.httpClient.AddHeader(headers.Referer, czzyHost)
 
+	x.option = options.(model.CmsZyOption)
+
 	return x
 }
 
