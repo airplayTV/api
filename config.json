@@ -327,6 +327,14 @@
       "api": "https://apilsbzy1.com/api.php/provide/vod/",
       "searchable": true,
       "description": ""
+    },
+    {
+      "id": "sex8zy8",
+      "name": "杏吧资源",
+      "host": "http://sex8zy8.com/",
+      "api": "https://xingba111.com/api.php/provide/vod/",
+      "searchable": true,
+      "description": ""
     }
   ],
   "mode": {
@@ -343,13 +351,15 @@
       "华为吧api"
     ],
     "tiny-18+": [
-      "草榴资源"
+      "草榴资源",
+      "杏吧资源"
     ],
     "18+": [
       "草榴资源",
       "乐播资源",
       "森林资源",
-      "黄瓜资源"
+      "黄瓜资源",
+      "杏吧资源"
     ]
   }
 }
