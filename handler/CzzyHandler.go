@@ -193,6 +193,9 @@ func (x CzzyHandler) _detail(id string) interface{} {
 	video.Thumb, _ = doc.Find(".dyxingq .dyimg img").Attr("src")
 	video.Name = doc.Find(".dyxingq .moviedteail_tt h1").Text()
 	video.Intro = strings.TrimSpace(doc.Find(".yp_context").Text())
+	if len(video.Name) <= 0 {
+		return model.NewError("获取数据失败")
+	}
 
 	return model.NewSuccess(video)
 }
