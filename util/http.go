@@ -97,7 +97,16 @@ func (x *HttpClient) Post(requestUrl, rawBody string) ([]byte, error) {
 	return x.decodeEncoding(resp)
 }
 
-func (x *HttpClient) GetResponse(requestUrl string) (http.Header, []byte, error) {
+func (x *HttpClient) GetResponse(requestUrl string, size ...int64) (http.Header, []byte, error) {
+	var readSize int64                  // 默认读取所有数据
+	var maxSize int64 = 1024 * 1024 * 1 // 默认最大返回数据 1MB
+	if len(size) >= 1 {
+		readSize = size[0]
+	}
+	if len(size) >= 2 {
+		maxSize = size[1]
+	}
+
 	req, err := http.NewRequest("GET", requestUrl, nil)
 	if err != nil {
 		return nil, nil, err
@@ -111,11 +120,14 @@ func (x *HttpClient) GetResponse(requestUrl string) (http.Header, []byte, error)
 	defer func() { _ = resp.Body.Close() }()
 
 	var contentLength = cast.ToInt64(resp.Header.Get(headers.ContentLength))
-	if contentLength > 1024*1024*1 {
+	if contentLength > maxSize {
 		return resp.Header, nil, errors.New(fmt.Sprintf("请求内容太大(%s)", resp.Header.Get(headers.ContentType)))
 	}
+	if readSize == 0 {
+		readSize = contentLength
+	}
 
-	b, err := io.ReadAll(resp.Body)
+	b, err := io.ReadAll(io.LimitReader(resp.Body, readSize))
 	if err != nil {
 		return nil, nil, err
 	}

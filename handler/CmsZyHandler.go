@@ -180,8 +180,6 @@ func (x CmsZyHandler) _source(pid, vid string) interface{} {
 	var source = model.Source{Id: pid, Vid: vid}
 	var result = gjson.ParseBytes(buff)
 
-	log.Println("[NNN]", result.Get("total").Int())
-
 	if result.Get("total").Int() > 0 {
 		result.Get("list").ForEach(func(key, value gjson.Result) bool {
 			source.Name = value.Get("vod_name").String()

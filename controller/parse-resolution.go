@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"errors"
 	"fmt"
 	"github.com/airplayTV/api/model"
 	"github.com/airplayTV/api/util"
@@ -20,7 +21,7 @@ type VideoResolution struct {
 	Err    string
 }
 
-func Run() {
+func RunParseResolution() {
 	var resolutionList = make([]VideoResolution, 0)
 
 	for _, source := range sourceMap {
@@ -122,6 +123,10 @@ func getMpegTSResolution(tmpUrl string) (width, height int, err error) {
 	}
 
 	var result = gjson.Parse(probe)
+	if !result.Get("programs").IsArray() || len(result.Get("programs").Array()) == 0 {
+		log.Println("[probe]", probe)
+		return width, height, errors.New("programs空")
+	}
 	var resolution = result.Get("programs").Array()[0].Get("streams").Array()[0]
 	width = int(resolution.Get("width").Int())
 	height = int(resolution.Get("height").Int())
