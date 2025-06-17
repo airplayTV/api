@@ -10,6 +10,8 @@ import (
 	ffmpeg_go "github.com/u2takey/ffmpeg-go"
 	"log"
 	"path/filepath"
+	"slices"
+	"time"
 )
 
 type VideoResolution struct {
@@ -32,7 +34,12 @@ func RunParseResolution() {
 		log.Println("[resolutionList]", goWebsocket.ToJson(resolutionList))
 	}
 
-	log.Println("[end]")
+	slices.SortFunc(resolutionList, func(a, b VideoResolution) int {
+		return a.Width - b.Width
+	})
+
+	var p = filepath.Join(util.AppPath(), fmt.Sprintf("cache/stat/source-stat-%s.json", time.Now().Format("20060102")))
+	_ = util.WriteFile(p, util.ToBytes(resolutionList))
 }
 
 func parseVideoResolution(h SourceHandler) (tmpR VideoResolution) {
