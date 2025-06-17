@@ -43,9 +43,12 @@ func (x SourceStat) taskHandler() {
 
 	var resolutionList = make([]model.VideoResolution, 0)
 
+	var idx = 0
 	for _, source := range model.AppSourceMap() {
+		log.Println("[resolveSource]", idx, source.Handler.Name())
 		var tmpR = x.parseVideoResolution(source)
 		resolutionList = append(resolutionList, tmpR)
+		idx++
 	}
 
 	slices.SortFunc(resolutionList, func(a, b model.VideoResolution) int {
