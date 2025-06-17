@@ -38,7 +38,7 @@ func (x VideoController) Provider(ctx *gin.Context) {
 	var wg sync.WaitGroup
 	for tmpName, tmpValue := range x.getSourceMap(ctx) {
 		wg.Add(1)
-		go func(tmpName string, sort int, h handler.IVideo) {
+		go func(tmpName string, sort int, h model.IVideo) {
 			providers = append(providers, ProviderItem{
 				Name: tmpName,
 				Sort: sort,
@@ -87,7 +87,7 @@ func (x VideoController) SearchV2(ctx *gin.Context) {
 	var sourceLength = len(tmpSourceList)
 	var ch = make(chan interface{}, sourceLength)
 	for tmpSourceName, h := range tmpSourceList {
-		go func(name string, handler handler.IVideo) {
+		go func(name string, handler model.IVideo) {
 			var resp interface{}
 			defer func() {
 				if err := recover(); err != nil {

@@ -138,8 +138,12 @@ func (x *HttpClient) GetResponse(requestUrl string, size ...int64) (http.Header,
 	defer func() { _ = resp.Body.Close() }()
 
 	var contentLength = cast.ToInt64(resp.Header.Get(headers.ContentLength))
-	if contentLength > maxSize {
+	if contentLength > maxSize && len(size) < 2 { // 超限且没设置 maxSize
 		return resp.Header, nil, errors.New(fmt.Sprintf("请求内容太大(%s)", resp.Header.Get(headers.ContentType)))
+	}
+	if contentLength > maxSize && len(size) >= 2 {
+		// 超限切设置 maxSize，则返回 maxSize
+		contentLength = maxSize
 	}
 	if contentLength == 0 {
 		// 竟然有服务器不返回 ContentLength

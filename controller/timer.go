@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"github.com/airplayTV/api/handler"
+	"github.com/airplayTV/api/model"
 	"log"
 )
 
@@ -17,7 +17,7 @@ func init() {
 	//}()
 }
 
-func holdCookie(h handler.IVideo) {
+func holdCookie(h model.IVideo) {
 	defer func() {
 		if err := recover(); err != nil {
 			log.Println("[HoldCookieError]", h.Name(), err)

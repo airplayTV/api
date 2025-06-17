@@ -27,7 +27,7 @@ type CmsZyHandler struct {
 	Handler
 }
 
-func (x CmsZyHandler) Init(options interface{}) IVideo {
+func (x CmsZyHandler) Init(options interface{}) model.IVideo {
 	x.httpClient = util.HttpClient{}
 	x.httpClient.AddHeader(headers.UserAgent, useragent)
 

@@ -23,7 +23,7 @@ type CzzyHandler struct {
 	Handler
 }
 
-func (x CzzyHandler) Init(options interface{}) IVideo {
+func (x CzzyHandler) Init(options interface{}) model.IVideo {
 	x.httpClient = util.HttpClient{}
 	x.httpClient.AddHeader(headers.UserAgent, useragent)
 	x.httpClient.AddHeader(headers.Referer, czzyHost)

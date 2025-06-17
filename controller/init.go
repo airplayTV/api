@@ -46,7 +46,7 @@ func initRedisCache() {
 }
 
 func initHttpHeader() {
-	for _, h := range sourceMap {
+	for _, h := range model.AppSourceMap() {
 		header, err := util.LoadHttpHeader(h.Handler.Name())
 		if err != nil {
 			continue

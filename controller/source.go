@@ -7,14 +7,7 @@ import (
 	"slices"
 )
 
-type SourceHandler struct {
-	Sort    int
-	Handler handler.IVideo
-}
-
-var sourceMap map[string]SourceHandler
-
-var sourceModeListMap = make(map[string]map[string]SourceHandler)
+var sourceModeListMap = make(map[string]map[string]model.SourceHandler)
 
 // 不缓存播放数据的源
 var noCacheSourceList = []string{
@@ -23,7 +16,9 @@ var noCacheSourceList = []string{
 }
 
 func init() {
-	sourceMap = map[string]SourceHandler{
+	var sourceMap map[string]model.SourceHandler
+
+	sourceMap = map[string]model.SourceHandler{
 		handler.CzzyHandler{}.Name(): {Sort: 1, Handler: handler.CzzyHandler{}.Init(model.CmsZyOption{
 			Id:         "czzy",
 			Name:       handler.CzzyHandler{}.Name(),
@@ -63,15 +58,17 @@ func init() {
 		})
 		sourceMap[tmpConfig.Name] = struct {
 			Sort    int
-			Handler handler.IVideo
+			Handler model.IVideo
 		}{Sort: idx, Handler: h}
 	}
+
+	model.AppSourceMap(sourceMap)
 
 	// 根据 mode 分类
 	for tmpMode, tmpList := range sourceModeMap {
 		tmpV, ok := sourceModeListMap[tmpMode]
 		if !ok {
-			sourceModeListMap[tmpMode] = make(map[string]SourceHandler)
+			sourceModeListMap[tmpMode] = make(map[string]model.SourceHandler)
 			tmpV = sourceModeListMap[tmpMode]
 		}
 		for tmpName, tmpValue := range sourceMap {
@@ -83,7 +80,7 @@ func init() {
 	}
 }
 
-func (x VideoController) getSourceMap(ctx *gin.Context) map[string]SourceHandler {
+func (x VideoController) getSourceMap(ctx *gin.Context) map[string]model.SourceHandler {
 	var mode = ctx.GetHeader("x-source-mode")
 	if len(mode) == 0 {
 		mode = ctx.Query("_mode")
@@ -92,7 +89,7 @@ func (x VideoController) getSourceMap(ctx *gin.Context) map[string]SourceHandler
 		return v
 	}
 	if mode == "aptv-all" {
-		return sourceMap
+		return model.AppSourceMap()
 	}
 	return sourceModeListMap["default"]
 }

@@ -16,7 +16,7 @@ type Huawei8Handler struct {
 	Handler
 }
 
-func (x Huawei8Handler) Init(options interface{}) IVideo {
+func (x Huawei8Handler) Init(options interface{}) model.IVideo {
 	x.httpClient = util.HttpClient{}
 	x.httpClient.AddHeader(headers.UserAgent, useragent)
 	x.httpClient.AddHeader(headers.Origin, huawei8Host)

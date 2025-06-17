@@ -21,7 +21,7 @@ type NaifeiMeHandler struct {
 	Handler
 }
 
-func (x NaifeiMeHandler) Init(options interface{}) IVideo {
+func (x NaifeiMeHandler) Init(options interface{}) model.IVideo {
 	x.httpClient = util.HttpClient{}
 	x.httpClient.AddHeader(headers.UserAgent, useragent)
 	x.httpClient.AddHeader(headers.Origin, yingshiHost)

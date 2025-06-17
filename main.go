@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/airplayTV/api/controller"
 	"github.com/airplayTV/api/model"
+	"github.com/airplayTV/api/task"
 	"github.com/airplayTV/api/util"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -11,6 +12,10 @@ import (
 	"log"
 	"net/http"
 )
+
+func init() {
+	go task.NewSourceStat().Run()
+}
 
 func main() {
 	var app = gin.Default()

@@ -18,7 +18,7 @@ type SubbHandler struct {
 	Handler
 }
 
-func (x SubbHandler) Init(options interface{}) IVideo {
+func (x SubbHandler) Init(options interface{}) model.IVideo {
 	x.httpClient = util.HttpClient{}
 	x.httpClient.AddHeader(headers.Referer, subbHost)
 	return x
