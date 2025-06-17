@@ -11,12 +11,32 @@ import (
 	"github.com/spf13/cast"
 	"io"
 	"net/http"
+	"net/url"
 	"strings"
 	"time"
 )
 
 type HttpClient struct {
-	headers map[string]string
+	headers    map[string]string
+	SkipVerify bool
+	ProxyUrl   string
+	transport  *http.Transport
+}
+
+func (x *HttpClient) InitClient() {
+	x.SkipVerify = true
+	x.ProxyUrl = "http://127.0.0.1:1080"
+
+	if x.transport == nil {
+		x.transport = &http.Transport{}
+	}
+	if x.SkipVerify {
+		x.transport.TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
+	}
+	if len(x.ProxyUrl) > 0 {
+		tmpUrl, _ := url.Parse(x.ProxyUrl)
+		x.transport.Proxy = http.ProxyURL(tmpUrl)
+	}
 }
 
 func (x *HttpClient) AddHeader(k, v string) {
@@ -67,12 +87,8 @@ func (x *HttpClient) Get(requestUrl string) ([]byte, error) {
 		return nil, err
 	}
 	x.addHeaderParams(req)
-
-	var transport = &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-	}
-
-	resp, err := (&http.Client{Timeout: time.Second * 15, Transport: transport}).Do(req)
+	x.InitClient()
+	resp, err := (&http.Client{Timeout: time.Second * 15, Transport: x.transport}).Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -88,7 +104,8 @@ func (x *HttpClient) Post(requestUrl, rawBody string) ([]byte, error) {
 	}
 	x.addHeaderParams(req)
 
-	resp, err := (&http.Client{}).Do(req)
+	x.InitClient()
+	resp, err := (&http.Client{Transport: x.transport}).Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -113,7 +130,8 @@ func (x *HttpClient) GetResponse(requestUrl string, size ...int64) (http.Header,
 	}
 	x.addHeaderParams(req)
 
-	resp, err := (&http.Client{}).Do(req)
+	x.InitClient()
+	resp, err := (&http.Client{Transport: x.transport}).Do(req)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -122,6 +140,10 @@ func (x *HttpClient) GetResponse(requestUrl string, size ...int64) (http.Header,
 	var contentLength = cast.ToInt64(resp.Header.Get(headers.ContentLength))
 	if contentLength > maxSize {
 		return resp.Header, nil, errors.New(fmt.Sprintf("请求内容太大(%s)", resp.Header.Get(headers.ContentType)))
+	}
+	if contentLength == 0 {
+		// 竟然有服务器不返回 ContentLength
+		contentLength = maxSize
 	}
 	if readSize == 0 {
 		readSize = contentLength
@@ -148,7 +170,8 @@ func (x *HttpClient) PostResponse(requestUrl, rawBody string) (map[string][]stri
 	}
 	x.addHeaderParams(req)
 
-	resp, err := (&http.Client{}).Do(req)
+	x.InitClient()
+	resp, err := (&http.Client{Transport: x.transport}).Do(req)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -166,7 +189,8 @@ func (x *HttpClient) Head(requestUrl string) (http.Header, error) {
 	}
 	x.addHeaderParams(req)
 
-	resp, err := (&http.Client{}).Do(req)
+	x.InitClient()
+	resp, err := (&http.Client{Transport: x.transport}).Do(req)
 	if err != nil {
 		return nil, err
 	}

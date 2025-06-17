@@ -44,6 +44,8 @@ func parseVideoResolution(h SourceHandler) (tmpR VideoResolution) {
 	case model.Success:
 		videoList = resp.(model.Success).Data.(model.Pager).List
 	case model.Error:
+		tmpR.Err = resp.(model.Error).Msg
+		return
 	}
 	if len(videoList) <= 0 {
 		tmpR.Err = "没有可用视频列表"
@@ -56,6 +58,8 @@ func parseVideoResolution(h SourceHandler) (tmpR VideoResolution) {
 	case model.Success:
 		tmpVideo = resp.(model.Success).Data.(model.Video)
 	case model.Error:
+		tmpR.Err = resp.(model.Error).Msg
+		return
 	}
 	if len(tmpVideo.Links) <= 0 {
 		tmpR.Err = "没有可用播放列表"
@@ -68,6 +72,8 @@ func parseVideoResolution(h SourceHandler) (tmpR VideoResolution) {
 	case model.Success:
 		tmpSource = resp.(model.Success).Data.(model.Source)
 	case model.Error:
+		tmpR.Err = resp.(model.Error).Msg
+		return
 	}
 	if len(tmpSource.Url) <= 0 {
 		tmpR.Err = "没有可用播放地址"
@@ -77,29 +83,33 @@ func parseVideoResolution(h SourceHandler) (tmpR VideoResolution) {
 	tmpR.Url = tmpSource.Url
 
 	playUrlList, err := util.ParsePlayUrlList(tmpSource.Url)
-	if err != nil || len(playUrlList) == 0 {
-		tmpR.Err = "m3u8文件解析失败"
+	if err != nil {
+		log.Println("[getMpegTSResolution]", tmpSource.Url, err.Error())
+		tmpR.Err = err.Error()
 		return
 	}
-
-	log.Println("[playUrlList]", goWebsocket.ToJson(playUrlList))
-
+	if len(playUrlList) == 0 {
+		tmpR.Err = "TS播放地址解析失败"
+		return
+	}
 	for idx, tmpUrl := range playUrlList {
 		if idx > 3 {
 			break
 		}
+		tmpR.TsUrl = tmpUrl
 		tmpWidth, tmpHeight, err := getMpegTSResolution(tmpUrl)
-		if err == nil && tmpWidth > 0 {
-			tmpR.Width = tmpWidth
-			tmpR.Height = tmpHeight
-			tmpR.TsUrl = tmpUrl
+		if err != nil {
+			log.Println("[getMpegTSResolution]", tmpUrl, err.Error())
+			tmpR.Err = err.Error()
 			break
 		}
-		log.Println("[即将尝试解析]", idx, tmpUrl)
-	}
-	if tmpR.Width <= 0 {
-		tmpR.Err = "m3u8文件解析失败"
-		return
+		if tmpWidth == 0 {
+			tmpR.Err = fmt.Sprintf("分辨率解析失败：%s", tmpUrl)
+			break
+		}
+		tmpR.Width = tmpWidth
+		tmpR.Height = tmpHeight
+		break
 	}
 
 	return tmpR
