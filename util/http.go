@@ -105,7 +105,7 @@ func (x *HttpClient) Post(requestUrl, rawBody string) ([]byte, error) {
 	x.addHeaderParams(req)
 
 	x.InitClient()
-	resp, err := (&http.Client{Transport: x.transport}).Do(req)
+	resp, err := (&http.Client{Timeout: time.Second * 15, Transport: x.transport}).Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -131,7 +131,7 @@ func (x *HttpClient) GetResponse(requestUrl string, size ...int64) (http.Header,
 	x.addHeaderParams(req)
 
 	x.InitClient()
-	resp, err := (&http.Client{Transport: x.transport}).Do(req)
+	resp, err := (&http.Client{Timeout: time.Second * 15, Transport: x.transport}).Do(req)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -175,7 +175,7 @@ func (x *HttpClient) PostResponse(requestUrl, rawBody string) (map[string][]stri
 	x.addHeaderParams(req)
 
 	x.InitClient()
-	resp, err := (&http.Client{Transport: x.transport}).Do(req)
+	resp, err := (&http.Client{Timeout: time.Second * 15, Transport: x.transport}).Do(req)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -194,7 +194,7 @@ func (x *HttpClient) Head(requestUrl string) (http.Header, error) {
 	x.addHeaderParams(req)
 
 	x.InitClient()
-	resp, err := (&http.Client{Transport: x.transport}).Do(req)
+	resp, err := (&http.Client{Timeout: time.Second * 15, Transport: x.transport}).Do(req)
 	if err != nil {
 		return nil, err
 	}

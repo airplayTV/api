@@ -43,22 +43,25 @@ func (x SourceStat) taskHandler() {
 
 	var resolutionList = make([]model.VideoResolution, 0)
 
+	var appSourceMap = model.AppSourceMap()
+
 	var idx = 0
-	for _, source := range model.AppSourceMap() {
+	for _, source := range appSourceMap {
 		log.Println("[resolveSource]", idx, source.Handler.Name())
 		var tmpR = x.parseVideoResolution(source)
 		resolutionList = append(resolutionList, tmpR)
 		idx++
+
+		slices.SortFunc(resolutionList, func(a, b model.VideoResolution) int {
+			return b.Width - a.Width
+		})
+
+		var p = filepath.Join(util.AppPath(), fmt.Sprintf("cache/stat/source-stat-%s.json", time.Now().Format("2006010215")))
+		if err := util.WriteFile(p, util.ToBytes(resolutionList)); err != nil {
+			log.Println("[SourceStat写文件失败]", err.Error())
+		}
 	}
 
-	slices.SortFunc(resolutionList, func(a, b model.VideoResolution) int {
-		return b.Width - a.Width
-	})
-
-	var p = filepath.Join(util.AppPath(), fmt.Sprintf("cache/stat/source-stat-%s.json", time.Now().Format("2006010215")))
-	if err := util.WriteFile(p, util.ToBytes(resolutionList)); err != nil {
-		log.Println("[SourceStat写文件失败]", err.Error())
-	}
 	log.Println("[resolveSource] end")
 }
 
@@ -129,6 +132,7 @@ func (x SourceStat) getMpegResolution(tmpUrl string) (width, height int, err err
 	probe, err := ffmpeg.Probe(tmpUrl, ffmpeg.KwArgs{
 		"allowed_extensions": "ALL",
 		"extension_picky":    0,
+		"stimeout":           1000000 * 15, // 15秒
 		"show_entries":       "stream=width,height",
 	})
 	if err != nil {
