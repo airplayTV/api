@@ -357,7 +357,9 @@ func (x VideoController) CheckNetwork(ctx *gin.Context) {
 }
 
 func (x VideoController) SourceStat(ctx *gin.Context) {
-	var p = filepath.Join(util.AppPath(), fmt.Sprintf("cache/stat/source-stat-%s.json", time.Now().Format("2006010215")))
+	var qTime = ctx.DefaultQuery("time", time.Now().Format("2006010215"))
+
+	var p = filepath.Join(util.AppPath(), fmt.Sprintf("cache/stat/source-stat-%s.json", qTime))
 	var resolutionList []model.VideoResolution
 
 	err := json.Unmarshal(util.ReadFile(p), &resolutionList)
