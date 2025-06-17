@@ -357,15 +357,28 @@ func (x VideoController) CheckNetwork(ctx *gin.Context) {
 }
 
 func (x VideoController) SourceStat(ctx *gin.Context) {
-	var qTime = ctx.DefaultQuery("time", time.Now().Format("2006010215"))
 
-	var p = filepath.Join(util.AppPath(), fmt.Sprintf("cache/stat/source-stat-%s.json", qTime))
-	var resolutionList []model.VideoResolution
+	var lst = []string{
+		time.Now().Add(-time.Hour * 0).Format("2006010215"),
+		time.Now().Add(-time.Hour * 1).Format("2006010215"),
+		time.Now().Add(-time.Hour * 2).Format("2006010215"),
+		time.Now().Add(-time.Hour * 3).Format("2006010215"),
+		time.Now().Add(-time.Hour * 4).Format("2006010215"),
+		time.Now().Add(-time.Hour * 5).Format("2006010215"),
+		time.Now().Add(-time.Hour * 6).Format("2006010215"),
+	}
+	for _, tmpTime := range lst {
+		var p = filepath.Join(util.AppPath(), fmt.Sprintf("cache/stat/source-stat-%s.json", tmpTime))
+		var resolutionList []model.VideoResolution
 
-	err := json.Unmarshal(util.ReadFile(p), &resolutionList)
-	if err != nil {
-		x.response(ctx, model.NewError("暂无数据："+err.Error()))
+		err := json.Unmarshal(util.ReadFile(p), &resolutionList)
+		if err != nil {
+			continue
+		}
+		x.response(ctx, model.NewSuccess(resolutionList))
 		return
 	}
-	x.response(ctx, model.NewSuccess(resolutionList))
+
+	x.response(ctx, model.NewError("暂无数据"))
+	return
 }

@@ -23,7 +23,7 @@ func NewSourceStat() *SourceStat {
 func (x SourceStat) Run() {
 	x.taskHandler()
 
-	var ticker = time.NewTicker(time.Hour * 1)
+	var ticker = time.NewTicker(time.Hour * 1 / 2)
 	for {
 		select {
 		case <-ticker.C:
@@ -51,15 +51,14 @@ func (x SourceStat) taskHandler() {
 		var tmpR = x.parseVideoResolution(source)
 		resolutionList = append(resolutionList, tmpR)
 		idx++
+	}
+	slices.SortFunc(resolutionList, func(a, b model.VideoResolution) int {
+		return b.Width - a.Width
+	})
 
-		slices.SortFunc(resolutionList, func(a, b model.VideoResolution) int {
-			return b.Width - a.Width
-		})
-
-		var p = filepath.Join(util.AppPath(), fmt.Sprintf("cache/stat/source-stat-%s.json", time.Now().Format("2006010215")))
-		if err := util.WriteFile(p, util.ToBytes(resolutionList)); err != nil {
-			log.Println("[SourceStat写文件失败]", err.Error())
-		}
+	var p = filepath.Join(util.AppPath(), fmt.Sprintf("cache/stat/source-stat-%s.json", time.Now().Format("2006010215")))
+	if err := util.WriteFile(p, util.ToBytes(resolutionList)); err != nil {
+		log.Println("[SourceStat写文件失败]", err.Error())
 	}
 
 	log.Println("[resolveSource] end")
