@@ -90,6 +90,7 @@ func (x SourceStat) parseVideoResolution(h model.SourceHandler) (tmpR model.Vide
 	}
 
 	tmpR.Name = videoList[0].Name
+	tmpR.Vid = videoList[0].Id
 
 	var tmpSource model.Source
 	resp = h.Handler.Source(tmpVideo.Links[0].Id, videoList[0].Id)
@@ -106,6 +107,7 @@ func (x SourceStat) parseVideoResolution(h model.SourceHandler) (tmpR model.Vide
 	}
 
 	tmpR.Url = tmpSource.Url
+	tmpR.Pid = tmpSource.Id
 
 	var err error
 	tmpR.Width, tmpR.Height, err = x.getMpegResolution(tmpSource.Url)

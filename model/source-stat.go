@@ -3,6 +3,8 @@ package model
 type VideoResolution struct {
 	Source string `json:"source"` // 视频源
 	Name   string `json:"name"`   // 视频名
+	Vid    string `json:"vid"`    // 视频ID
+	Pid    string `json:"pid"`    // 播放ID
 	Url    string `json:"url"`    // 视频地址
 	TsUrl  string `json:"ts_url"` // 视频播放的TS地址
 	Width  int    `json:"width"`  //视频 resolution 宽度
