@@ -132,7 +132,7 @@ func (x SourceStat) getMpegResolution(tmpUrl string) (width, height int, err err
 	probe, err := ffmpeg.Probe(tmpUrl, ffmpeg.KwArgs{
 		"allowed_extensions": "ALL",
 		"extension_picky":    0,
-		"stimeout":           1000000 * 15, // 15秒
+		"timeout":            1000000 * 15, // 15秒
 		"show_entries":       "stream=width,height",
 	})
 	if err != nil {
