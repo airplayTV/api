@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"github.com/airplayTV/api/handler"
 	"github.com/airplayTV/api/model"
@@ -18,6 +19,7 @@ import (
 	"net"
 	"net/http"
 	"net/url"
+	"path/filepath"
 	"slices"
 	"strings"
 	"sync"
@@ -352,4 +354,16 @@ func (x VideoController) CheckNetwork(ctx *gin.Context) {
 		"url":      queryUrl,
 		"resolved": resolvedUrlAddr,
 	}))
+}
+
+func (x VideoController) SourceStat(ctx *gin.Context) {
+	var p = filepath.Join(util.AppPath(), fmt.Sprintf("cache/stat/source-stat-%s.json", time.Now().Format("2006010215")))
+	var resolutionList []model.VideoResolution
+
+	err := json.Unmarshal(util.ReadFile(p), &resolutionList)
+	if err != nil {
+		x.response(ctx, model.NewError("暂无数据："+err.Error()))
+		return
+	}
+	x.response(ctx, model.NewSuccess(resolutionList))
 }

@@ -50,7 +50,7 @@ func (x SourceStat) taskHandler() {
 		return a.Width - b.Width
 	})
 
-	var p = filepath.Join(util.AppPath(), fmt.Sprintf("cache/stat/source-stat-%s.json", time.Now().Format("20060102")))
+	var p = filepath.Join(util.AppPath(), fmt.Sprintf("cache/stat/source-stat-%s.json", time.Now().Format("2006010215")))
 	if err := util.WriteFile(p, util.ToBytes(resolutionList)); err != nil {
 		log.Println("[SourceStat写文件失败]", err.Error())
 	}
@@ -58,6 +58,7 @@ func (x SourceStat) taskHandler() {
 
 func (x SourceStat) parseVideoResolution(h model.SourceHandler) (tmpR model.VideoResolution) {
 	tmpR.Source = h.Handler.Name()
+	tmpR.Time = time.Now().Format(time.DateTime)
 
 	var resp = h.Handler.VideoList("", "1")
 

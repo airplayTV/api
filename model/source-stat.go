@@ -7,5 +7,6 @@ type VideoResolution struct {
 	TsUrl  string // 视频播放的TS地址
 	Width  int    //视频 resolution 宽度
 	Height int    //视频 resolution 高度
+	Time   string //测试时间
 	Err    string // 错误原因
 }
