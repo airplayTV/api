@@ -25,7 +25,7 @@ type HttpClient struct {
 
 func (x *HttpClient) InitClient() {
 	x.SkipVerify = true
-	x.ProxyUrl = "http://127.0.0.1:1080"
+	//x.ProxyUrl = "http://127.0.0.1:1080"
 
 	if x.transport == nil {
 		x.transport = &http.Transport{}
