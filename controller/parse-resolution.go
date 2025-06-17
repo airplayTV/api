@@ -13,12 +13,13 @@ import (
 )
 
 type VideoResolution struct {
-	Source string
-	Url    string
-	TsUrl  string
-	Width  int
-	Height int
-	Err    string
+	Source string // 视频源
+	Name   string // 视频名
+	Url    string // 视频地址
+	TsUrl  string // 视频播放的TS地址
+	Width  int    //视频 resolution 宽度
+	Height int    //视频 resolution 高度
+	Err    string // 错误原因
 }
 
 func RunParseResolution() {
@@ -66,6 +67,8 @@ func parseVideoResolution(h SourceHandler) (tmpR VideoResolution) {
 		return
 	}
 
+	tmpR.Name = videoList[0].Name
+
 	var tmpSource model.Source
 	resp = h.Handler.Source(tmpVideo.Links[0].Id, videoList[0].Id)
 	switch resp.(type) {
@@ -82,37 +85,32 @@ func parseVideoResolution(h SourceHandler) (tmpR VideoResolution) {
 
 	tmpR.Url = tmpSource.Url
 
-	playUrlList, err := util.ParsePlayUrlList(tmpSource.Url)
+	var err error
+	tmpR.Width, tmpR.Height, err = getMpegResolution(tmpSource.Url)
 	if err != nil {
-		log.Println("[getMpegTSResolution]", tmpSource.Url, err.Error())
 		tmpR.Err = err.Error()
 		return
 	}
-	if len(playUrlList) == 0 {
-		tmpR.Err = "TS播放地址解析失败"
-		return
-	}
-	for idx, tmpUrl := range playUrlList {
-		if idx > 3 {
-			break
-		}
-		tmpR.TsUrl = tmpUrl
-		tmpWidth, tmpHeight, err := getMpegTSResolution(tmpUrl)
-		if err != nil {
-			log.Println("[getMpegTSResolution]", tmpUrl, err.Error())
-			tmpR.Err = err.Error()
-			break
-		}
-		if tmpWidth == 0 {
-			tmpR.Err = fmt.Sprintf("分辨率解析失败：%s", tmpUrl)
-			break
-		}
-		tmpR.Width = tmpWidth
-		tmpR.Height = tmpHeight
-		break
-	}
 
 	return tmpR
+}
+
+func getMpegResolution(tmpUrl string) (width, height int, err error) {
+	probe, err := ffmpeg_go.Probe(tmpUrl, ffmpeg_go.KwArgs{"show_entries": "stream=width,height"})
+	if err != nil {
+		return
+	}
+
+	var result = gjson.Parse(probe)
+	if !result.Get("programs").IsArray() || len(result.Get("programs").Array()) == 0 {
+		log.Println("[probe]", probe)
+		return width, height, errors.New("programs没有数据")
+	}
+	var resolution = result.Get("programs").Array()[0].Get("streams").Array()[0]
+	width = int(resolution.Get("width").Int())
+	height = int(resolution.Get("height").Int())
+
+	return
 }
 
 func getMpegTSResolution(tmpUrl string) (width, height int, err error) {
