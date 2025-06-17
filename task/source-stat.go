@@ -21,6 +21,8 @@ func NewSourceStat() *SourceStat {
 }
 
 func (x SourceStat) Run() {
+	x.taskHandler()
+
 	var ticker = time.NewTicker(time.Hour * 1)
 	for {
 		select {
