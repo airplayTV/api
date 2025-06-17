@@ -47,7 +47,7 @@ func (x SourceStat) taskHandler() {
 	}
 
 	slices.SortFunc(resolutionList, func(a, b model.VideoResolution) int {
-		return a.Width - b.Width
+		return b.Width - a.Width
 	})
 
 	var p = filepath.Join(util.AppPath(), fmt.Sprintf("cache/stat/source-stat-%s.json", time.Now().Format("2006010215")))
