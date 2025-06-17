@@ -59,6 +59,7 @@ func (x SourceStat) taskHandler() {
 	if err := util.WriteFile(p, util.ToBytes(resolutionList)); err != nil {
 		log.Println("[SourceStat写文件失败]", err.Error())
 	}
+	log.Println("[resolveSource] end")
 }
 
 func (x SourceStat) parseVideoResolution(h model.SourceHandler) (tmpR model.VideoResolution) {
