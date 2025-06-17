@@ -122,7 +122,11 @@ func (x SourceStat) parseVideoResolution(h model.SourceHandler) (tmpR model.Vide
 }
 
 func (x SourceStat) getMpegResolution(tmpUrl string) (width, height int, err error) {
-	probe, err := ffmpeg.Probe(tmpUrl, ffmpeg.KwArgs{"show_entries": "stream=width,height"})
+	probe, err := ffmpeg.Probe(tmpUrl, ffmpeg.KwArgs{
+		"allowed_extensions": "ALL",
+		"extension_picky":    0,
+		"show_entries":       "stream=width,height",
+	})
 	if err != nil {
 		return
 	}
