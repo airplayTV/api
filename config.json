@@ -244,7 +244,7 @@
       "id": "ffzy5",
       "name": "非凡资源",
       "host": "http://ffzy5.tv/",
-      "api": "http://api.ffzyapi.com/api.php/provide/vod/",
+      "api": "http://api.ffzyapi.com/api.php/provide/vod/from/ffm3u8/at/json/",
       "searchable": true,
       "description": ""
     },
