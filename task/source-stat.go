@@ -21,7 +21,7 @@ func NewSourceStat() *SourceStat {
 }
 
 func (x SourceStat) Run() {
-	var ticker = time.NewTicker(time.Second * 30)
+	var ticker = time.NewTicker(time.Hour * 1)
 	for {
 		select {
 		case <-ticker.C:
