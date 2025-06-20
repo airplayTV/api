@@ -17,10 +17,6 @@ import (
 	"strings"
 )
 
-var (
-	handlerCache = util.NewCacheManager()
-)
-
 type Handler struct {
 	httpClient util.HttpClient
 	option     model.CmsZyOption

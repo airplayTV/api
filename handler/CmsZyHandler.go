@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"github.com/airplayTV/api/model"
@@ -237,11 +236,6 @@ func (x CmsZyHandler) getApiUrl() string {
 }
 
 func (x CmsZyHandler) TagList() interface{} {
-	var key = fmt.Sprintf("tag-list-%s", x.option.GetName())
-	data, err := handlerCache.Get(context.Background(), key)
-	if err == nil {
-		return x.formatTags(data.(map[string]string))
-	}
 	var tagCacheFile = filepath.Join(util.AppPath(), fmt.Sprintf("cache/tags/%s.json", x.option.GetId()))
 	var buff = util.ReadFile(tagCacheFile)
 	var tmpTags = map[string]string{"全部": ""}
