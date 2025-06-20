@@ -8,6 +8,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 	"github.com/airplayTV/api/model"
 	"github.com/airplayTV/api/util"
+	"github.com/eko/gocache/lib/v4/store"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cast"
 	"github.com/tidwall/gjson"
@@ -17,6 +18,7 @@ import (
 	"slices"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type CzzyHandler struct {
@@ -55,19 +57,31 @@ func (x CzzyHandler) TagList() interface{} {
 }
 
 func (x CzzyHandler) VideoList(tag, page string) interface{} {
-	return x._videoList(tag, page)
+	var key = fmt.Sprintf("czzy-video-list::%s_%s_%s", x.Name(), tag, page)
+	return model.WithCache(key, store.WithExpiration(time.Hour*6), func() interface{} {
+		return x._videoList(tag, page)
+	})
 }
 
 func (x CzzyHandler) Search(keyword, page string) interface{} {
-	return x._search(keyword, page)
+	var key = fmt.Sprintf("czzy-video-search::%s_%s_%s", x.Name(), keyword, page)
+	return model.WithCache(key, store.WithExpiration(time.Hour*6), func() interface{} {
+		return x._search(keyword, page)
+	})
 }
 
 func (x CzzyHandler) Detail(id string) interface{} {
-	return x._detail(id)
+	var key = fmt.Sprintf("czzy-video-detail::%s_%s", x.Name(), id)
+	return model.WithCache(key, store.WithExpiration(time.Hour*6), func() interface{} {
+		return x._detail(id)
+	})
 }
 
 func (x CzzyHandler) Source(pid, vid string) interface{} {
-	return x._source(pid, vid)
+	var key = fmt.Sprintf("czzy-video-source::%s_%s_%s", x.Name(), pid, vid)
+	return model.WithCache(key, store.WithExpiration(time.Hour*2), func() interface{} {
+		return x._source(pid, vid)
+	})
 }
 
 func (x CzzyHandler) Airplay(pid, vid string) interface{} {
