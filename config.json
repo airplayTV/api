@@ -350,7 +350,31 @@
       "host": "https://yzzy.tv/",
       "api": "https://api.yzzy-api.com/inc/api_mac10.php",
       "searchable": true,
-      "description": "优质 高清资源主域名:yzzy.tv hdzyk.com（备用网址): 1080zyk1.com 至 1080zyk20.com\n"
+      "description": "优质 高清资源主域名:yzzy.tv hdzyk.com（备用网址): 1080zyk1.com 至 1080zyk20.com"
+    },
+    {
+      "id": "tyyszy",
+      "name": "天涯资源",
+      "host": "https://tyyszy.com/",
+      "api": "https://tyyszyapi.com/api.php/provide/vod/",
+      "searchable": true,
+      "description": ""
+    },
+    {
+      "id": "wuxianzy",
+      "name": "无限资源",
+      "host": "https://wuxianzy2.com/",
+      "api": "https://api.wuxianzy.net/api.php/provide/vod/",
+      "searchable": true,
+      "description": ""
+    },
+    {
+      "id": "wuxianzy",
+      "name": "黄仓资源",
+      "host": "https://hsckzy.cc/help/",
+      "api": "https://hsckzy888.com/api.php/provide/vod/from/hsckm3u8/at/json/",
+      "searchable": true,
+      "description": ""
     }
   ],
   "mode": {
