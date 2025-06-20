@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/airplayTV/api/handler"
 	"github.com/airplayTV/api/model"
@@ -56,10 +57,25 @@ func (x VideoController) Provider(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, model.NewSuccess(providers))
 }
 
-func (x VideoController) Search(ctx *gin.Context) {
+func (x VideoController) parseSourceHandler(ctx *gin.Context) (model.SourceHandler, error) {
 	h, ok := x.getSourceMap(ctx)[strings.TrimSpace(ctx.Query("_source"))]
 	if !ok {
-		ctx.JSON(http.StatusOK, model.NewError("数据源错误"))
+		return h, errors.New("数据源错误")
+	}
+	if h.Handler.Option().Disable {
+		return h, errors.New("数据源错误")
+	}
+	return h, nil
+}
+
+func (x VideoController) Search(ctx *gin.Context) {
+	h, err := x.parseSourceHandler(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusOK, model.NewError(err.Error()))
+		return
+	}
+	if !h.Handler.Option().Searchable {
+		ctx.JSON(http.StatusOK, model.NewError("当前源不支持搜索"))
 		return
 	}
 	var cacheKey = fmt.Sprintf("Search::%s_%s_%s", ctx.Query("_source"), ctx.Query("keyword"), ctx.Query("page"))
@@ -114,9 +130,9 @@ func (x VideoController) SearchV2(ctx *gin.Context) {
 }
 
 func (x VideoController) VideoList(ctx *gin.Context) {
-	h, ok := x.getSourceMap(ctx)[strings.TrimSpace(ctx.Query("_source"))]
-	if !ok {
-		ctx.JSON(http.StatusOK, model.NewError("数据源错误"))
+	h, err := x.parseSourceHandler(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusOK, model.NewError(err.Error()))
 		return
 	}
 	var cacheKey = fmt.Sprintf("VideoList::%s_%s_%s", ctx.Query("_source"), ctx.Query("tag"), ctx.Query("page"))
@@ -135,9 +151,9 @@ func (x VideoController) VideoList(ctx *gin.Context) {
 }
 
 func (x VideoController) Detail(ctx *gin.Context) {
-	h, ok := x.getSourceMap(ctx)[strings.TrimSpace(ctx.Query("_source"))]
-	if !ok {
-		ctx.JSON(http.StatusOK, model.NewError("数据源错误"))
+	h, err := x.parseSourceHandler(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusOK, model.NewError(err.Error()))
 		return
 	}
 	var cacheKey = fmt.Sprintf("Detail::%s_%s", ctx.Query("_source"), ctx.Query("id"))
@@ -156,9 +172,9 @@ func (x VideoController) Detail(ctx *gin.Context) {
 }
 
 func (x VideoController) Source(ctx *gin.Context) {
-	h, ok := x.getSourceMap(ctx)[strings.TrimSpace(ctx.Query("_source"))]
-	if !ok {
-		ctx.JSON(http.StatusOK, model.NewError("数据源错误"))
+	h, err := x.parseSourceHandler(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusOK, model.NewError(err.Error()))
 		return
 	}
 	var p = cast.ToBool(ctx.Query("_m3u8p"))
@@ -197,9 +213,9 @@ func (x VideoController) m3u8pHandler(m3u8p bool, resp interface{}) interface{} 
 }
 
 func (x VideoController) Airplay(ctx *gin.Context) {
-	h, ok := x.getSourceMap(ctx)[strings.TrimSpace(ctx.Query("_source"))]
-	if !ok {
-		ctx.JSON(http.StatusOK, model.NewError("数据源错误"))
+	h, err := x.parseSourceHandler(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusOK, model.NewError(err.Error()))
 		return
 	}
 	x.response(ctx, h.Handler.Airplay(
@@ -254,9 +270,9 @@ func (x VideoController) M3u8p(ctx *gin.Context) {
 }
 
 func (x VideoController) SetCookie(ctx *gin.Context) {
-	h, ok := x.getSourceMap(ctx)[strings.TrimSpace(ctx.Query("_source"))]
-	if !ok {
-		ctx.JSON(http.StatusOK, model.NewError("数据源错误"))
+	h, err := x.parseSourceHandler(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusOK, model.NewError(err.Error()))
 		return
 	}
 
@@ -264,7 +280,7 @@ func (x VideoController) SetCookie(ctx *gin.Context) {
 		headers.Cookie:    ctx.PostForm("cookie"),
 		headers.UserAgent: ctx.PostForm("user-agent"),
 	}
-	var err = h.Handler.(handler.CzzyHandler).UpdateHeader(tmpHeaders)
+	err = h.Handler.(handler.CzzyHandler).UpdateHeader(tmpHeaders)
 	if err != nil {
 		x.response(ctx, model.NewError(err.Error()))
 	} else {
