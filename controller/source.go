@@ -51,6 +51,7 @@ func init() {
 		idx += 1
 		var h = handler.CmsZyHandler{}.Init(model.CmsZyOption{
 			Name:       tmpConfig.Name,
+			Host:       tmpConfig.Host,
 			Api:        tmpConfig.Api,
 			Id:         tmpConfig.Id,
 			Disable:    tmpConfig.Disable,

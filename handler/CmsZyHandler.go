@@ -53,6 +53,14 @@ func (x CmsZyHandler) VideoList(tag, page string) interface{} {
 }
 
 func (x CmsZyHandler) Search(keyword, page string) interface{} {
+	switch x.Name() {
+	case "红牛资源":
+		var tmpCache = model.GetSetCache("cms-hongniu-search-sleep-5s", store.WithExpiration(time.Second*5))
+		if tmpCache {
+			return model.NewError("该源限制5s内连续搜索")
+		}
+	}
+
 	var key = fmt.Sprintf("cms-video-search::%s_%s_%s", x.Name(), keyword, page)
 	return model.WithCache(key, store.WithExpiration(time.Hour*6), func() interface{} {
 		return x._search(keyword, page)

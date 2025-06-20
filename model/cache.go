@@ -48,3 +48,13 @@ func WithCache(key string, cacheOption store.Option, compute func() interface{})
 	_ = tmpCache.Set(context.Background(), key, resp, cacheOption)
 	return resp
 }
+
+func GetSetCache(key string, cacheOption store.Option) bool {
+	var tmpCache = CacheManager()
+	resp, err := tmpCache.Get(context.Background(), key)
+	if err == nil && resp != nil {
+		return true
+	}
+	_ = tmpCache.Set(context.Background(), key, true, cacheOption)
+	return false
+}

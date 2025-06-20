@@ -8,6 +8,7 @@ type KV1 struct {
 type CmsZyOption struct {
 	Id         string
 	Name       string
+	Host       string // 主页
 	Api        string
 	Disable    bool
 	Searchable bool // 是否可搜索
