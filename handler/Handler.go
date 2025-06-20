@@ -1,13 +1,11 @@
 package handler
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"github.com/airplayTV/api/model"
 	"github.com/airplayTV/api/util"
 	"github.com/bytecodealliance/wasmtime-go/v25"
-	"github.com/eko/gocache/lib/v4/store"
 	"github.com/tidwall/gjson"
 	"github.com/zc310/headers"
 	"log"
@@ -255,15 +253,4 @@ func (x *Handler) handleVideoListThumb(detailApiUrl string, videos []model.Video
 		}
 	}
 	return videos
-}
-
-func (x *Handler) WithCache(key string, cacheOption store.Option, compute func() interface{}) interface{} {
-	var cache = model.CacheManager()
-	resp, err := cache.Get(context.Background(), key)
-	if err == nil && resp != nil {
-		return resp
-	}
-	resp = compute()
-	_ = cache.Set(context.Background(), key, resp, cacheOption)
-	return resp
 }

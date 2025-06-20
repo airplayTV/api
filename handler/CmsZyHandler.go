@@ -46,28 +46,28 @@ func (x CmsZyHandler) Option() model.CmsZyOption {
 
 func (x CmsZyHandler) VideoList(tag, page string) interface{} {
 	var key = fmt.Sprintf("cms-video-list::%s_%s_%s", x.Name(), tag, page)
-	return x.WithCache(key, store.WithExpiration(time.Hour*6), func() interface{} {
+	return model.WithCache(key, store.WithExpiration(time.Hour*6), func() interface{} {
 		return x._videoList(tag, page)
 	})
 }
 
 func (x CmsZyHandler) Search(keyword, page string) interface{} {
 	var key = fmt.Sprintf("cms-video-search::%s_%s_%s", x.Name(), keyword, page)
-	return x.WithCache(key, store.WithExpiration(time.Hour*6), func() interface{} {
+	return model.WithCache(key, store.WithExpiration(time.Hour*6), func() interface{} {
 		return x._search(keyword, page)
 	})
 }
 
 func (x CmsZyHandler) Detail(id string) interface{} {
 	var key = fmt.Sprintf("cms-video-detail::%s_%s", x.Name(), id)
-	return x.WithCache(key, store.WithExpiration(time.Hour*6), func() interface{} {
+	return model.WithCache(key, store.WithExpiration(time.Hour*6), func() interface{} {
 		return x._detail(id)
 	})
 }
 
 func (x CmsZyHandler) Source(pid, vid string) interface{} {
 	var key = fmt.Sprintf("cms-video-source::%s_%s_%s", x.Name(), pid, vid)
-	return x.WithCache(key, store.WithExpiration(time.Hour*2), func() interface{} {
+	return model.WithCache(key, store.WithExpiration(time.Hour*2), func() interface{} {
 		return x._source(pid, vid)
 	})
 }
