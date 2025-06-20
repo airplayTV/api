@@ -112,6 +112,16 @@ func (x CmsZyHandler) _videoList(tagName, page string) interface{} {
 }
 
 func (x CmsZyHandler) _search(keyword, page string) interface{} {
+	switch x.Name() {
+	case "红牛资源":
+		// https://hongniuziyuan.com/index.php/vod/search.html?wd=%E6%88%91%E7%9A%84&submit=search
+		return nil
+	default:
+		return x.apiSearch(keyword, page)
+	}
+}
+
+func (x CmsZyHandler) apiSearch(keyword, page string) interface{} {
 	var reqUrl = fmt.Sprintf("%s/?ac=list&pg=%d&t=&wd=%s", x.getApiUrl(), x.parsePageNumber(page), url.QueryEscape(keyword))
 	buff, err := x.httpClient.Get(reqUrl)
 	if err != nil {
