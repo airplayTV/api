@@ -8,6 +8,10 @@ import (
 
 var cacheManager *cache.Cache[any]
 
+func init() {
+	CacheManager()
+}
+
 func CacheManager() *cache.Cache[any] {
 	if cacheManager != nil {
 		return cacheManager

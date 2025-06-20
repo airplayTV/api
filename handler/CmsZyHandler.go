@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/airplayTV/api/model"
 	"github.com/airplayTV/api/util"
+	"github.com/eko/gocache/lib/v4/store"
 	"github.com/gin-gonic/gin"
 	"github.com/tidwall/gjson"
 	"github.com/zc310/headers"
@@ -44,19 +45,31 @@ func (x CmsZyHandler) Option() model.CmsZyOption {
 }
 
 func (x CmsZyHandler) VideoList(tag, page string) interface{} {
-	return x._videoList(tag, page)
+	var key = fmt.Sprintf("cms-video-list::%s_%s_%s", x.Name(), tag, page)
+	return x.WithCache(key, store.WithExpiration(time.Hour*6), func() interface{} {
+		return x._videoList(tag, page)
+	})
 }
 
 func (x CmsZyHandler) Search(keyword, page string) interface{} {
-	return x._search(keyword, page)
+	var key = fmt.Sprintf("cms-video-search::%s_%s_%s", x.Name(), keyword, page)
+	return x.WithCache(key, store.WithExpiration(time.Hour*6), func() interface{} {
+		return x._search(keyword, page)
+	})
 }
 
 func (x CmsZyHandler) Detail(id string) interface{} {
-	return x._detail(id)
+	var key = fmt.Sprintf("cms-video-detail::%s_%s", x.Name(), id)
+	return x.WithCache(key, store.WithExpiration(time.Hour*6), func() interface{} {
+		return x._detail(id)
+	})
 }
 
 func (x CmsZyHandler) Source(pid, vid string) interface{} {
-	return x._source(pid, vid)
+	var key = fmt.Sprintf("cms-video-source::%s_%s_%s", x.Name(), pid, vid)
+	return x.WithCache(key, store.WithExpiration(time.Hour*2), func() interface{} {
+		return x._source(pid, vid)
+	})
 }
 
 func (x CmsZyHandler) Airplay(pid, vid string) interface{} {
