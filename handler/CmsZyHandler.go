@@ -3,10 +3,12 @@ package handler
 import (
 	"errors"
 	"fmt"
+	"github.com/PuerkitoBio/goquery"
 	"github.com/airplayTV/api/model"
 	"github.com/airplayTV/api/util"
 	"github.com/eko/gocache/lib/v4/store"
 	"github.com/gin-gonic/gin"
+	"github.com/spf13/cast"
 	"github.com/tidwall/gjson"
 	"github.com/zc310/headers"
 	"log"
@@ -114,11 +116,52 @@ func (x CmsZyHandler) _videoList(tagName, page string) interface{} {
 func (x CmsZyHandler) _search(keyword, page string) interface{} {
 	switch x.Name() {
 	case "红牛资源":
-		// https://hongniuziyuan.com/index.php/vod/search.html?wd=%E6%88%91%E7%9A%84&submit=search
-		return nil
+		return x.hongniuSearch(keyword, page)
 	default:
 		return x.apiSearch(keyword, page)
 	}
+}
+
+func (x CmsZyHandler) hongniuSearch(keyword, page string) interface{} {
+	buff, err := x.httpClient.Get(fmt.Sprintf("%s/index.php/vod/search/page/%d/wd/%s.html?ac=detail", util.ParseUrlHost(x.option.Host), x.parsePageNumber(page), keyword))
+	if err != nil {
+		return model.NewError("获取数据失败：" + err.Error())
+	}
+	doc, err := goquery.NewDocumentFromReader(strings.NewReader(string(buff)))
+	if err != nil {
+		return model.NewError("解析数据失败：" + err.Error())
+	}
+
+	var pager = model.Pager{Limit: 51, Page: x.parsePageNumber(page), List: make([]model.Video, 0)}
+
+	var matches = x.simpleRegExList(doc.Find(".pages .page_tip").Text(), `共(\d+)条数据,当前(\d+)/(\d+)页`)
+	if len(matches) > 3 {
+		pager.Total = cast.ToInt(matches[1])
+		pager.Pages = cast.ToInt(matches[3])
+		pager.Page = cast.ToInt(matches[2])
+	}
+
+	doc.Find(".xing_vb ul li").Each(func(i int, selection *goquery.Selection) {
+		var tmpId = x.simpleRegEx(selection.Find("a").AttrOr("href", ""), `id/(\S+).html`)
+		if len(tmpId) <= 0 {
+			return
+		}
+		pager.List = append(pager.List, model.Video{
+			Id:         tmpId,
+			Name:       selection.Find("a").Text(),
+			Thumb:      "",
+			Intro:      "",
+			Url:        "",
+			Actors:     "",
+			Tag:        selection.Find(".xing_vb5").Text(),
+			Resolution: "",
+			UpdatedAt:  selection.Find(".xing_vb7").Text(),
+			Links:      nil,
+		})
+	})
+	log.Println("[A]", len(pager.List))
+
+	return model.NewSuccess(pager)
 }
 
 func (x CmsZyHandler) apiSearch(keyword, page string) interface{} {
