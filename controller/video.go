@@ -12,10 +12,10 @@ import (
 	"github.com/airplayTV/api/util"
 	"github.com/eko/gocache/lib/v4/store"
 	"github.com/gin-gonic/gin"
+	"github.com/go-http-utils/headers"
 	"github.com/lixiang4u/goWebsocket"
 	"github.com/skip2/go-qrcode"
 	"github.com/spf13/cast"
-	"github.com/zc310/headers"
 	"log"
 	"net"
 	"net/http"
@@ -251,13 +251,25 @@ func (x VideoController) M3u8p(ctx *gin.Context) {
 	//	x.response(ctx, model.NewError("不支持的代理地址："+parsed.Host))
 	//	return
 	//}
+
+	ctx.Header("X-Source-Url", tmpUrl)
+
 	var httpClient = util.HttpClient{}
 	header, buff, err := httpClient.GetResponse(tmpUrl)
 	if err != nil {
 		x.response(ctx, model.NewError("请求失败："+err.Error()))
 		return
 	}
+	buff, err = util.FormatM3u8Url(buff, tmpUrl)
+	if err != nil {
+		x.response(ctx, model.NewError("文件处理异常："+err.Error()))
+		return
+	}
+
 	for k, v := range header {
+		if k == headers.ContentLength {
+			continue
+		}
 		ctx.Header(k, v[0])
 	}
 	// 跨域
