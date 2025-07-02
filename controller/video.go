@@ -277,6 +277,7 @@ func (x VideoController) M3u8p(ctx *gin.Context) {
 	ctx.Header(headers.AccessControlAllowHeaders, "*")
 	ctx.Header(headers.AccessControlAllowMethods, "*")
 	ctx.Header(headers.AccessControlExposeHeaders, "Content-Length,Hit-Cache")
+	ctx.Header(headers.CacheControl, "no-cache, no-store")
 
 	ctx.DataFromReader(http.StatusOK, -1, header.Get(headers.ContentType), bytes.NewReader(buff), nil)
 }
