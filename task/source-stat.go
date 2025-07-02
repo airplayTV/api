@@ -10,6 +10,7 @@ import (
 	"log"
 	"path/filepath"
 	"slices"
+	"strings"
 	"time"
 )
 
@@ -58,7 +59,13 @@ func (x SourceStat) taskHandler() {
 		idx++
 	}
 	slices.SortFunc(resolutionList, func(a, b model.VideoResolution) int {
-		return b.Width - a.Width
+		if b.Width != a.Width {
+			return b.Width - a.Width // 降序
+		}
+		if b.Latency != a.Latency {
+			return int(a.Latency - b.Latency) // 升序
+		}
+		return strings.Compare(a.Time, b.Time)
 	})
 
 	var p = filepath.Join(util.AppPath(), fmt.Sprintf("cache/stat/source-stat-%s.json", time.Now().Format("2006010215")))
