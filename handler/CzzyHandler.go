@@ -90,8 +90,17 @@ func (x CzzyHandler) Airplay(pid, vid string) interface{} {
 
 //
 
+func (x CzzyHandler) _tagUrl(tagName, page string) string {
+	var p = x.parsePageNumber(page)
+	if p == 1 {
+		return fmt.Sprintf("%s/%s", strings.TrimRight(czzyHost, "/"), tagName)
+	} else {
+		return fmt.Sprintf(czzyTagUrl, tagName, x.parsePageNumber(page))
+	}
+}
+
 func (x CzzyHandler) _videoList(tagName, page string) interface{} {
-	buff, err := x.httpClient.Get(fmt.Sprintf(czzyTagUrl, tagName, x.parsePageNumber(page)))
+	buff, err := x.httpClient.Get(x._tagUrl(tagName, page))
 	if err != nil {
 		return model.NewError("获取数据失败：" + err.Error())
 	}

@@ -10,11 +10,11 @@ const apiM3U8ProxyUrl = "https://airplay-api.artools.cc/api/m3u8p"
 const ApiM3U8ProxyUrl = apiM3U8ProxyUrl
 
 const (
-	czzyHost      = "https://www.cz233.com"
-	czzyTagUrl    = "https://www.cz233.com/%s/page/%d"
-	czzySearchUrl = "https://www.cz233.com/daoyongjiekoshibushiy0ubing?q=%s&f=_all&p=%d"
-	czzyDetailUrl = "https://www.cz233.com/movie/%s.html"
-	czzyPlayUrl   = "https://www.cz233.com/v_play/%s.html"
+	czzyHost      = "https://www.czzymovie.com"
+	czzyTagUrl    = "https://www.czzymovie.com/%s/page/%d"
+	czzySearchUrl = "https://www.czzymovie.com/daoyongjiekoshibushiy0ubing?q=%s&f=_all&p=%d"
+	czzyDetailUrl = "https://www.czzymovie.com/movie/%s.html"
+	czzyPlayUrl   = "https://www.czzymovie.com/v_play/%s.html"
 )
 
 const (
