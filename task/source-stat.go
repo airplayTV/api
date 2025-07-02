@@ -21,7 +21,14 @@ func NewSourceStat() *SourceStat {
 }
 
 func (x SourceStat) Run() {
+	defer func() {
+		if err := recover(); err != nil {
+			log.Println("[taskHandler.recover]", err)
+		}
+	}()
+
 	var ticker = time.NewTicker(time.Hour * 1 / 2)
+	x.taskHandler()
 	for {
 		select {
 		case <-ticker.C:
@@ -59,7 +66,7 @@ func (x SourceStat) taskHandler() {
 		log.Println("[SourceStat写文件失败]", err.Error())
 	}
 
-	log.Println("[resolveSource] end")
+	log.Println(fmt.Sprintf("[resolveSource] ok %s", p))
 }
 
 func (x SourceStat) parseVideoResolution(h model.SourceHandler) (tmpR model.VideoResolution) {
@@ -116,7 +123,9 @@ func (x SourceStat) parseVideoResolution(h model.SourceHandler) (tmpR model.Vide
 	tmpR.Pid = tmpSource.Id
 
 	var err error
+	var ts1 = time.Now().UnixMilli() // 毫秒
 	tmpR.Width, tmpR.Height, err = x.getMpegResolution(tmpSource.Url)
+	tmpR.Latency = time.Now().UnixMilli() - ts1
 	if err != nil {
 		tmpR.Err = err.Error()
 		return

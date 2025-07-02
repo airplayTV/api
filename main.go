@@ -13,11 +13,9 @@ import (
 	"net/http"
 )
 
-func init() {
-	go task.NewSourceStat().Run()
-}
-
 func main() {
+	go task.NewSourceStat().Run()
+
 	var app = gin.Default()
 	app.Use(gin.Recovery())
 	if err := newRouterApi(app).Run(":8082"); err != nil {
