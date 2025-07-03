@@ -196,7 +196,7 @@
       "id": "iqiyizy",
       "name": "iQiYi资源",
       "host": "https://iqiyizy.com/",
-      "api": "https://www.iqiyizyapi.com/api.php/provide/vod/",
+      "api": "https://iqiyizyapi.com/api.php/provide/vod/",
       "searchable": true,
       "description": ""
     },
