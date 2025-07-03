@@ -50,17 +50,42 @@ func (x SourceStat) taskHandler() {
 		}
 	}()
 
-	var resolutionList = make([]model.VideoResolution, 0)
+	log.Println("[开始执行任务]")
 
-	var appSourceMap = model.AppSourceMap()
-
+	var chCount = 5 // 分组
+	var chunks = make([][]model.SourceHandler, chCount)
 	var idx = 0
-	for _, source := range appSourceMap {
-		log.Println("[resolveSource]", idx, source.Handler.Name())
-		var tmpR = x.parseVideoResolution(source)
-		resolutionList = append(resolutionList, tmpR)
-		idx++
+	for _, tmpHandler := range model.AppSourceMap() {
+		if idx >= chCount {
+			idx = 0
+		}
+		if chunks[idx] == nil {
+			chunks[idx] = make([]model.SourceHandler, 0)
+		}
+		chunks[idx] = append(chunks[idx], tmpHandler)
+		idx = idx + 1
 	}
+
+	var ch = make(chan []model.VideoResolution, chCount)
+	for chunkIdx, chunk := range chunks {
+		go func(chunkIdx int, appSourceList []model.SourceHandler) {
+			var tmpIdx = 0
+			var tmpList = make([]model.VideoResolution, 0)
+			for _, source := range appSourceList {
+				log.Println(fmt.Sprintf("[执行任务] chunk %d %s", chunkIdx, source.Handler.Name()))
+				var tmpR = x.parseVideoResolution(source)
+				tmpList = append(tmpList, tmpR)
+				tmpIdx++
+			}
+			ch <- tmpList
+		}(chunkIdx, chunk)
+	}
+
+	var resolutionList = make([]model.VideoResolution, 0)
+	for range chunks {
+		resolutionList = append(resolutionList, <-ch...)
+	}
+
 	slices.SortFunc(resolutionList, func(a, b model.VideoResolution) int {
 		if b.Width != a.Width {
 			return b.Width - a.Width // 降序
@@ -76,7 +101,7 @@ func (x SourceStat) taskHandler() {
 		log.Println("[SourceStat写文件失败]", err.Error())
 	}
 
-	log.Println(fmt.Sprintf("[resolveSource] ok %s", p))
+	log.Println(fmt.Sprintf("[完成任务] ok %s", p))
 }
 
 func (x SourceStat) parseVideoResolution(h model.SourceHandler) (tmpR model.VideoResolution) {
