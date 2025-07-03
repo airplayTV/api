@@ -68,10 +68,11 @@ func (x *Handler) parseVideoType(sourceUrl string) string {
 
 func (x *Handler) requestUrlBypassSafeLineChallenge(requestUrl string) ([]byte, error) {
 	header, buff, err := x.httpClient.GetResponse(requestUrl)
-	if err != nil {
+	// 可能返回 468 请求错误，需要先校验是否是 长亭 检测
+	var clientId = x.simpleRegEx(string(buff), `SafeLineChallenge\("(\S+)",`)
+	if err != nil && len(clientId) == 0 {
 		return nil, err
 	}
-	var clientId = x.simpleRegEx(string(buff), `SafeLineChallenge\("(\S+)",`)
 	if len(clientId) == 0 {
 		return buff, nil
 	}

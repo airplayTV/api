@@ -225,10 +225,16 @@ func (x CzzyHandler) _detail(id string) interface{} {
 
 func (x CzzyHandler) _source(pid, vid string) interface{} {
 	var source = model.Source{Id: pid, Vid: vid}
-	buff, err := x.httpClient.Get(fmt.Sprintf(czzyPlayUrl, pid))
+
+	buff, err := x.requestUrlBypassSafeLineChallenge(fmt.Sprintf(czzyPlayUrl, pid))
 	if err != nil {
 		return model.NewError("获取数据失败：" + err.Error())
 	}
+	//buff, err = x.httpClient.Get(fmt.Sprintf(czzyPlayUrl, pid))
+	//if err != nil {
+	//	return model.NewError("获取数据失败：" + err.Error())
+	//}
+
 	doc, err := goquery.NewDocumentFromReader(strings.NewReader(string(buff)))
 	if err != nil {
 		return model.NewError("获取数据失败：" + err.Error())
