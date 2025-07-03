@@ -18,11 +18,12 @@ const (
 )
 
 const (
-	subbHost      = "https://www.subaibaiys.com"
-	subbTagUrl    = "https://www.subaibaiys.com/%s/page/%d"
-	subbSearchUrl = "https://www.subaibaiys.com/search?q=%s&p=%d"
-	subbDetailUrl = "https://www.subaibaiys.com/movie/%s.html"
-	subbPlayUrl   = "https://www.subaibaiys.com/v_play/%s.html"
+	subb          = "https://subaibai.vip"
+	subbHost      = "https://www.subaibai.com"
+	subbTagUrl    = "https://www.subaibai.com/%s/page/%d"
+	subbSearchUrl = "https://www.subaibai.com/search?q=%s&p=%d"
+	subbDetailUrl = "https://www.subaibai.com/movie/%s.html"
+	subbPlayUrl   = "https://www.subaibai.com/v_play/%s.html"
 )
 
 const (
