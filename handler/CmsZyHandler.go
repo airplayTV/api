@@ -370,6 +370,9 @@ func (x CmsZyHandler) parseSourceList(sourceName, vodPlayFrom, vodPlayNote, vodP
 		for j, tmpSource := range strings.Split(tmpString, "#") {
 			var tmpList = strings.Split(tmpSource, "$")
 			var tmpPid = fmt.Sprintf("%d-%d", i, j)
+			if len(tmpList) == 1 {
+				tmpList = []string{"HD", tmpList[0]}
+			}
 			links = append(links, model.Link{
 				Id:    tmpPid,
 				Name:  tmpList[0],
