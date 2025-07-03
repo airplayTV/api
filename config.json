@@ -370,7 +370,7 @@
       "description": ""
     },
     {
-      "id": "wuxianzy",
+      "id": "hsckzy",
       "name": "黄仓资源",
       "host": "https://hsckzy.cc/help/",
       "api": "https://hsckzy888.com/api.php/provide/vod/from/hsckm3u8/at/json/",
@@ -384,6 +384,46 @@
       "api": "https://www.jingpinx.com//api.php/provide/vod",
       "searchable": true,
       "description": ""
+    },
+    {
+      "id": "mzzy",
+      "name": "魔爪资源",
+      "host": "https://mzzy.me/",
+      "api": "https://mozhuazy.com/api.php/provide/vod/",
+      "searchable": true,
+      "description": ""
+    },
+    {
+      "id": "taopianapi",
+      "name": "淘片资源",
+      "host": "https://taopianapi.com/index.html",
+      "api": "https://taopianapi.com/cjapi/mc10/vod/json/m3u8.html",
+      "searchable": true,
+      "description": ""
+    },
+    {
+      "id": "360zy",
+      "name": "360资源",
+      "host": "https://360zy.com/",
+      "api": "https://360zy.com/api.php/provide/vod/at/json",
+      "searchable": true,
+      "description": ""
+    },
+    {
+      "id": "ryzyw",
+      "name": "如意资源",
+      "host": "https://www.ryzyw.com/",
+      "api": "https://cj.rycjapi.com/api.php/provide/vod/from/rym3u8/at/json",
+      "searchable": true,
+      "description": ""
+    },
+    {
+      "id": "wwzy",
+      "name": "旺旺短剧",
+      "host": "https://wwzy.tv/",
+      "api": "https://api.wwzy.tv/api.php/provide/vod/",
+      "searchable": true,
+      "description": "大陆接口：https://ww.tyyszy5.com/api.php/provide/vod/?ac=list"
     }
   ],
   "mode": {
