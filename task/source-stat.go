@@ -169,6 +169,26 @@ func (x SourceStat) parseVideoResolution(h model.SourceHandler) (tmpR model.Vide
 	return tmpR
 }
 
+func (x SourceStat) downloadMp4(source, tmpUrl string) error {
+	defer func() {
+		if err := recover(); err != nil {
+			log.Println("[downloadMp4.recover]", err)
+			log.Println("[downloadMp4.recover]", string(debug.Stack()))
+		}
+	}()
+
+	var outputFile = filepath.Join(util.AppPath(), fmt.Sprintf("d-%s-%s.mp4", source, time.Now().Format("20060102150405")))
+	var inputKwArgs = ffmpeg.KwArgs{"allowed_extensions": "ALL", "extension_picky": 0}
+	var outputKwArgs = ffmpeg.KwArgs{"c": "copy"}
+	if err := ffmpeg.Input(tmpUrl, inputKwArgs).Output(outputFile, outputKwArgs).OverWriteOutput().ErrorToStdOut().Run(); err != nil {
+		log.Println("[下载失败]", err.Error(), outputFile)
+		return err
+	} else {
+		log.Println("[下载成功]", outputFile)
+		return nil
+	}
+}
+
 func (x SourceStat) getMpegResolution(tmpUrl string) (width, height int, err error) {
 	probe, err := ffmpeg.Probe(tmpUrl, ffmpeg.KwArgs{
 		"allowed_extensions": "ALL",
