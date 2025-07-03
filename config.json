@@ -5,8 +5,9 @@
       "name": "华为吧api",
       "host": "https://huawei8.live/help",
       "api": "https://cjhwba.com/api.php/provide/vod/",
+      "disable": true,
       "searchable": true,
-      "description": ""
+      "description": "越来越垃圾"
     },
     {
       "id": "bfzy",
@@ -68,7 +69,7 @@
       "id": "senlinzy",
       "name": "森林资源",
       "host": "https://senlinzy.com",
-      "api": "https://slapibf.com/api.php/provide/vod/",
+      "api": "https://beiyong.slapibf.com/api.php/provide/vod/",
       "searchable": true,
       "description": ""
     },
@@ -196,7 +197,7 @@
       "id": "iqiyizy",
       "name": "iQiYi资源",
       "host": "https://iqiyizy.com/",
-      "api": "https://iqiyizyapi.com/api.php/provide/vod/",
+      "api": "https://www.iqiyizy.com/api.php/provide/vod/",
       "searchable": true,
       "description": ""
     },
