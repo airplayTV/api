@@ -9,6 +9,7 @@ import (
 	ffmpeg "github.com/u2takey/ffmpeg-go"
 	"log"
 	"path/filepath"
+	"runtime/debug"
 	"slices"
 	"strings"
 	"time"
@@ -24,7 +25,8 @@ func NewSourceStat() *SourceStat {
 func (x SourceStat) Run() {
 	defer func() {
 		if err := recover(); err != nil {
-			log.Println("[taskHandler.recover]", err)
+			log.Println("[taskHandler.recover0]", err)
+			log.Println("[taskHandler.recover0]", string(debug.Stack()))
 		}
 	}()
 
@@ -43,7 +45,8 @@ func (x SourceStat) Run() {
 func (x SourceStat) taskHandler() {
 	defer func() {
 		if err := recover(); err != nil {
-			log.Println("[taskHandler.recover]", err)
+			log.Println("[taskHandler.recover1]", err)
+			log.Println("[taskHandler.recover1]", string(debug.Stack()))
 		}
 	}()
 
