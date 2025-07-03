@@ -338,6 +338,62 @@
       "description": ""
     },
     {
+      "id": "155api",
+      "name": "155资源",
+      "host": "https://155api.com/",
+      "api": "https://155api.com/api.php/provide/vod",
+      "searchable": true,
+      "description": "18+"
+    },
+    {
+      "id": "155api",
+      "name": "GAY资源",
+      "host": "https://gayapi.com",
+      "api": "https://gayapi.com/api.php/provide/vod/at/json",
+      "searchable": false,
+      "description": "18+"
+    },
+    {
+      "id": "apidanaizi",
+      "name": "大奶子资源",
+      "host": "https://apidanaizi.com",
+      "api": "https://apidanaizi.com/api.php/provide/vod",
+      "searchable": true,
+      "description": "18+"
+    },
+    {
+      "id": "xiaojizy",
+      "name": "小鸡资源",
+      "host": "https://api.xiaojizy.live/",
+      "api": "https://api.xiaojizy.live/provide/vod",
+      "searchable": true,
+      "description": "18+"
+    },
+    {
+      "id": "thzy1",
+      "name": "桃花资源",
+      "host": "https://thzy1.me/",
+      "api": "https://thzy1.me/api.php/provide/vod/",
+      "searchable": true,
+      "description": "18+"
+    },
+    {
+      "id": "xxavs",
+      "name": "湿乐园",
+      "host": "https://xxavs.com/",
+      "api": "https://xxavs.com/api.php/provide/vod",
+      "searchable": true,
+      "description": "18+"
+    },
+    {
+      "id": "shayuapi",
+      "name": "鲨鱼资源",
+      "host": "https://shayuapi.com/",
+      "api": "https://shayuapi.com/api.php/provide/vod/at/json",
+      "searchable": true,
+      "description": "18+"
+    },
+    {
       "id": "jmzy",
       "name": "金马资源",
       "host": "https://www.jmzy1.com/",
@@ -424,6 +480,47 @@
       "api": "https://api.wwzy.tv/api.php/provide/vod/",
       "searchable": true,
       "description": "大陆接口：https://ww.tyyszy5.com/api.php/provide/vod/?ac=list"
+    },
+    {
+      "id": "qilinzyz",
+      "name": "麒麟资源",
+      "host": "http://www.qilinzyz.com/",
+      "api": "https://www.qilinzyz.com/api.php/provide/vod/",
+      "disable": true,
+      "searchable": false,
+      "description": "垃圾，还他妈收费"
+    },
+    {
+      "id": "hhzyapi",
+      "name": "豪华资源",
+      "host": "https://hhzyapi.com/",
+      "api": "https://hhzyapi.com/api.php/provide/vod/from/hhm3u8/at/json",
+      "searchable": false,
+      "description": ""
+    },
+    {
+      "id": "ckzy",
+      "name": "CK资源",
+      "host": "https://ckzy.me/",
+      "api": "https://ckzy.me/api.php/provide/vod/",
+      "searchable": true,
+      "description": ""
+    },
+    {
+      "id": "niuniuzy",
+      "name": "牛牛资源",
+      "host": "https://api.niuniuzy.me/",
+      "api": "https://api.niuniuzy.me/api.php/provide/vod",
+      "searchable": false,
+      "description": ""
+    },
+    {
+      "id": "fczy888",
+      "name": "蜂巢片库",
+      "host": "https://api.fczy888.me/",
+      "api": "https://api.fczy888.me/api.php/provide/vod/at/json",
+      "searchable": true,
+      "description": ""
     }
   ],
   "mode": {
