@@ -3,6 +3,7 @@ package util
 import (
 	"compress/flate"
 	"compress/gzip"
+	"context"
 	"crypto/tls"
 	"errors"
 	"fmt"
@@ -10,22 +11,30 @@ import (
 	"github.com/go-http-utils/headers"
 	"github.com/spf13/cast"
 	"io"
+	"math/rand/v2"
+	"net"
 	"net/http"
 	"net/url"
 	"strings"
 	"time"
 )
 
+var reqTimeout = time.Second * 15 // 请求超时时间
+
 type HttpClient struct {
 	headers    map[string]string
 	SkipVerify bool
 	ProxyUrl   string
 	transport  *http.Transport
+	resolves   map[string][]string
 }
 
 func (x *HttpClient) InitClient() {
 	x.SkipVerify = true
 	//x.ProxyUrl = "http://127.0.0.1:1080"
+	x.resolves = map[string][]string{
+		"www.czzymovie.com:443": {"45.150.227.241:443", "45.150.227.241:443"},
+	}
 
 	if x.transport == nil {
 		x.transport = &http.Transport{}
@@ -36,6 +45,15 @@ func (x *HttpClient) InitClient() {
 	if len(x.ProxyUrl) > 0 {
 		tmpUrl, _ := url.Parse(x.ProxyUrl)
 		x.transport.Proxy = http.ProxyURL(tmpUrl)
+	}
+	if x.resolves != nil && len(x.resolves) > 0 {
+		x.transport.DialContext = func(ctx context.Context, network, addr string) (net.Conn, error) {
+			if tmpAddrList, ok := x.resolves[addr]; ok && len(tmpAddrList) > 0 {
+				addr = tmpAddrList[rand.IntN(len(tmpAddrList)-1)]
+			}
+			dialer := &net.Dialer{Timeout: reqTimeout, KeepAlive: reqTimeout}
+			return dialer.DialContext(ctx, network, addr)
+		}
 	}
 }
 
@@ -88,7 +106,7 @@ func (x *HttpClient) Get(requestUrl string) ([]byte, error) {
 	}
 	x.addHeaderParams(req)
 	x.InitClient()
-	resp, err := (&http.Client{Timeout: time.Second * 15, Transport: x.transport}).Do(req)
+	resp, err := (&http.Client{Timeout: reqTimeout, Transport: x.transport}).Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -105,7 +123,7 @@ func (x *HttpClient) Post(requestUrl, rawBody string) ([]byte, error) {
 	x.addHeaderParams(req)
 
 	x.InitClient()
-	resp, err := (&http.Client{Timeout: time.Second * 15, Transport: x.transport}).Do(req)
+	resp, err := (&http.Client{Timeout: reqTimeout, Transport: x.transport}).Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -131,7 +149,7 @@ func (x *HttpClient) GetResponse(requestUrl string, size ...int64) (http.Header,
 	x.addHeaderParams(req)
 
 	x.InitClient()
-	resp, err := (&http.Client{Timeout: time.Second * 15, Transport: x.transport}).Do(req)
+	resp, err := (&http.Client{Timeout: reqTimeout, Transport: x.transport}).Do(req)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -175,7 +193,7 @@ func (x *HttpClient) PostResponse(requestUrl, rawBody string) (map[string][]stri
 	x.addHeaderParams(req)
 
 	x.InitClient()
-	resp, err := (&http.Client{Timeout: time.Second * 15, Transport: x.transport}).Do(req)
+	resp, err := (&http.Client{Timeout: reqTimeout, Transport: x.transport}).Do(req)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -194,7 +212,7 @@ func (x *HttpClient) Head(requestUrl string) (http.Header, error) {
 	x.addHeaderParams(req)
 
 	x.InitClient()
-	resp, err := (&http.Client{Timeout: time.Second * 15, Transport: x.transport}).Do(req)
+	resp, err := (&http.Client{Timeout: reqTimeout, Transport: x.transport}).Do(req)
 	if err != nil {
 		return nil, err
 	}
