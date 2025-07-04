@@ -48,6 +48,7 @@ func (x *HttpClient) InitClient() {
 	}
 	if x.resolves != nil && len(x.resolves) > 0 {
 		x.transport.DialContext = func(ctx context.Context, network, addr string) (net.Conn, error) {
+			//log.Println("[transport]", fmt.Sprintf("%s://%s", network, addr))
 			if tmpAddrList, ok := x.resolves[addr]; ok && len(tmpAddrList) > 0 {
 				addr = tmpAddrList[rand.IntN(len(tmpAddrList)-1)]
 			}
