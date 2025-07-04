@@ -45,7 +45,10 @@ func WithCache(key string, cacheOption store.Option, compute func() interface{})
 		return resp
 	}
 	resp = compute()
-	_ = tmpCache.Set(context.Background(), key, resp, cacheOption)
+	switch resp.(type) {
+	case Success: // 只有返回成功才返回
+		_ = tmpCache.Set(context.Background(), key, resp, cacheOption)
+	}
 	return resp
 }
 
