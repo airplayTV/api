@@ -25,6 +25,7 @@ import (
 // https://woodchen.ink/archives/1207
 // https://www.x-lsp.com/category/资源采集
 // https://github.com/hd9211/Tvbox1/blob/5634bf904d19c102dc98481741ba578528ea7aa0/zy.json#L92
+// https://www.zzzypro.com/
 
 type CmsZyHandler struct {
 	Handler
