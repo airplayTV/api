@@ -455,8 +455,9 @@
       "name": "淘片资源",
       "host": "https://taopianapi.com/index.html",
       "api": "https://taopianapi.com/cjapi/mc10/vod/json/m3u8.html",
+      "disable": true,
       "searchable": true,
-      "description": ""
+      "description": "只能看封面，不能播放"
     },
     {
       "id": "360zy",
