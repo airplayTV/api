@@ -30,7 +30,8 @@ func (x CzzyHandler) Init(options interface{}) model.IVideo {
 	x.httpClient.AddHeader(headers.UserAgent, useragent)
 	x.httpClient.AddHeader(headers.Referer, czzyHost)
 	x.httpClient.AddHeader(headers.UserAgent, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36")
-	x.httpClient.AddHeader(headers.Cookie, "cf_clearance=59PL69acCK7JP7FdGPRoSgUnW8ahvBPRNU6oDz30bZ8-1751507555-1.2.1.1-L0cINtuz5u6dUFtTM2b_KBn4jTy85gw2N4XCCWqJ1lR_JlNnrTW3Nmk0smdRenhl13sfUxQSj92so4nZVkLhD_Hdnj6cVDU6fAlIS4CTDMkQk1vcGOUgr0ThrrgPEbi7KPveIKv9e8xLc7IVpcmZ7L1t4gK1bp8fIYuyW.G5vXzOR7U_0Gx4ZO5B5ocOsvb0EskAUFWHY5AG5HZGWqwxL9EKnssrlURZf_ClQtFTvGk")
+	x.httpClient.AddHeader(headers.XRealIP, "223.104.170.176")
+	x.httpClient.AddHeader(headers.XForwardedFor, "223.104.170.176")
 
 	x.option = options.(model.CmsZyOption)
 
