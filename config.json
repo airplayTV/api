@@ -346,8 +346,8 @@
       "description": "18+"
     },
     {
-      "id": "155api",
-      "name": "GAY资源",
+      "id": "kbzy",
+      "name": "快播资源",
       "host": "https://gayapi.com",
       "api": "https://gayapi.com/api.php/provide/vod/at/json",
       "searchable": false,
@@ -382,6 +382,46 @@
       "name": "湿乐园",
       "host": "https://xxavs.com/",
       "api": "https://xxavs.com/api.php/provide/vod",
+      "searchable": true,
+      "description": "18+"
+    },
+    {
+      "id": "yutuzy",
+      "name": "玉兔资源",
+      "host": "https://yutuzy.com/",
+      "api": "https://apiyutu.com/api.php/providedao/vod/",
+      "searchable": true,
+      "description": "18+"
+    },
+    {
+      "id": "semaozy",
+      "name": "色猫资源",
+      "host": "https://semaozy1.com/",
+      "api": "https://caiji.semaozy.net/inc/apijson_vod.php",
+      "searchable": true,
+      "description": "18+"
+    },
+    {
+      "id": "lajiaozy",
+      "name": "辣椒资源",
+      "host": "http://lajiaozy.com/",
+      "api": "https://apilj.com/api.php/provide/vod/at/json/",
+      "searchable": true,
+      "description": "18+"
+    },
+    {
+      "id": "xibaozyw",
+      "name": "细胞资源",
+      "host": "https://xibaozyw.com/",
+      "api": "https://www.xxibaozyw.com/api.php/provide/vod/",
+      "searchable": true,
+      "description": "18+"
+    },
+    {
+      "id": "bwzyz",
+      "name": "百万资源",
+      "host": "https://help.bwzyz.com/help/",
+      "api": "https://api.bwzyz.com/api.php/provide/vod/at/json/",
       "searchable": true,
       "description": "18+"
     },
