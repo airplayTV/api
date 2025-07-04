@@ -24,6 +24,7 @@ import (
 // https://bgm.tv/m/topic/group/406236
 // https://woodchen.ink/archives/1207
 // https://www.x-lsp.com/category/资源采集
+// https://github.com/hd9211/Tvbox1/blob/5634bf904d19c102dc98481741ba578528ea7aa0/zy.json#L92
 
 type CmsZyHandler struct {
 	Handler
@@ -88,7 +89,7 @@ func (x CmsZyHandler) Airplay(pid, vid string) interface{} {
 //
 
 func (x CmsZyHandler) _videoList(tagName, page string) interface{} {
-	buff, err := x.httpClient.Get(fmt.Sprintf("%s/?ac=list&pg=%d&t=%s", x.getApiUrl(), x.parsePageNumber(page), tagName))
+	buff, err := x.httpClient.Get(fmt.Sprintf("%s?ac=list&pg=%d&t=%s", x.getApiUrl(), x.parsePageNumber(page), tagName))
 	if err != nil {
 		return model.NewError("获取数据失败：" + err.Error())
 	}
@@ -112,7 +113,7 @@ func (x CmsZyHandler) _videoList(tagName, page string) interface{} {
 		return true
 	})
 
-	pager.List = x.handleVideoListThumb(fmt.Sprintf("%s/?ac=detail&ids=%%s", x.getApiUrl()), pager.List)
+	pager.List = x.handleVideoListThumb(fmt.Sprintf("%s?ac=detail&ids=%%s", x.getApiUrl()), pager.List)
 
 	if len(pager.List) == 0 {
 		return model.NewError("暂无数据")
@@ -218,7 +219,7 @@ func (x CmsZyHandler) parseVidTypeId(str string) (vid, tid string, err error) {
 }
 
 func (x CmsZyHandler) _detail(id string) interface{} {
-	buff, err := x.httpClient.Get(fmt.Sprintf("%s/?ac=detail&ids=%s", x.getApiUrl(), id))
+	buff, err := x.httpClient.Get(fmt.Sprintf("%s?ac=detail&ids=%s", x.getApiUrl(), id))
 	if err != nil {
 		return model.NewError("获取数据失败：" + err.Error())
 	}
@@ -246,7 +247,7 @@ func (x CmsZyHandler) _detail(id string) interface{} {
 }
 
 func (x CmsZyHandler) _source(pid, vid string) interface{} {
-	buff, err := x.httpClient.Get(fmt.Sprintf("%s/?ac=detail&ids=%s", x.getApiUrl(), vid))
+	buff, err := x.httpClient.Get(fmt.Sprintf("%s?ac=detail&ids=%s", x.getApiUrl(), vid))
 	if err != nil {
 		return model.NewError("获取数据失败：" + err.Error())
 	}
