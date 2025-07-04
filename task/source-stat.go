@@ -87,6 +87,9 @@ func (x SourceStat) taskHandler() {
 	}
 
 	slices.SortFunc(resolutionList, func(a, b model.VideoResolution) int {
+		// 格式化数据，防止出现1926(1920)这种傻逼数据影响排序
+		a.Width = a.Width / 10 * 10
+		b.Width = b.Width / 10 * 10
 		if b.Width != a.Width {
 			return b.Width - a.Width // 降序
 		}
