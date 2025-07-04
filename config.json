@@ -422,8 +422,9 @@
       "name": "无限资源",
       "host": "https://wuxianzy2.com/",
       "api": "https://api.wuxianzy.net/api.php/provide/vod/",
+      "disable": true,
       "searchable": true,
-      "description": ""
+      "description": "废了"
     },
     {
       "id": "hsckzy",
