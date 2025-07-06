@@ -17,7 +17,7 @@ func ParseUrlHost(tmpUrl string) (host string) {
 }
 
 func Http2HttpsUrl(tmpUrl string) string {
-	parsed, err := url.Parse(ParseUrlHost(tmpUrl))
+	parsed, err := url.Parse(tmpUrl)
 	if err != nil {
 		return ""
 	}
