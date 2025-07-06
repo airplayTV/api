@@ -15,3 +15,12 @@ func ParseUrlHost(tmpUrl string) (host string) {
 	}
 	return fmt.Sprintf("%s://%s", tmpUrl2.Scheme, tmpUrl2.Host)
 }
+
+func Http2HttpsUrl(tmpUrl string) string {
+	parsed, err := url.Parse(ParseUrlHost(tmpUrl))
+	if err != nil {
+		return ""
+	}
+	parsed.Scheme = "https"
+	return parsed.String()
+}
