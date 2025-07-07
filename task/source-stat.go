@@ -105,6 +105,13 @@ func (x SourceStat) taskHandler() {
 }
 
 func (x SourceStat) parseVideoResolution(h model.SourceHandler) (tmpR model.VideoResolution) {
+	defer func() {
+		if err := recover(); err != nil {
+			log.Println("[taskHandler.recover3]", err)
+			log.Println("[taskHandler.recover3]", string(debug.Stack()))
+		}
+	}()
+
 	tmpR.Source = h.Handler.Name()
 	tmpR.Time = time.Now().Format(time.DateTime)
 
@@ -193,6 +200,13 @@ func (x SourceStat) downloadMp4(source, tmpUrl string) error {
 }
 
 func (x SourceStat) getMpegResolution(tmpUrl string) (width, height int, err error) {
+	defer func() {
+		if err := recover(); err != nil {
+			log.Println("[taskHandler.recover4]", err)
+			log.Println("[taskHandler.recover4]", string(debug.Stack()))
+		}
+	}()
+
 	probe, err := ffmpeg.Probe(tmpUrl, ffmpeg.KwArgs{
 		"allowed_extensions": "ALL",
 		"extension_picky":    0,
