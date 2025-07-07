@@ -2,7 +2,7 @@ package model
 
 type VideoResolution struct {
 	Id      int    `json:"id"`
-	Date    string `json:"date"`
+	Date    int    `json:"date"`
 	Source  string `json:"source"`  // 视频源
 	Name    string `json:"name"`    // 视频名
 	Vid     string `json:"vid"`     // 视频ID

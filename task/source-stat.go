@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/airplayTV/api/model"
 	"github.com/airplayTV/api/util"
+	"github.com/spf13/cast"
 	"github.com/tidwall/gjson"
 	ffmpeg "github.com/u2takey/ffmpeg-go"
 	"log"
@@ -96,8 +97,8 @@ func (x SourceStat) taskHandler() {
 		return strings.Compare(a.Time, b.Time)
 	})
 
-	var date = time.Now().Format("2006010215")
-	var p = filepath.Join(util.AppPath(), fmt.Sprintf("cache/stat/source-stat-%s.json", date))
+	var date = cast.ToInt(time.Now().Format("2006010215"))
+	var p = filepath.Join(util.AppPath(), fmt.Sprintf("cache/stat/source-stat-%d.json", date))
 	if err := util.WriteFile(p, util.ToBytes(resolutionList)); err != nil {
 		log.Println("[SourceStat写文件失败]", err.Error())
 	}
