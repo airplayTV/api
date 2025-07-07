@@ -255,12 +255,12 @@ func (x VideoController) M3u8p(ctx *gin.Context) {
 	ctx.Header("X-Source-Url", tmpUrl)
 
 	var httpClient = util.HttpClient{}
-	header, buff, err := httpClient.GetResponse(tmpUrl)
+	header, buff, err := httpClient.GetResponse(util.Http2HttpsUrl(tmpUrl))
 	if err != nil {
 		x.response(ctx, model.NewError("请求失败："+err.Error()))
 		return
 	}
-	buff, err = util.FormatM3u8Url(buff, tmpUrl)
+	buff, err = util.FormatM3u8Url(buff, util.Http2HttpsUrl(tmpUrl))
 	if err != nil {
 		x.response(ctx, model.NewError("文件处理异常："+err.Error()))
 		return
