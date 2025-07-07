@@ -385,7 +385,7 @@ func (x VideoController) CheckNetwork(ctx *gin.Context) {
 
 func (x VideoController) SourceStat(ctx *gin.Context) {
 	var key = fmt.Sprintf("app-source-stat::source-stat")
-	var resp = model.WithCache(key, store.WithExpiration(time.Minute*10), func() interface{} {
+	var resp = model.WithCache(key, store.WithExpiration(time.Minute*2), func() interface{} {
 		var date = model.VideoResolution{}.MaxDate()
 		return model.VideoResolution{}.List(date)
 	})
