@@ -11,8 +11,6 @@ import (
 	"log"
 	"path/filepath"
 	"runtime/debug"
-	"slices"
-	"strings"
 	"time"
 )
 
@@ -87,28 +85,14 @@ func (x SourceStat) taskHandler() {
 		resolutionList = append(resolutionList, <-ch...)
 	}
 
-	slices.SortFunc(resolutionList, func(a, b model.VideoResolution) int {
-		if b.Width != a.Width {
-			return b.Width - a.Width // 降序
-		}
-		if b.Latency != a.Latency {
-			return int(a.Latency - b.Latency) // 升序
-		}
-		return strings.Compare(a.Time, b.Time)
-	})
-
-	var date = cast.ToInt(time.Now().Format("2006010215"))
-	var p = filepath.Join(util.AppPath(), fmt.Sprintf("cache/stat/source-stat-%d.json", date))
-	if err := util.WriteFile(p, util.ToBytes(resolutionList)); err != nil {
-		log.Println("[SourceStat写文件失败]", err.Error())
-	}
+	var date = cast.ToInt64(time.Now().Format("20060102150405"))
 	for i, item := range resolutionList {
 		item.Date = date
 		resolutionList[i] = item
 	}
 	_ = model.VideoResolution{}.SaveAll(resolutionList)
 
-	log.Println(fmt.Sprintf("[完成任务] ok %s", p))
+	log.Println(fmt.Sprintf("[完成任务] ok %d", date))
 }
 
 func (x SourceStat) parseVideoResolution(h model.SourceHandler) (tmpR model.VideoResolution) {

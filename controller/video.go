@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/base64"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/airplayTV/api/handler"
@@ -20,7 +19,6 @@ import (
 	"net"
 	"net/http"
 	"net/url"
-	"path/filepath"
 	"slices"
 	"strings"
 	"sync"
@@ -386,28 +384,14 @@ func (x VideoController) CheckNetwork(ctx *gin.Context) {
 }
 
 func (x VideoController) SourceStat(ctx *gin.Context) {
-
-	var lst = []string{
-		time.Now().Add(-time.Hour * 0).Format("2006010215"),
-		time.Now().Add(-time.Hour * 1).Format("2006010215"),
-		time.Now().Add(-time.Hour * 2).Format("2006010215"),
-		time.Now().Add(-time.Hour * 3).Format("2006010215"),
-		time.Now().Add(-time.Hour * 4).Format("2006010215"),
-		time.Now().Add(-time.Hour * 5).Format("2006010215"),
-		time.Now().Add(-time.Hour * 6).Format("2006010215"),
-	}
-	for _, tmpTime := range lst {
-		var p = filepath.Join(util.AppPath(), fmt.Sprintf("cache/stat/source-stat-%s.json", tmpTime))
-		var resolutionList []model.VideoResolution
-
-		err := json.Unmarshal(util.ReadFile(p), &resolutionList)
-		if err != nil {
-			continue
-		}
-		x.response(ctx, model.NewSuccess(resolutionList))
+	var key = fmt.Sprintf("app-source-stat::source-stat")
+	var resp = model.WithCache(key, store.WithExpiration(time.Minute*10), func() interface{} {
+		var date = model.VideoResolution{}.MaxDate()
+		return model.VideoResolution{}.List(date)
+	})
+	if resp == nil || len(resp.([]model.VideoResolution)) <= 0 {
+		x.response(ctx, model.NewError("暂无数据"))
 		return
 	}
-
-	x.response(ctx, model.NewError("暂无数据"))
-	return
+	x.response(ctx, model.NewSuccess(resp))
 }

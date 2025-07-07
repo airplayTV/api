@@ -2,7 +2,7 @@ package model
 
 type VideoResolution struct {
 	Id      int    `json:"id"`
-	Date    int    `json:"date"`
+	Date    int64  `json:"date"`
 	Source  string `json:"source"`  // 视频源
 	Name    string `json:"name"`    // 视频名
 	Vid     string `json:"vid"`     // 视频ID
@@ -26,4 +26,14 @@ func (x VideoResolution) Save(m VideoResolution) error {
 
 func (x VideoResolution) SaveAll(m []VideoResolution) error {
 	return DB().Table(x.TableName()).CreateInBatches(&m, 20).Error
+}
+
+func (x VideoResolution) MaxDate() (date int64) {
+	DB().Table(x.TableName()).Select("MAX(date)").Scan(&date)
+	return
+}
+
+func (x VideoResolution) List(date int64) (m []VideoResolution) {
+	DB().Table(x.TableName()).Where("date = ?", date).Order("width DESC, latency ASC, id ASC").Find(&m)
+	return
 }

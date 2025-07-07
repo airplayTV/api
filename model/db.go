@@ -3,6 +3,7 @@ package model
 import (
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 	"log"
 )
 
@@ -11,7 +12,9 @@ var _db *gorm.DB
 func init() {
 	var err error
 	// github.com/mattn/go-sqlite3
-	_db, err = gorm.Open(sqlite.Open("airplay-tv.db"), &gorm.Config{})
+	_db, err = gorm.Open(sqlite.Open("airplay-tv.db"), &gorm.Config{
+		Logger: logger.Default.LogMode(logger.Info),
+	})
 	if err != nil {
 		log.Fatalln("[sqlite.Error]", err.Error())
 	}
