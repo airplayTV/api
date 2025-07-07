@@ -9,9 +9,21 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/lixiang4u/goWebsocket"
+	"gopkg.in/natefinch/lumberjack.v2"
 	"log"
 	"net/http"
+	"path/filepath"
 )
+
+func init() {
+	log.SetOutput(&lumberjack.Logger{
+		Filename: filepath.Join(util.AppPath(), "app.log"),
+		MaxSize:  100, // megabytes
+		//MaxBackups: 3,
+		MaxAge: 90, //days
+		//Compress: true, // disabled by default
+	})
+}
 
 func main() {
 	go task.NewSourceStat().Run()

@@ -96,10 +96,16 @@ func (x SourceStat) taskHandler() {
 		return strings.Compare(a.Time, b.Time)
 	})
 
-	var p = filepath.Join(util.AppPath(), fmt.Sprintf("cache/stat/source-stat-%s.json", time.Now().Format("2006010215")))
+	var date = time.Now().Format("2006010215")
+	var p = filepath.Join(util.AppPath(), fmt.Sprintf("cache/stat/source-stat-%s.json", date))
 	if err := util.WriteFile(p, util.ToBytes(resolutionList)); err != nil {
 		log.Println("[SourceStat写文件失败]", err.Error())
 	}
+	for i, item := range resolutionList {
+		item.Date = date
+		resolutionList[i] = item
+	}
+	_ = model.VideoResolution{}.SaveAll(resolutionList)
 
 	log.Println(fmt.Sprintf("[完成任务] ok %s", p))
 }

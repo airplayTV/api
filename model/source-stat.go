@@ -1,6 +1,8 @@
 package model
 
 type VideoResolution struct {
+	Id      int    `json:"id"`
+	Date    string `json:"date"`
 	Source  string `json:"source"`  // 视频源
 	Name    string `json:"name"`    // 视频名
 	Vid     string `json:"vid"`     // 视频ID
@@ -12,4 +14,16 @@ type VideoResolution struct {
 	Time    string `json:"time"`    //测试时间
 	Latency int64  `json:"latency"` //测试视频解析所用时间/不计算api请求（毫秒）
 	Err     string `json:"err"`     // 错误原因
+}
+
+func (VideoResolution) TableName() string {
+	return "source_stat"
+}
+
+func (x VideoResolution) Save(m VideoResolution) error {
+	return DB().Table(x.TableName()).Create(&m).Error
+}
+
+func (x VideoResolution) SaveAll(m []VideoResolution) error {
+	return DB().Table(x.TableName()).CreateInBatches(&m, 20).Error
 }
