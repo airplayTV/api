@@ -58,28 +58,28 @@ func (x CzzyHandler) TagList() interface{} {
 
 func (x CzzyHandler) VideoList(tag, page string) interface{} {
 	var key = fmt.Sprintf("czzy-video-list::%s_%s_%s", x.Name(), tag, page)
-	return model.WithCache(key, store.WithExpiration(time.Hour*6), func() interface{} {
+	return model.WithSuccessCache(key, store.WithExpiration(time.Hour*6), func() interface{} {
 		return x._videoList(tag, page)
 	})
 }
 
 func (x CzzyHandler) Search(keyword, page string) interface{} {
 	var key = fmt.Sprintf("czzy-video-search::%s_%s_%s", x.Name(), keyword, page)
-	return model.WithCache(key, store.WithExpiration(time.Hour*6), func() interface{} {
+	return model.WithSuccessCache(key, store.WithExpiration(time.Hour*6), func() interface{} {
 		return x._search(keyword, page)
 	})
 }
 
 func (x CzzyHandler) Detail(id string) interface{} {
 	var key = fmt.Sprintf("czzy-video-detail::%s_%s", x.Name(), id)
-	return model.WithCache(key, store.WithExpiration(time.Hour*6), func() interface{} {
+	return model.WithSuccessCache(key, store.WithExpiration(time.Hour*6), func() interface{} {
 		return x._detail(id)
 	})
 }
 
 func (x CzzyHandler) Source(pid, vid string) interface{} {
 	var key = fmt.Sprintf("czzy-video-source::%s_%s_%s", x.Name(), pid, vid)
-	return model.WithCache(key, store.WithExpiration(time.Hour*2), func() interface{} {
+	return model.WithSuccessCache(key, store.WithExpiration(time.Hour*2), func() interface{} {
 		return x._source(pid, vid)
 	})
 }

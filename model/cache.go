@@ -38,7 +38,7 @@ func CacheManager() *cache.Cache[any] {
 	return cacheManager
 }
 
-func WithCache(key string, cacheOption store.Option, compute func() interface{}) interface{} {
+func WithSuccessCache(key string, cacheOption store.Option, compute func() interface{}) interface{} {
 	var tmpCache = CacheManager()
 	resp, err := tmpCache.Get(context.Background(), key)
 	if err == nil && resp != nil {
@@ -49,6 +49,18 @@ func WithCache(key string, cacheOption store.Option, compute func() interface{})
 	case Success: // 只有返回成功才返回
 		_ = tmpCache.Set(context.Background(), key, resp, cacheOption)
 	}
+	return resp
+}
+
+func WithCache(key string, cacheOption store.Option, compute func() interface{}) interface{} {
+	var tmpCache = CacheManager()
+	resp, err := tmpCache.Get(context.Background(), key)
+	if err == nil && resp != nil {
+		return resp
+	}
+	resp = compute()
+	_ = tmpCache.Set(context.Background(), key, resp, cacheOption)
+
 	return resp
 }
 
