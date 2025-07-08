@@ -216,7 +216,7 @@ func (x SourceStat) getMpegResolution(tmpUrl string) (width, height int, err err
 	if width*height > 100 {
 		return
 	}
-	buff, err := x.getTsFile(tmpUrl)
+	buff, err := x.parsePngMaskTsSegment(tmpUrl)
 	if err != nil {
 		return
 	}
@@ -242,7 +242,7 @@ func (x SourceStat) parseProbe(probe string) (width, height int, err error) {
 	return
 }
 
-func (x SourceStat) getTsFile(tmpUrl string) (buffer *bytes.Buffer, err error) {
+func (x SourceStat) parsePngMaskTsSegment(tmpUrl string) (buffer *bytes.Buffer, err error) {
 	tmpList, err := util.ParsePlayUrlList(tmpUrl)
 	if err != nil {
 		return
