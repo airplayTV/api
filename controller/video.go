@@ -30,6 +30,8 @@ type VideoController struct {
 }
 
 func (x VideoController) Provider(ctx *gin.Context) {
+	x.LogVisitor(ctx.ClientIP())
+
 	type ProviderItem struct {
 		Name string      `json:"name"`
 		Sort int         `json:"sort"`
@@ -67,6 +69,8 @@ func (x VideoController) parseSourceHandler(ctx *gin.Context) (model.SourceHandl
 }
 
 func (x VideoController) Search(ctx *gin.Context) {
+	x.LogVisitor(ctx.ClientIP())
+
 	h, err := x.parseSourceHandler(ctx)
 	if err != nil {
 		ctx.JSON(http.StatusOK, model.NewError(err.Error()))
@@ -92,6 +96,8 @@ func (x VideoController) Search(ctx *gin.Context) {
 }
 
 func (x VideoController) SearchV2(ctx *gin.Context) {
+	x.LogVisitor(ctx.ClientIP())
+
 	var keyword = ctx.Query("keyword")
 	var page = ctx.Query("page")
 
@@ -128,6 +134,8 @@ func (x VideoController) SearchV2(ctx *gin.Context) {
 }
 
 func (x VideoController) VideoList(ctx *gin.Context) {
+	x.LogVisitor(ctx.ClientIP())
+
 	h, err := x.parseSourceHandler(ctx)
 	if err != nil {
 		ctx.JSON(http.StatusOK, model.NewError(err.Error()))
@@ -149,6 +157,8 @@ func (x VideoController) VideoList(ctx *gin.Context) {
 }
 
 func (x VideoController) Detail(ctx *gin.Context) {
+	x.LogVisitor(ctx.ClientIP())
+
 	h, err := x.parseSourceHandler(ctx)
 	if err != nil {
 		ctx.JSON(http.StatusOK, model.NewError(err.Error()))
@@ -170,6 +180,8 @@ func (x VideoController) Detail(ctx *gin.Context) {
 }
 
 func (x VideoController) Source(ctx *gin.Context) {
+	x.LogVisitor(ctx.ClientIP())
+
 	h, err := x.parseSourceHandler(ctx)
 	if err != nil {
 		ctx.JSON(http.StatusOK, model.NewError(err.Error()))
@@ -235,6 +247,8 @@ func (x VideoController) Control(ctx *gin.Context) {
 }
 
 func (x VideoController) M3u8p(ctx *gin.Context) {
+	x.LogVisitor(ctx.ClientIP())
+
 	var tmpUrl = util.DecodeComponentUrl(ctx.Query("url"))
 	parsed, err := url.Parse(tmpUrl)
 	if err != nil {
@@ -336,6 +350,8 @@ func (x VideoController) response(ctx *gin.Context, resp interface{}) {
 }
 
 func (x VideoController) CheckNetwork(ctx *gin.Context) {
+	x.LogVisitor(ctx.ClientIP())
+
 	queryUrl, err := url.QueryUnescape(ctx.Query("url"))
 	if err != nil {
 		x.response(ctx, model.NewError("参数错误"))
@@ -384,6 +400,8 @@ func (x VideoController) CheckNetwork(ctx *gin.Context) {
 }
 
 func (x VideoController) SourceStat(ctx *gin.Context) {
+	x.LogVisitor(ctx.ClientIP())
+
 	var key = fmt.Sprintf("app-source-stat::source-stat")
 	var resp = model.WithCache(key, store.WithExpiration(time.Minute*2), func() interface{} {
 		var date = model.VideoResolution{}.MaxDate()
@@ -394,4 +412,21 @@ func (x VideoController) SourceStat(ctx *gin.Context) {
 		return
 	}
 	x.response(ctx, model.NewSuccess(resp))
+}
+
+func (x VideoController) LogVisitor(ip string) {
+	var key = fmt.Sprintf("app-visitor-log::%s", ip)
+	model.WithCache(key, store.WithExpiration(time.Hour*24), func() interface{} {
+		if err := (model.Visitor{}).CreateOrUpdate(ip); err != nil {
+			log.Println("[Visitor.CreateOrUpdate]", err.Error())
+		}
+		return true
+	})
+}
+
+func (x VideoController) TotalVisitor() int64 {
+	var key = fmt.Sprintf("app-visitor-count::visitor-count")
+	return model.WithCache(key, store.WithExpiration(time.Minute*30), func() interface{} {
+		return (model.Visitor{}).Total()
+	}).(int64)
 }

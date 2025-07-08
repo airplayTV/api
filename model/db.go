@@ -31,4 +31,5 @@ func autoMigrate() {
 		log.Println("[AutoMigrate.Error]", err.Error())
 	}
 	_ = DB().AutoMigrate(&Source{})
+	_ = DB().AutoMigrate(&Visitor{})
 }
