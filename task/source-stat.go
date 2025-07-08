@@ -232,7 +232,7 @@ func (x SourceStat) getMpegResolution(tmpUrl string) (width, height int, err err
 func (x SourceStat) parseProbe(probe string) (width, height int, err error) {
 	var result = gjson.Parse(probe)
 	if !result.Get("programs").IsArray() || len(result.Get("programs").Array()) == 0 {
-		err = errors.New("programs没有数据")
+		err = errors.New(fmt.Sprintf("probe解析异常：%s", probe))
 		return
 	}
 	var resolution = result.Get("programs").Array()[0].Get("streams").Array()[0]
