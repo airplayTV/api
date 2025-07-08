@@ -1,13 +1,16 @@
 package task
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"github.com/airplayTV/api/model"
 	"github.com/airplayTV/api/util"
+	"github.com/lixiang4u/goWebsocket"
 	"github.com/spf13/cast"
 	"github.com/tidwall/gjson"
 	ffmpeg "github.com/u2takey/ffmpeg-go"
+	"io"
 	"log"
 	"path/filepath"
 	"runtime/debug"
@@ -198,24 +201,69 @@ func (x SourceStat) getMpegResolution(tmpUrl string) (width, height int, err err
 		}
 	}()
 
-	probe, err := ffmpeg.Probe(tmpUrl, ffmpeg.KwArgs{
+	var kwArgs = ffmpeg.KwArgs{
 		"allowed_extensions": "ALL",
 		"extension_picky":    0,
 		"timeout":            1000000 * 15, // 15秒
 		"show_entries":       "stream=width,height",
-	})
+	}
+
+	probe, err := ffmpeg.Probe(tmpUrl, kwArgs)
+	width, height, err = x.parseProbe(probe)
+	if err != nil {
+		return
+	}
+	if width*height > 100 {
+		return
+	}
+	buff, err := x.getTsFile(tmpUrl)
+	if err != nil {
+		return
+	}
+	probe, err = ffmpeg.ProbeReader(buff, kwArgs)
+	width, height, err = x.parseProbe(probe)
 	if err != nil {
 		return
 	}
 
+	return
+}
+
+func (x SourceStat) parseProbe(probe string) (width, height int, err error) {
 	var result = gjson.Parse(probe)
 	if !result.Get("programs").IsArray() || len(result.Get("programs").Array()) == 0 {
-		log.Println("[probe]", probe)
-		return width, height, errors.New("programs没有数据")
+		err = errors.New("programs没有数据")
+		return
 	}
 	var resolution = result.Get("programs").Array()[0].Get("streams").Array()[0]
 	width = int(resolution.Get("width").Int())
 	height = int(resolution.Get("height").Int())
 
 	return
+}
+
+func (x SourceStat) getTsFile(tmpUrl string) (buffer *bytes.Buffer, err error) {
+	tmpList, err := util.ParsePlayUrlList(tmpUrl)
+	if err != nil {
+		return
+	}
+	log.Println("[tmpList]", goWebsocket.ToJson(tmpList))
+	var httpClient = util.HttpClient{}
+	buff, err := httpClient.Get(tmpList[0])
+	if err != nil {
+		return
+	}
+	var newBuffer = &bytes.Buffer{}
+
+	buffer = bytes.NewBuffer(buff)
+	_, err = io.CopyN(io.Discard, buffer, 8)
+	if err != nil {
+		return
+	}
+	_, err = io.Copy(newBuffer, buffer)
+	if err != nil {
+		return
+	}
+
+	return newBuffer, err
 }
