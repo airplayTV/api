@@ -416,7 +416,7 @@ func (x VideoController) SourceStat(ctx *gin.Context) {
 
 func (x VideoController) LogVisitor(ip string) {
 	var key = fmt.Sprintf("app-visitor-log::%s", ip)
-	model.WithCache(key, store.WithExpiration(time.Hour*24), func() interface{} {
+	model.WithCache(key, store.WithExpiration(time.Duration(util.TodayLeftSeconds())), func() interface{} {
 		if err := (model.Visitor{}).CreateOrUpdate(ip); err != nil {
 			log.Println("[Visitor.CreateOrUpdate]", err.Error())
 		}
