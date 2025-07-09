@@ -318,8 +318,9 @@
       "name": "草榴资源",
       "host": "https://www.caoliuzyw.com/",
       "api": "https://www.caoliuzyw.com/api.php/provide/vod/",
+      "disable": true,
       "searchable": false,
-      "description": "搜索返回全部"
+      "description": "跑路了"
     },
     {
       "id": "apilsbzy1",
@@ -579,11 +580,9 @@
       "非凡资源"
     ],
     "tiny-18+": [
-      "草榴资源",
       "杏吧资源"
     ],
     "18+": [
-      "草榴资源",
       "乐播资源",
       "森林资源",
       "黄瓜资源",
