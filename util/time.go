@@ -39,12 +39,13 @@ func FormatDateTime(timestamp int64, layout ...string) string {
 	return time.Unix(timestamp, 0).Format(layout[0])
 }
 
-func TodayLeftSeconds() int {
+func TodayLeftSeconds() int64 {
 	now := time.Now()
 	// 基于当前时区构造下一时间 精确到纳秒级
 	endOfDay := time.Date(now.Year(), now.Month(), now.Day()+1, 0, 0, 0, 0, now.Location()).Add(-time.Nanosecond)
 	// 计算时间差并转秒
-	return int(endOfDay.Sub(now).Seconds())
+
+	return int64(endOfDay.Sub(now).Seconds())
 }
 
 // NowDateEndUnixTime 今天结束时的 unixtime 时间
