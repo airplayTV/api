@@ -51,9 +51,26 @@ func (x VideoController) Provider(ctx *gin.Context) {
 		}(tmpName, tmpValue.Sort, tmpValue.Handler)
 	}
 	wg.Wait()
+
+	// 排序啊
+	var key = fmt.Sprintf("app-source-stat::provider")
+	var resp = model.WithCache(key, store.WithExpiration(time.Hour*2), func() interface{} {
+		var date = model.VideoResolution{}.MaxDate()
+		return model.VideoResolution{}.List(date)
+	}).([]model.VideoResolution)
+	var sortMap = make(map[string]int)
+	for i, resolution := range resp {
+		sortMap[resolution.Source] = i
+	}
 	slices.SortFunc(providers, func(a, b ProviderItem) int {
-		return a.Sort - b.Sort
+		v1, ok1 := sortMap[a.Name]
+		v2, ok2 := sortMap[b.Name]
+		if !ok1 || !ok2 {
+			return a.Sort - b.Sort
+		}
+		return v1 - v2
 	})
+
 	ctx.JSON(http.StatusOK, model.NewSuccess(providers))
 }
 
