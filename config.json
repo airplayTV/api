@@ -316,11 +316,11 @@
     {
       "id": "caoliuzyw",
       "name": "草榴资源",
-      "host": "https://www.caoliuzyw.com/",
+      "host": "https://caoliuzyw.com/",
       "api": "https://www.caoliuzyw.com/api.php/provide/vod/",
-      "disable": true,
+      "disable": false,
       "searchable": false,
-      "description": "跑路了"
+      "description": ""
     },
     {
       "id": "apilsbzy1",
