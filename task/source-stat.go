@@ -218,11 +218,15 @@ func (x SourceStat) getMpegResolution(tmpUrl string) (width, height int, err err
 	}
 	buff, err := x.parsePngMaskTsSegment(tmpUrl)
 	if err != nil {
+		log.Println("[ProbeReader.tmpUrl]", tmpUrl)
+		log.Println("[ProbeReader.Error]", err.Error())
 		return
 	}
 	probe, err = ffmpeg.ProbeReader(buff, kwArgs)
 	width, height, err = x.parseProbe(probe)
 	if err != nil {
+		log.Println("[ProbeReader.buff]", buff.String())
+		log.Println("[ProbeReader.Error]", err.Error())
 		return
 	}
 
