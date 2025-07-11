@@ -439,8 +439,9 @@
       "name": "金马资源",
       "host": "https://www.jmzy1.com/",
       "api": "https://api.jmzy.com/api.php/provide/vod/",
+      "disable": true,
       "searchable": true,
-      "description": ""
+      "description": "失联"
     },
     {
       "id": "yzzy",
