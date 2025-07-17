@@ -83,11 +83,9 @@ func (x SourceStat) taskHandler() {
 			}()
 
 			for _, source := range appSourceList {
-				log.Println(fmt.Sprintf("[开始任务] chunk %d %s", chunkIdx, source.Handler.Name()))
 				var tmpR = x.parseVideoResolution(source)
 				tmpList = append(tmpList, tmpR)
 				tmpIdx++
-				log.Println(fmt.Sprintf("[结束任务] chunk %d %s", chunkIdx, source.Handler.Name()))
 			}
 		}(chunkIdx, chunk)
 	}
