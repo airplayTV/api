@@ -71,22 +71,24 @@ func (x SourceStat) taskHandler() {
 	var ch = make(chan []model.VideoResolution, chCount)
 	for chunkIdx, chunk := range chunks {
 		go func(chunkIdx int, appSourceList []model.SourceHandler) {
+			var tmpIdx = 0
+			var tmpList = make([]model.VideoResolution, 0)
+
 			defer func() {
 				if err := recover(); err != nil {
 					log.Println("[taskHandler.recover4]", err)
 					log.Println("[taskHandler.recover4]", string(debug.Stack()))
 				}
+				ch <- tmpList
 			}()
 
-			var tmpIdx = 0
-			var tmpList = make([]model.VideoResolution, 0)
 			for _, source := range appSourceList {
-				log.Println(fmt.Sprintf("[执行任务] chunk %d %s", chunkIdx, source.Handler.Name()))
+				log.Println(fmt.Sprintf("[开始任务] chunk %d %s", chunkIdx, source.Handler.Name()))
 				var tmpR = x.parseVideoResolution(source)
 				tmpList = append(tmpList, tmpR)
 				tmpIdx++
+				log.Println(fmt.Sprintf("[结束任务] chunk %d %s", chunkIdx, source.Handler.Name()))
 			}
-			ch <- tmpList
 		}(chunkIdx, chunk)
 	}
 
