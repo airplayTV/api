@@ -71,6 +71,13 @@ func (x SourceStat) taskHandler() {
 	var ch = make(chan []model.VideoResolution, chCount)
 	for chunkIdx, chunk := range chunks {
 		go func(chunkIdx int, appSourceList []model.SourceHandler) {
+			defer func() {
+				if err := recover(); err != nil {
+					log.Println("[taskHandler.recover4]", err)
+					log.Println("[taskHandler.recover4]", string(debug.Stack()))
+				}
+			}()
+
 			var tmpIdx = 0
 			var tmpList = make([]model.VideoResolution, 0)
 			for _, source := range appSourceList {
