@@ -32,17 +32,18 @@ type VideoController struct {
 func (x VideoController) Provider(ctx *gin.Context) {
 	x.LogVisitor(ctx.ClientIP())
 
-	type ProviderItem struct {
-		Name string      `json:"name"`
-		Sort int         `json:"sort"`
-		Tags interface{} `json:"tags"`
-	}
-	var providers = make([]ProviderItem, 0)
+	var providers = x.sortedSourceList(x.getSourceMap(ctx))
+
+	ctx.JSON(http.StatusOK, model.NewSuccess(providers))
+}
+
+func (x VideoController) sortedSourceList(sourceMap map[string]model.SourceHandler) []model.ProviderItem {
+	var providers = make([]model.ProviderItem, 0)
 	var wg sync.WaitGroup
-	for tmpName, tmpValue := range x.getSourceMap(ctx) {
+	for tmpName, tmpValue := range sourceMap {
 		wg.Add(1)
 		go func(tmpName string, sort int, h model.IVideo) {
-			providers = append(providers, ProviderItem{
+			providers = append(providers, model.ProviderItem{
 				Name: tmpName,
 				Sort: sort,
 				Tags: h.TagList(),
@@ -62,7 +63,7 @@ func (x VideoController) Provider(ctx *gin.Context) {
 	for i, resolution := range resp {
 		sortMap[resolution.Source] = i
 	}
-	slices.SortFunc(providers, func(a, b ProviderItem) int {
+	slices.SortFunc(providers, func(a, b model.ProviderItem) int {
 		v1, ok1 := sortMap[a.Name]
 		v2, ok2 := sortMap[b.Name]
 		if !ok1 || !ok2 {
@@ -70,8 +71,11 @@ func (x VideoController) Provider(ctx *gin.Context) {
 		}
 		return v1 - v2
 	})
+	for i, _ := range providers {
+		providers[i].Sort = i + 1
+	}
 
-	ctx.JSON(http.StatusOK, model.NewSuccess(providers))
+	return providers
 }
 
 func (x VideoController) parseSourceHandler(ctx *gin.Context) (model.SourceHandler, error) {
@@ -112,6 +116,14 @@ func (x VideoController) Search(ctx *gin.Context) {
 	x.response(ctx, resp)
 }
 
+func (x VideoController) getSourceSortMap(sourceMap map[string]model.SourceHandler) map[string]int {
+	var sourceSortMap = make(map[string]int)
+	for _, item := range x.sortedSourceList(sourceMap) {
+		sourceSortMap[item.Name] = item.Sort
+	}
+	return sourceSortMap
+}
+
 func (x VideoController) SearchV2(ctx *gin.Context) {
 	x.LogVisitor(ctx.ClientIP())
 
@@ -123,6 +135,7 @@ func (x VideoController) SearchV2(ctx *gin.Context) {
 	ctx.Header("Connection", "keep-alive")
 
 	var tmpSourceList = x.getSourceMap(ctx)
+	var sourceSortMap = x.getSourceSortMap(tmpSourceList)
 	var sourceLength = len(tmpSourceList)
 	var ch = make(chan interface{}, sourceLength)
 	for tmpSourceName, h := range tmpSourceList {
@@ -132,7 +145,11 @@ func (x VideoController) SearchV2(ctx *gin.Context) {
 				if err := recover(); err != nil {
 					log.Println("[SearchV2.Error]", name, err)
 				}
-				ch <- gin.H{"source": name, "data": resp}
+				tmpSort, ok := sourceSortMap[name]
+				if !ok {
+					tmpSort = 99999
+				}
+				ch <- gin.H{"source": name, "data": resp, "sort": tmpSort}
 			}()
 			if handler.Option().Disable { // 废了
 				resp = model.NewError("数据源异常")
