@@ -100,7 +100,7 @@ func (x CzzyHandler) _tagUrl(tagName, page string) string {
 }
 
 func (x CzzyHandler) _videoList(tagName, page string) interface{} {
-	buff, err := x.httpClient.Get(x._tagUrl(tagName, page))
+	buff, err := x.requestUrlBypassSafeLineChallenge(x._tagUrl(tagName, page))
 	if err != nil {
 		return model.NewError("获取数据失败：" + err.Error())
 	}
@@ -152,7 +152,7 @@ func (x CzzyHandler) _videoList(tagName, page string) interface{} {
 
 func (x CzzyHandler) _search(keyword, page string) interface{} {
 	var pager = model.Pager{Limit: 20, Page: x.parsePageNumber(page)}
-	buff, err := x.httpClient.Get(fmt.Sprintf(czzySearchUrl, keyword, pager.Page))
+	buff, err := x.requestUrlBypassSafeLineChallenge(fmt.Sprintf(czzySearchUrl, keyword, pager.Page))
 	if err != nil {
 		return model.NewError("获取数据失败：" + err.Error())
 	}
@@ -193,7 +193,7 @@ func (x CzzyHandler) _search(keyword, page string) interface{} {
 }
 
 func (x CzzyHandler) _detail(id string) interface{} {
-	buff, err := x.httpClient.Get(fmt.Sprintf(czzyDetailUrl, id))
+	buff, err := x.requestUrlBypassSafeLineChallenge(fmt.Sprintf(czzyDetailUrl, id))
 	if err != nil {
 		return model.NewError("获取数据失败：" + err.Error())
 	}
