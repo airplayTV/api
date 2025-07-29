@@ -12,7 +12,7 @@ const ApiM3U8ProxyUrl = apiM3U8ProxyUrl
 const (
 	czzyHost      = "https://www.czzymovie.com"
 	czzyTagUrl    = "https://www.czzymovie.com/%s/page/%d"
-	czzySearchUrl = "https://www.czzymovie.com/daoyongjiekoshibushiy0ubing?q=%s&f=_all&p=%d"
+	czzySearchUrl = "https://www.czzymovie.com/xsss1O1?q=%s&f=_all&p=%d"
 	czzyDetailUrl = "https://www.czzymovie.com/movie/%s.html"
 	czzyPlayUrl   = "https://www.czzymovie.com/v_play/%s.html"
 )
