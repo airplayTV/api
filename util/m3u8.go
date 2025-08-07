@@ -39,6 +39,10 @@ func FormatM3u8Url(data []byte, sourceUrl string) ([]byte, error) {
 			mediapl.Segments[idx].URI = fixUrlHost(mediapl.Segments[idx].URI, sourceUrl)
 			// 导致播放文件中出现两次加密数据播放器解析失败
 			val.Key = nil
+
+			if isAdUrl(mediapl.Segments[idx].URI) {
+				mediapl.Segments[idx] = nil
+			}
 		}
 	case m3u8.MASTER:
 		masterpl := playList.(*m3u8.MasterPlaylist)
@@ -50,6 +54,13 @@ func FormatM3u8Url(data []byte, sourceUrl string) ([]byte, error) {
 		}
 	}
 	return playList.Encode().Bytes(), nil
+}
+
+func isAdUrl(tmpUrl string) bool {
+	if strings.Contains(tmpUrl, "/video/adjump/time/") {
+		return true
+	}
+	return false
 }
 
 func fixUrlHost(tmpUrl, sourceUrl string) string {
