@@ -276,8 +276,16 @@ func (x CmsZyHandler) _source(pid, vid string) interface{} {
 	if len(source.Url) == 0 {
 		return model.NewError("暂无数据")
 	}
+	source.Url = x.m3u8pUrl(source.Url)
 
 	return model.NewSuccess(source)
+}
+
+func (x CmsZyHandler) m3u8pUrl(tmpUrl string) string {
+	if !slices.Contains([]string{"暴风资源"}, x.option.GetName()) {
+		return tmpUrl
+	}
+	return fmt.Sprintf("%s?url=%s", apiM3U8ProxyUrl, util.EncodeComponentUrl(tmpUrl))
 }
 
 func (x CmsZyHandler) parseSourceSplit(vodPlayNote string) string {
