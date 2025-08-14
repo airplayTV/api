@@ -33,3 +33,9 @@ go build
 ./api
 ```
 
+
+## 前端
+`https://github.com/airplayTV/airplayTV-vue`
+
+
+
