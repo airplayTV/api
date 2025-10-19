@@ -226,7 +226,7 @@ func (x NoVipHandler) _detail(id string) interface{} {
 
 	s, _ := introSection.Html()
 	log.Println("[SSSS]", s)
-	// video.Intro
+	// video.Intro //TODO FIXME
 
 	if len(video.Name) <= 0 {
 		return model.NewError("获取数据失败")
