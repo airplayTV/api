@@ -67,3 +67,11 @@ const (
 	huawei8DetailUrl = "https://huaweiba.live/index.php/vod/detail/id/%s.html"
 	huawei8PlayUrl   = "https://huaweiba.live/index.php/vod/detail/id/%s.html"
 )
+
+const (
+	noVipHost      = "https://www.novipnoad.net"
+	noVipTagUrl    = "https://www.novipnoad.net/%s/"
+	noVipSearchUrl = "https://www.novipnoad.net/page/%d/?s=%s"
+	noVipDetailUrl = "https://www.novipnoad.net/movie/%s.html"
+	noVipPlayUrl   = ""
+)
