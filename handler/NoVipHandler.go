@@ -201,7 +201,6 @@ func (x NoVipHandler) _detail(id string) interface{} {
 	if err != nil {
 		return model.NewError("获取数据失败：" + err.Error())
 	}
-	//_ = util.WriteFile("D:\\repo\\github.com\\airplayTV\\api\\cache\\novip-detail.html", buff)
 
 	doc, err := goquery.NewDocumentFromReader(strings.NewReader(string(buff)))
 	if err != nil {
@@ -222,11 +221,14 @@ func (x NoVipHandler) _detail(id string) interface{} {
 	video.Thumb = x.simpleRegEx(string(buff), `<meta property="og:image" content="(\S+)">`)
 	video.Name = doc.Find(".single-video-view .entry-title").Text()
 
-	var introSection = doc.Find(".single-video-view .item-content p").Eq(0)
-
-	s, _ := introSection.Html()
-	log.Println("[SSSS]", s)
-	// video.Intro //TODO FIXME
+	{
+		tmpText, _ := doc.Find(".single-video-view .item-content p").Eq(0).Html()
+		var pattern = `(\<style\>\S+\<\/style\>)` // 匹配一个或多个数字
+		tmpText = regexp.MustCompile(pattern).ReplaceAllString(tmpText, "")
+		pattern = `(\<script\>\S+\<\/script\>)` // 匹配一个或多个数字
+		tmpText = regexp.MustCompile(pattern).ReplaceAllString(tmpText, "")
+		video.Intro = tmpText
+	}
 
 	if len(video.Name) <= 0 {
 		return model.NewError("获取数据失败")
