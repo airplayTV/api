@@ -98,7 +98,7 @@ func (x NoVipHandler) _tagUrl(tagName, page string) string {
 	if p == 1 {
 		return fmt.Sprintf(noVipTagUrl, tagName)
 	} else {
-		return fmt.Sprintf("%s/%s", strings.TrimRight(noVipTagUrl, "/"), tagName)
+		return fmt.Sprintf("%s/page/%s/", strings.TrimRight(fmt.Sprintf(noVipTagUrl, tagName), "/"), page)
 	}
 }
 
