@@ -211,12 +211,21 @@ func (x NoVipHandler) _detail(id string) interface{} {
 	doc.Find(".multilink-table-wrap a").Each(func(i int, selection *goquery.Selection) {
 		tmpHref, _ := selection.Attr("href")
 		video.Links = append(video.Links, model.Link{
-			Id:    x.simpleRegEx(tmpHref, `/v_play/(\S+).html`),
+			Id:    strings.TrimSpace(selection.Text()),
 			Name:  strings.TrimSpace(selection.Text()),
 			Url:   tmpHref,
 			Group: "资源1",
 		})
 	})
+	if len(video.Links) <= 0 {
+		video.Links = append(video.Links, model.Link{
+			Id:    "",
+			Name:  "HD",
+			Url:   "",
+			Group: "资源1",
+		})
+
+	}
 
 	video.Thumb = x.simpleRegEx(string(buff), `<meta property="og:image" content="(\S+)">`)
 	video.Name = doc.Find(".single-video-view .entry-title").Text()
