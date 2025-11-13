@@ -1,10 +1,12 @@
 package handler
 
 import (
-	"bytes"
+	"encoding/base64"
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"github.com/dop251/goja"
+	"github.com/lixiang4u/goWebsocket"
 	"log"
 	"net/url"
 	"regexp"
@@ -28,10 +30,13 @@ type NoVipHandler struct {
 }
 
 func (x NoVipHandler) Init(options interface{}) model.IVideo {
-	x.httpClient = util.HttpClient{ProxyUrl: "http://127.0.0.1:1080"}
-	x.httpClient.AddHeader(headers.UserAgent, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36")
-	x.httpClient.AddHeader("cookie", "cf_clearance=LNH4OSaz5flx9ZSaDo_0Do.pVBd9spmMBh6cBGrERnk-1760846173-1.2.1.1-tSRT.BqPoD2_ugXBJr_LB0OIOrXUoCr3kNEs_E1i0helAhYmek7e2FgKQGRvEZmEEsKel9SmES5uoGD2VGnsNvWwifhaq8IkiZp2hfuRrFdb3m1Rpa7IuHUl21Ed4OaKsz31nj.Gbqz0OaMuXFIQKsLCinqpmvv0XUgD25vtCvN6dLKhHTxMYu_PvqgEfFNEsiIJ0SGvxsbb6y6of8DumYj20qFaI4qhY8FcpCOzYoQ")
-	x.httpClient.AddHeader("upgrade-insecure-requests", "1")
+	x.httpClient = util.HttpClient{
+		//ProxyUrl: "http://127.0.0.1:1080",
+	}
+	x.httpClient.AddHeader(headers.UserAgent, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36")
+	x.httpClient.AddHeader("cookie", "cf_clearance=OSdZb9fQRcPWVgQ9a9SAWj57OrXT1GXYgxBbWObbonU-1760530853-1.2.1.1-Hg79Wb2wWc.X6Oie20G278A7xEpPrdO7EhVyLkTrfimMNqOJ2TpK9QEwcahMEKos7jhHrO3qg0SMqZwVu_T9jNHUUGINWCzkvHQ3uIua.3qfp9txgWfPLUuEfzQk9nI_3ZBzPhv6HkgF7Ov_c0TXfYGpHDJQxnH2EY_fGJ8n096_Ll3Ej2YCoPCKgtUa5MTFC7.RKsav.xQv1VJpGatWKqcKygpIYCIr_hN50iTk3Y0")
+	x.httpClient.AddHeader("referer", noVipHost)
+	//x.httpClient.AddHeader("upgrade-insecure-requests", "1")
 
 	x.option = options.(model.CmsZyOption)
 
@@ -259,34 +264,37 @@ func (x NoVipHandler) _source(pid, vid string) interface{} {
 		return model.NewError("获取数据失败：" + err.Error())
 	}
 	var ref = strings.ReplaceAll(doc.Find("#cancel-comment-reply-link").AttrOr("href", ""), "#respond", "")
-	log.Println("[ref]", ref)
+	//log.Println("[ref]", ref)
+
+	source.Name = doc.Find(".entry-title").Text()
 
 	var pKey = x.simpleRegEx(string(buff), `{pkey:"(\S+?)"};`)
 	log.Println("[pKey]", pKey)
-
-	buff, err = x.httpClient.Get(fmt.Sprintf("https://player.novipnoad.net/v1/?url=%s&pkey=%s&ref=/anime/%s.html", pid, pKey, vid))
-	if err != nil {
-		return model.NewError("解析失败1：" + err.Error())
+	if len(pKey) <= 0 {
+		return model.NewError("解析失败：没有pkey")
 	}
-	_ = util.WriteFile("D:\\repo\\github.com\\airplayTV\\api\\_debug\\ddddddddd-iframe.html", buff)
+	//log.Println("[pKey]", pKey)
+
+	buff, err = x.httpClient.Get(fmt.Sprintf("https://player.novipnoad.net/v1/?url=%s&pkey=%s&ref=%s", pid, pKey, ref))
+	if err != nil {
+		return model.NewError("解析失败：" + err.Error())
+	}
+	//_ = util.WriteFile("D:\\repo\\github.com\\airplayTV\\api\\_debug\\ddddddddd-iframe.html", buff)
 
 	var device = x.simpleRegEx(string(buff), `params\['device'\] = '(\S+?)';`)
 	if len(device) <= 0 {
-		return model.NewError("解析失败2：" + err.Error())
+		return model.NewError("解析失败：没有device")
 	}
 
 	var vKeyHandler = strings.TrimSpace(x.simpleRegEx(string(buff), `function __\(\) \{([\S\s]+?)\}[\r\n]`))
 	if len(vKeyHandler) <= 0 {
-		return model.NewError("解析失败3：" + err.Error())
+		return model.NewError("解析失败：没有vkey")
 	}
-	//var tmpVKeyText = x.fuckVKey(vKeyHandler)
-	//log.Println("[vKeyHandler]", tmpVKeyText)
 
-	// 2025/11/13 16:21:26 [vKeyHandler] window.sessionStorage.setItem('vkey','{"ckey":"58bc6bfdb129f942542523084e81990d23599f57","ref":"/anime/150044.html","ip":"49.65.131.79","time":"1763022082"}');
 	var matchedVKeyValues = x.simpleRegExList(x.fuckVKey(vKeyHandler), `{"ckey":"(\S+)","ref":"(\S+)","ip":"(\S+)","time":"(\S+)"}`)
 	if len(matchedVKeyValues) < 5 {
 		log.Println("[matchedVKeyValues]", goWebsocket.ToJson(matchedVKeyValues))
-		return model.NewError("解析失败4：" + err.Error())
+		return model.NewError("解析失败：vkey异常")
 	}
 
 	buff, err = x.httpClient.Get(fmt.Sprintf(
@@ -297,23 +305,24 @@ func (x NoVipHandler) _source(pid, vid string) interface{} {
 		matchedVKeyValues[4],
 	))
 	if err != nil {
-		return model.NewError("解析失败4：" + err.Error())
+		return model.NewError("解析失败2：" + err.Error())
 	}
 
-	// var videoUrl=JSON.decrypt("MTnMsYiESx7n6oSEyGuyBgJKb74kOK95u1jt4cB9/ISmZ7EV/MuekYCpUlJ9CbM3NIPFUZ/w3l5vfcos4ckU5J0+RY8HgPu9ArOKJWvVUKyp1/pdPmM7RTkzMmwoMKYza9xzmO4IAiEvBsG5aWrKFPyQWoNk8/2DB9ribgJAHY7RHlRBqHuY2qvUwTEb/hgDnq8zenOLdE41m29WTQsiB6ZlOuIR8awbQRD8LCgybdYwEc3ieHDHRrV1RsH+Wl45DZNiup1YCaxSZQb/nPNHuz3V/DXRaerBM0Ts2II0Z/Htgw2ikKhFokPFhRY/OUWuEjJv8msyppEdeabB37kA6qOo66V/Gu7tgk3ngxZnJpWTukFq2rxsM//dtsqpU/228n80b0QVmCk9I2riDz8J4GYTy8N/PJ3Xm4aXGLcypALtycEaRWrDnfY/enpE5w10LrJkTnmRw3neEF7Ztx8ZDkvzmx2r8wyJTU4LbgLvkrMlhPKVMkIwIgqpdNNBiI/YUA==");
-
-	_ = util.WriteFile("D:\\repo\\github.com\\airplayTV\\api\\_debug\\ddddddddd-player-js.html", buff)
-	/////////////// TODO FIXME
-
-	source.Name = doc.Find(".pclist .jujiinfo h3").Text()
-
-	if len(source.Source) == 0 {
-		return model.NewError("播放地址解析失败")
+	var encryptedRC4 = x.simpleRegEx(string(buff), `videoUrl=JSON.decrypt\("(\S+?)"\);`)
+	if len(encryptedRC4) <= 0 {
+		return model.NewError("解析失败：没有加密数据")
+	}
+	encryptedRC4 = x.decryptNoVipVideoUrl(encryptedRC4)
+	//log.Println("[decryptNoVipVideoUrl]", encryptedRC4)
+	var decryptJson = gjson.Parse(encryptedRC4)
+	if !decryptJson.Get("quality").IsArray() {
+		return model.NewError("解析失败3：" + encryptedRC4)
 	}
 
+	source.Source = decryptJson.Get("quality").Array()[0].Get("url").String()
+	source.Url = source.Source
 	// 视频类型问题处理
 	source.Type = x.parseVideoType(source.Source)
-	source.Url = x.handleM3u8pUrl(source.Source)
 
 	if len(source.Source) == 0 {
 		return model.NewError("播放地址处理失败")
@@ -463,6 +472,44 @@ func (x NoVipHandler) fuckVKey(vKeyHandler string) string {
 	}
 
 	return decode()
+}
+
+func (x NoVipHandler) decryptNoVipVideoUrl(encodedText string) string {
+	// 1. Base64解码输入数据
+	decodedBytes, err := base64.StdEncoding.DecodeString(encodedText)
+	if err != nil {
+		return ""
+	}
+	// 2. RC4密钥调度算法 - 初始化置换表
+	var sbox = [256]byte{
+		99, 207, 215, 98, 55, 168, 56, 85, 13, 160, 50, 134, 15, 147, 28, 197, 19, 123, 12, 174, 33, 145, 142, 60, 183,
+		29, 136, 218, 144, 124, 209, 46, 81, 155, 3, 121, 23, 34, 10, 73, 234, 65, 80, 248, 20, 163, 38, 118, 201, 230,
+		68, 240, 156, 205, 151, 14, 105, 61, 0, 138, 122, 216, 59, 112, 176, 200, 67, 188, 250, 120, 44, 178, 53, 165, 94,
+		170, 25, 93, 253, 154, 157, 117, 107, 11, 125, 40, 148, 126, 251, 71, 9, 17, 177, 181, 179, 135, 133, 39, 62, 64,
+		210, 6, 225, 36, 45, 49, 79, 8, 95, 116, 32, 175, 54, 162, 192, 100, 227, 141, 229, 115, 51, 129, 128, 101, 194,
+		96, 152, 198, 91, 226, 220, 254, 103, 213, 191, 223, 52, 202, 150, 231, 211, 221, 239, 219, 206, 190, 127, 166,
+		131, 143, 173, 238, 158, 72, 119, 87, 189, 195, 47, 235, 102, 146, 245, 186, 16, 104, 42, 222, 233, 199, 66, 212,
+		180, 77, 97, 24, 241, 228, 110, 21, 108, 247, 35, 30, 75, 4, 246, 130, 78, 86, 184, 84, 89, 92, 153, 76, 113, 161,
+		58, 139, 114, 244, 159, 2, 203, 37, 252, 27, 149, 1, 26, 255, 140, 57, 5, 171, 232, 41, 237, 187, 69, 214, 185,
+		111, 22, 48, 243, 249, 196, 88, 137, 82, 43, 164, 74, 172, 182, 90, 70, 169, 204, 208, 31, 193, 217, 224, 106, 109,
+		7, 83, 236, 18, 132, 242, 63, 167,
+	}
+	// 3. RC4伪随机数生成
+	var i = 0
+	var j = 0
+	var result = make([]byte, len(decodedBytes))
+	for idx := 0; idx < len(decodedBytes); idx++ {
+		// 更新状态变量
+		i = (i + 1) % 256
+		j = (j + int(sbox[i])) % 256
+		// 交换sbox中的两个值
+		sbox[i], sbox[j] = sbox[j], sbox[i]
+		// 生成密钥流字节
+		keyByte := sbox[(int(sbox[i])+int(sbox[j]))%256]
+		// 异或解密
+		result[idx] = decodedBytes[idx] ^ keyByte
+	}
+	return string(result)
 }
 
 func (x NoVipHandler) _parseVideoSource(id, js string) (model.Source, error) {
