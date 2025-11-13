@@ -269,7 +269,6 @@ func (x NoVipHandler) _source(pid, vid string) interface{} {
 	source.Name = doc.Find(".entry-title").Text()
 
 	var pKey = x.simpleRegEx(string(buff), `{pkey:"(\S+?)"};`)
-	log.Println("[pKey]", pKey)
 	if len(pKey) <= 0 {
 		return model.NewError("解析失败：没有pkey")
 	}
