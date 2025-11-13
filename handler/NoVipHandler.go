@@ -33,8 +33,8 @@ func (x NoVipHandler) Init(options interface{}) model.IVideo {
 	x.httpClient = util.HttpClient{
 		//ProxyUrl: "http://127.0.0.1:1080",
 	}
-	x.httpClient.AddHeader(headers.UserAgent, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36")
-	x.httpClient.AddHeader("cookie", "cf_clearance=OSdZb9fQRcPWVgQ9a9SAWj57OrXT1GXYgxBbWObbonU-1760530853-1.2.1.1-Hg79Wb2wWc.X6Oie20G278A7xEpPrdO7EhVyLkTrfimMNqOJ2TpK9QEwcahMEKos7jhHrO3qg0SMqZwVu_T9jNHUUGINWCzkvHQ3uIua.3qfp9txgWfPLUuEfzQk9nI_3ZBzPhv6HkgF7Ov_c0TXfYGpHDJQxnH2EY_fGJ8n096_Ll3Ej2YCoPCKgtUa5MTFC7.RKsav.xQv1VJpGatWKqcKygpIYCIr_hN50iTk3Y0")
+	x.httpClient.AddHeader(headers.UserAgent, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36")
+	x.httpClient.AddHeader("cookie", "cf_clearance=NXLYYpe57DrVJO.6VUvA4oQj4ua.imSs0FmOQYD9Wvg-1763042955-1.2.1.1-ue8EpFp80HFHhOgixwHc8vCR_djsoav8YECw6oc4dNbvqOs8yaeba.w1ayKzbF_HlvE_fOKDjyxtGPuQVJXbZK5WUJL_PDOR8kkEOLgxG3il5xtzL3L5Bf7TtDzyMosD3GjLU3DuVhGK3zaVRjSkEeiAmsGpvkXzqpy8Dr35M.YO1QjqvhovL0Lfpuns0JkN8CTrQdUFXSPqThSB1lgEK2caW4wqWd0jtDeHbz6pn6s")
 	x.httpClient.AddHeader("referer", noVipHost)
 	//x.httpClient.AddHeader("upgrade-insecure-requests", "1")
 
