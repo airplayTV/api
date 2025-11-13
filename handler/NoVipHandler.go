@@ -211,7 +211,7 @@ func (x NoVipHandler) _detail(id string) interface{} {
 	doc.Find(".multilink-table-wrap a").Each(func(i int, selection *goquery.Selection) {
 		tmpHref, _ := selection.Attr("href")
 		video.Links = append(video.Links, model.Link{
-			Id:    strings.TrimSpace(selection.Text()),
+			Id:    strings.TrimSpace(selection.AttrOr("data-vid", "")),
 			Name:  strings.TrimSpace(selection.Text()),
 			Url:   tmpHref,
 			Group: "资源1",
@@ -219,7 +219,7 @@ func (x NoVipHandler) _detail(id string) interface{} {
 	})
 	if len(video.Links) <= 0 {
 		video.Links = append(video.Links, model.Link{
-			Id:    "",
+			Id:    "E0",
 			Name:  "HD",
 			Url:   "",
 			Group: "资源1",
@@ -249,58 +249,63 @@ func (x NoVipHandler) _detail(id string) interface{} {
 func (x NoVipHandler) _source(pid, vid string) interface{} {
 	var source = model.Source{Id: pid, Vid: vid}
 
-	buff, err := x.requestUrlBypassSafeLineChallenge(fmt.Sprintf(czzyPlayUrl, pid))
+	buff, err := x.httpClient.Get(fmt.Sprintf(noVipPlayUrl, vid))
 	if err != nil {
 		return model.NewError("获取数据失败：" + err.Error())
 	}
-	//buff, err = x.httpClient.Get(fmt.Sprintf(czzyPlayUrl, pid))
-	//if err != nil {
-	//	return model.NewError("获取数据失败：" + err.Error())
-	//}
 
 	doc, err := goquery.NewDocumentFromReader(strings.NewReader(string(buff)))
 	if err != nil {
 		return model.NewError("获取数据失败：" + err.Error())
 	}
-	source.Name = doc.Find(".pclist .jujiinfo h3").Text()
+	var ref = strings.ReplaceAll(doc.Find("#cancel-comment-reply-link").AttrOr("href", ""), "#respond", "")
+	log.Println("[ref]", ref)
 
-	if bytes.Contains(buff, []byte("md5.AES.decrypt")) && bytes.Contains(buff, []byte("decrypted.toString(md5.enc.Utf8")) {
-		// 从html加密数据中解析播放地址
-		var encryptedLine = x._findEncryptedLine(string(buff))
-		if len(encryptedLine) == 0 {
-			return model.NewError("获取数据失败：无解析数据")
-		}
+	var pKey = x.simpleRegEx(string(buff), `{pkey:"(\S+?)"};`)
+	log.Println("[pKey]", pKey)
 
-		tmpSource, err := x._parseVideoSource(pid, encryptedLine)
-		if err != nil {
-			return model.NewError(err.Error())
-		}
-		source.Source = tmpSource.Source
-		source.Type = tmpSource.Type
-	} else if doc.Find(".videoplay iframe").Length() > 0 {
-		// 解析另一种iframe嵌套的视频
-		iframeUrl, _ := doc.Find(".videoplay iframe").Attr("src")
-		log.Println("[iframeUrl]", iframeUrl)
-		frameContent, err := x.getIframeContent(iframeUrl)
-		if err != nil {
-			return model.NewError(err.Error())
-		}
-		var encryptResultV2 = x.simpleRegEx(frameContent, `var result_v2 = {"data":"(\S+?)"`)
-		var findV3Rand = x.simpleRegEx(frameContent, `var rand = "(\S+)";`)
-		var findV3Player = x.simpleRegEx(frameContent, `var player = "(\S+)";`)
-		var tmpPlayUrl = x.simpleRegEx(frameContent, `const mysvg = '(\S+)';`)
-		if len(tmpPlayUrl) > 0 {
-			source.Source = tmpPlayUrl
-		} else if len(encryptResultV2) > 0 {
-			source.Source = x.parseEncryptedResultV2ToUrl(encryptResultV2)
-		} else if len(findV3Rand) > 0 && len(findV3Player) > 0 {
-			source.Source = x.parseEncryptedResultV3ToUrl(findV3Rand, findV3Player)
-		} else {
-			return model.NewError("未知解析逻辑1")
-		}
-	} else {
-		return model.NewError("未知解析逻辑")
+	buff, err = x.httpClient.Get(fmt.Sprintf("https://player.novipnoad.net/v1/?url=%s&pkey=%s&ref=/anime/%s.html", pid, pKey, vid))
+	if err != nil {
+		return model.NewError("解析失败1：" + err.Error())
 	}
+	_ = util.WriteFile("D:\\repo\\github.com\\airplayTV\\api\\_debug\\ddddddddd-iframe.html", buff)
+
+	var device = x.simpleRegEx(string(buff), `params\['device'\] = '(\S+?)';`)
+	if len(device) <= 0 {
+		return model.NewError("解析失败2：" + err.Error())
+	}
+
+	var vKeyHandler = strings.TrimSpace(x.simpleRegEx(string(buff), `function __\(\) \{([\S\s]+?)\}[\r\n]`))
+	if len(vKeyHandler) <= 0 {
+		return model.NewError("解析失败3：" + err.Error())
+	}
+	//var tmpVKeyText = x.fuckVKey(vKeyHandler)
+	//log.Println("[vKeyHandler]", tmpVKeyText)
+
+	// 2025/11/13 16:21:26 [vKeyHandler] window.sessionStorage.setItem('vkey','{"ckey":"58bc6bfdb129f942542523084e81990d23599f57","ref":"/anime/150044.html","ip":"49.65.131.79","time":"1763022082"}');
+	var matchedVKeyValues = x.simpleRegExList(x.fuckVKey(vKeyHandler), `{"ckey":"(\S+)","ref":"(\S+)","ip":"(\S+)","time":"(\S+)"}`)
+	if len(matchedVKeyValues) < 5 {
+		log.Println("[matchedVKeyValues]", goWebsocket.ToJson(matchedVKeyValues))
+		return model.NewError("解析失败4：" + err.Error())
+	}
+
+	buff, err = x.httpClient.Get(fmt.Sprintf(
+		"https://enc-vod.oss-internal.novipnoad.net/ftn/1748101977.js?ckey=%s&ref=%s&ip=%s&time=%s",
+		strings.ToUpper(matchedVKeyValues[1]),
+		url.QueryEscape(matchedVKeyValues[2]),
+		matchedVKeyValues[3],
+		matchedVKeyValues[4],
+	))
+	if err != nil {
+		return model.NewError("解析失败4：" + err.Error())
+	}
+
+	// var videoUrl=JSON.decrypt("MTnMsYiESx7n6oSEyGuyBgJKb74kOK95u1jt4cB9/ISmZ7EV/MuekYCpUlJ9CbM3NIPFUZ/w3l5vfcos4ckU5J0+RY8HgPu9ArOKJWvVUKyp1/pdPmM7RTkzMmwoMKYza9xzmO4IAiEvBsG5aWrKFPyQWoNk8/2DB9ribgJAHY7RHlRBqHuY2qvUwTEb/hgDnq8zenOLdE41m29WTQsiB6ZlOuIR8awbQRD8LCgybdYwEc3ieHDHRrV1RsH+Wl45DZNiup1YCaxSZQb/nPNHuz3V/DXRaerBM0Ts2II0Z/Htgw2ikKhFokPFhRY/OUWuEjJv8msyppEdeabB37kA6qOo66V/Gu7tgk3ngxZnJpWTukFq2rxsM//dtsqpU/228n80b0QVmCk9I2riDz8J4GYTy8N/PJ3Xm4aXGLcypALtycEaRWrDnfY/enpE5w10LrJkTnmRw3neEF7Ztx8ZDkvzmx2r8wyJTU4LbgLvkrMlhPKVMkIwIgqpdNNBiI/YUA==");
+
+	_ = util.WriteFile("D:\\repo\\github.com\\airplayTV\\api\\_debug\\ddddddddd-player-js.html", buff)
+	/////////////// TODO FIXME
+
+	source.Name = doc.Find(".pclist .jujiinfo h3").Text()
 
 	if len(source.Source) == 0 {
 		return model.NewError("播放地址解析失败")
@@ -327,6 +332,137 @@ func (x NoVipHandler) _findEncryptedLine(htmlContent string) string {
 		}
 	}
 	return findLine
+}
+
+const NoVipVkeyBaseChars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ+/"
+
+func (x NoVipHandler) baseConvert(numberStr string, fromBase, toBase int) string {
+	if fromBase < 2 || fromBase > len(NoVipVkeyBaseChars) || toBase < 2 || toBase > len(NoVipVkeyBaseChars) {
+		return "0"
+	}
+
+	var fromChars = NoVipVkeyBaseChars[:fromBase]
+	var toChars = NoVipVkeyBaseChars[:toBase]
+
+	// 将输入字符串从源进制转换为十进制
+	var decimalValue = 0
+	for i := 0; i < len(numberStr); i++ {
+		char := numberStr[i]
+		var digitValue = strings.Index(fromChars, string(char))
+		if digitValue == -1 {
+			continue
+		}
+		var power = len(numberStr) - 1 - i
+		var multiplier = 1
+		for j := 0; j < power; j++ {
+			multiplier *= fromBase
+		}
+		decimalValue += digitValue * multiplier
+	}
+
+	// 处理零值情况
+	if decimalValue == 0 {
+		return "0"
+	}
+
+	// 将十进制值转换为目标进制
+	var result = ""
+	var tempValue = decimalValue
+	for tempValue > 0 {
+		remainder := tempValue % toBase
+		result = string(toChars[remainder]) + result
+		tempValue = tempValue / toBase
+	}
+
+	return result
+}
+
+func (x NoVipHandler) parseVKeySession(encodedStr string, param1, param2, delimiterIndex int, replaceChars string, offset int) string {
+	var chunkSize = param1 >> 1
+	_ = chunkSize
+
+	var decoded = ""
+	var i = 0
+	for i < len(encodedStr) {
+		var chunk = ""
+		// 收集直到遇到分隔符的字符
+		for i < len(encodedStr) && encodedStr[i] != replaceChars[delimiterIndex] {
+			chunk += string(encodedStr[i])
+			i++
+		}
+
+		// 跳过空块
+		if chunk == "" {
+			i++
+			continue
+		}
+
+		// 将字符替换为对应的数字
+		for j := 0; j < len(replaceChars); j++ {
+			oldChar := string(replaceChars[j])
+			newChar := strconv.Itoa(j)
+			chunk = strings.ReplaceAll(chunk, oldChar, newChar)
+		}
+
+		// 转换进制并获取字符代码
+		var converted = x.baseConvert(chunk, delimiterIndex, 12)
+		//charCode, err := strconv.Atoi(converted)
+		//if err != nil {
+		//	log.Printf("转换错误: %v, 原始字符串: %s", err, chunk)
+		//	i++
+		//	continue
+		//}
+
+		var charCode = cast.ToInt(converted) - offset
+
+		//charCode -= offset
+		// 确保字符代码在有效范围内
+		if charCode >= 0 && charCode <= 1114111 { // Unicode最大码点
+			decoded += string(rune(charCode))
+		} else {
+			log.Printf("无效字符代码: %d", charCode)
+		}
+		i++ // 跳过分隔符
+	}
+
+	// 改进的URL解码逻辑
+	if decoded == "" {
+		return ""
+	}
+
+	// 处理可能的URL编码
+	decoded = strings.ReplaceAll(decoded, "+", " ")
+
+	// 使用Go标准库进行URL解码
+	finalDecoded, err := url.QueryUnescape(decoded)
+	if err != nil {
+		log.Printf("URL解码错误: %v, 使用原始字符串", err)
+		return decoded
+	}
+	return finalDecoded
+}
+
+func (x NoVipHandler) fuckVKey(vKeyHandler string) string {
+	vKeyHandler = strings.Replace(vKeyHandler, "eval(function", "return (function", 1)
+	vKeyHandler = fmt.Sprintf(`function __() { %s; }`, vKeyHandler)
+
+	//log.Println("[vKeyHandler.E]", vKeyHandler)
+
+	vm := goja.New()
+	_, err := vm.RunString(vKeyHandler)
+	if err != nil {
+		log.Println("[LoadGojaError]", err.Error())
+		return ""
+	}
+
+	var decode func() string
+	err = vm.ExportTo(vm.Get("__"), &decode)
+	if err != nil {
+		log.Println("[ExportGojaFnError]", err.Error())
+		return ""
+	}
+
+	return decode()
 }
 
 func (x NoVipHandler) _parseVideoSource(id, js string) (model.Source, error) {
