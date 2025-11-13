@@ -73,5 +73,5 @@ const (
 	noVipTagUrl    = "https://www.novipnoad.net/%s/"
 	noVipSearchUrl = "https://www.novipnoad.net/page/%d/?s=%s"
 	noVipDetailUrl = "https://www.novipnoad.net/movie/%s.html"
-	noVipPlayUrl   = ""
+	noVipPlayUrl   = "https://www.novipnoad.net/movie/%s.html"
 )
