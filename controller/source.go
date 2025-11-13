@@ -24,6 +24,11 @@ func init() {
 			Name:       handler.CzzyHandler{}.Name(),
 			Searchable: true,
 		})},
+		handler.NoVipHandler{}.Name(): {Sort: 2, Handler: handler.NoVipHandler{}.Init(model.CmsZyOption{
+			Id:         "NO视频",
+			Name:       handler.NoVipHandler{}.Name(),
+			Searchable: true,
+		})},
 		//handler.SubbHandler{}.Name(): {Sort: 2, Handler: handler.SubbHandler{}.Init(model.CmsZyOption{
 		//	Id:         "subaibai",
 		//	Name:       handler.SubbHandler{}.Name(),
