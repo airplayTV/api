@@ -52,7 +52,7 @@ func (x SourceStat) taskHandler() {
 		}
 	}()
 
-	log.Println("[开始执行任务]")
+	log.Println("[开始SourceStat]")
 
 	var chCount = 5 // 分组
 	var chunks = make([][]model.SourceHandler, chCount)
@@ -102,7 +102,7 @@ func (x SourceStat) taskHandler() {
 	}
 	_ = model.VideoResolution{}.SaveAll(resolutionList)
 
-	log.Println(fmt.Sprintf("[完成任务] ok %d", date))
+	log.Println(fmt.Sprintf("[完成SourceStat] %d", date))
 }
 
 func (x SourceStat) parseVideoResolution(h model.SourceHandler) (tmpR model.VideoResolution) {

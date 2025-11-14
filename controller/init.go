@@ -58,7 +58,7 @@ func initHttpHeader() {
 		if err = h.Handler.UpdateHeader(header); err != nil {
 			log.Println("[UpdateHttpHeaderError]", h.Handler.Name(), err.Error())
 		} else {
-			log.Println("[UpdateHttpHeaderOk]", h.Handler.Name())
+			//log.Println("[UpdateHttpHeaderOk]", h.Handler.Name())
 		}
 	}
 }

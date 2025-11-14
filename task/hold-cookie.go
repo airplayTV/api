@@ -43,15 +43,15 @@ func (x HoldCookie) taskHandler() {
 		}
 	}()
 
-	log.Println("[开始执行任务]")
+	log.Println("[开始HoldCookie]")
 
 	for _, h := range model.AppSourceMap() {
 		if err := h.Handler.HoldCookie(); err != nil {
 			log.Println("[HoldCookieError]", h.Handler.Name(), err.Error())
 		} else {
-			log.Println("[HoldCookieOk]", h.Handler.Name())
+			//log.Println("[HoldCookieOk]", h.Handler.Name())
 		}
 	}
 
-	log.Println(fmt.Sprintf("[完成任务] ok "))
+	log.Println(fmt.Sprintf("[完成HoldCookie]"))
 }

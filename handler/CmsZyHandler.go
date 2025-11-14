@@ -336,7 +336,7 @@ func (x CmsZyHandler) saveTagListLocal(filename string) {
 	}
 	_ = os.Remove(filename)
 
-	log.Println("[req]", x.option.GetName(), x.option.GetApi())
+	//log.Println("[req]", x.option.GetName(), x.option.GetApi())
 	buff, err := x.httpClient.Get(x.option.GetApi())
 	if err != nil {
 		_ = util.WriteFile(fmt.Sprintf("%s.error", filename), []byte(err.Error()))
