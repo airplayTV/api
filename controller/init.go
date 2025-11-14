@@ -17,6 +17,12 @@ var (
 )
 
 func init() {
+	initConfig()
+	initSourceList()
+	initHttpHeader()
+}
+
+func initConfig() {
 	viper.AddConfigPath(".")    // optionally look for config in the working directory
 	err := viper.ReadInConfig() // Find and read the config file
 	if err != nil {             // Handle errors reading the config file
@@ -31,8 +37,6 @@ func init() {
 		log.Println("[ConfigUnmarshalError.mode]", err.Error())
 		return
 	}
-
-	initHttpHeader()
 }
 
 // initRedisCache()// 这玩意还需要给模型实现（implement encoding.BinaryMarshaler）！！！
@@ -52,7 +56,9 @@ func initHttpHeader() {
 			continue
 		}
 		if err = h.Handler.UpdateHeader(header); err != nil {
-			log.Println("[设置http异常]", h.Handler.Name(), err.Error())
+			log.Println("[UpdateHttpHeaderError]", h.Handler.Name(), err.Error())
+		} else {
+			log.Println("[UpdateHttpHeaderOk]", h.Handler.Name())
 		}
 	}
 }

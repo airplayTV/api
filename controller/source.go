@@ -15,7 +15,7 @@ var noCacheSourceList = []string{
 	handler.NaifeiMeHandler{}.Name(), // ki-mi.vip解析压根不能缓存
 }
 
-func init() {
+func initSourceList() {
 	var sourceMap map[string]model.SourceHandler
 
 	sourceMap = map[string]model.SourceHandler{

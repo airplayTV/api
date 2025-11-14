@@ -32,7 +32,6 @@ func (x NoVipHandler) Init(options interface{}) model.IVideo {
 		//ProxyUrl: "http://127.0.0.1:1080",
 	}
 	x.httpClient.AddHeader(headers.UserAgent, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36")
-	x.httpClient.AddHeader("cookie", "cf_clearance=NXLYYpe57DrVJO.6VUvA4oQj4ua.imSs0FmOQYD9Wvg-1763042955-1.2.1.1-ue8EpFp80HFHhOgixwHc8vCR_djsoav8YECw6oc4dNbvqOs8yaeba.w1ayKzbF_HlvE_fOKDjyxtGPuQVJXbZK5WUJL_PDOR8kkEOLgxG3il5xtzL3L5Bf7TtDzyMosD3GjLU3DuVhGK3zaVRjSkEeiAmsGpvkXzqpy8Dr35M.YO1QjqvhovL0Lfpuns0JkN8CTrQdUFXSPqThSB1lgEK2caW4wqWd0jtDeHbz6pn6s")
 	x.httpClient.AddHeader("referer", noVipHost)
 	x.httpClient.AddHeader("upgrade-insecure-requests", "1") // 搜索会检测
 
@@ -414,22 +413,19 @@ func (x NoVipHandler) UpdateHeader(header map[string]string) error {
 	if header == nil {
 		return errors.New("header数据不能为空")
 	}
-	var tmpHttpClient = util.HttpClient{}
-	tmpHttpClient.SetHeaders(x.httpClient.GetHeaders())
 	for key, value := range header {
-		tmpHttpClient.AddHeader(key, value)
+		x.httpClient.AddHeader(key, value)
 	}
 
 	// 请求数据并检测Cookie是否可用
-	switch x.Search("我的", "1").(type) {
+	var resp = x.VideoList("movie", "1")
+	switch resp.(type) {
 	case model.Success:
 		// 如果可用则设置到当前上下文的http请求头
-		x.httpClient.SetHeaders(tmpHttpClient.GetHeaders())
-
-		_ = util.SaveHttpHeader(x.Name(), tmpHttpClient.GetHeaders())
-
+		_ = util.SaveHttpHeader(x.Name(), header)
 		return nil
 	default:
+		log.Println("[ERR]", goWebsocket.ToJson(resp))
 		return errors.New("cookie无效")
 	}
 }
