@@ -189,6 +189,12 @@ func (x NoVipHandler) _search(keyword, page string) interface{} {
 
 	pager.Page, _ = strconv.Atoi(doc.Find(".wp-pagenavi .current").Text())
 
+	if pager.Pages <= 0 && len(pager.List) > 0 {
+		pager.Page = 1
+		pager.Pages = 1
+		pager.Total = len(pager.List)
+	}
+
 	return model.NewSuccess(pager)
 }
 
