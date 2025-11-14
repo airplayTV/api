@@ -402,6 +402,7 @@ func (x CzzyHandler) parseEncryptedResultV3ToUrl(rand, player string) string {
 }
 
 func (x CzzyHandler) UpdateHeader(header map[string]string) error {
+	return nil
 	if header == nil {
 		return errors.New("header数据不能为空")
 	}
@@ -426,6 +427,7 @@ func (x CzzyHandler) UpdateHeader(header map[string]string) error {
 }
 
 func (x CzzyHandler) HoldCookie() error {
+	return nil
 	switch r := x.Search("我的", "1").(type) {
 	case model.Success:
 		return nil

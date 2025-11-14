@@ -343,6 +343,7 @@ func (x NaifeiMeHandler) fuckNotGmCrypto(uid, data string) (string, error) {
 }
 
 func (x NaifeiMeHandler) UpdateHeader(header map[string]string) error {
+	return nil
 	if header == nil {
 		return errors.New("header数据不能为空")
 	}
@@ -367,6 +368,7 @@ func (x NaifeiMeHandler) UpdateHeader(header map[string]string) error {
 }
 
 func (x NaifeiMeHandler) HoldCookie() error {
+	return nil
 	switch r := x.Search("我的", "1").(type) {
 	case model.Success:
 		return nil
