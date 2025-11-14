@@ -319,7 +319,7 @@ func (x VideoController) M3u8p(ctx *gin.Context) {
 		x.response(ctx, model.NewError("请求失败："+err.Error()))
 		return
 	}
-	buff, err = util.FormatM3u8Url(buff, util.Http2HttpsUrl(tmpUrl))
+	buff, err = util.FormatM3u8Url(buff, util.Http2HttpsUrl(tmpUrl), nil)
 	if err != nil {
 		x.response(ctx, model.NewError("文件处理异常："+err.Error()))
 		return

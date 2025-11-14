@@ -17,7 +17,7 @@ const (
 )
 
 // FormatM3u8Url m3u8地址格式化（修正地址问题）
-func FormatM3u8Url(data []byte, sourceUrl string) ([]byte, error) {
+func FormatM3u8Url(data []byte, sourceUrl string, cb func(string) string) ([]byte, error) {
 	host := ParseUrlHost(sourceUrl)
 	if host == "" {
 		return nil, errors.New("sourceUrl地址错误")
@@ -31,12 +31,18 @@ func FormatM3u8Url(data []byte, sourceUrl string) ([]byte, error) {
 		mediapl := playList.(*m3u8.MediaPlaylist)
 		if mediapl.Key != nil {
 			mediapl.Key.URI = fixUrlHost(mediapl.Key.URI, sourceUrl)
+			if cb != nil {
+				mediapl.Key.URI = cb(mediapl.Key.URI)
+			}
 		}
 		for idx, val := range mediapl.Segments {
 			if val == nil {
 				continue
 			}
 			mediapl.Segments[idx].URI = fixUrlHost(mediapl.Segments[idx].URI, sourceUrl)
+			if cb != nil {
+				mediapl.Segments[idx].URI = cb(mediapl.Segments[idx].URI)
+			}
 			// 导致播放文件中出现两次加密数据播放器解析失败
 			val.Key = nil
 
@@ -51,6 +57,9 @@ func FormatM3u8Url(data []byte, sourceUrl string) ([]byte, error) {
 				continue
 			}
 			masterpl.Variants[idx].URI = fixUrlHost(masterpl.Variants[idx].URI, sourceUrl)
+			if cb != nil {
+				masterpl.Variants[idx].URI = cb(masterpl.Variants[idx].URI)
+			}
 		}
 	}
 	return playList.Encode().Bytes(), nil
@@ -131,7 +140,7 @@ func ParsePlayUrlList(m3u8Url string) (urls []string, err error) {
 	var m3u8Buff []byte
 	switch parseM3u8FileType(buff) {
 	case m3u8.MEDIA:
-		m3u8Buff, err = FormatM3u8Url(buff, m3u8Url)
+		m3u8Buff, err = FormatM3u8Url(buff, m3u8Url, nil)
 		if err != nil {
 			return urls, err
 		}
@@ -143,7 +152,7 @@ func ParsePlayUrlList(m3u8Url string) (urls []string, err error) {
 			urls = urls[:maxLen]
 		}
 	case m3u8.MASTER:
-		m3u8Buff, err = FormatM3u8Url(buff, m3u8Url)
+		m3u8Buff, err = FormatM3u8Url(buff, m3u8Url, nil)
 		if err != nil {
 			return
 		}
