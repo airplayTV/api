@@ -348,6 +348,9 @@ func (x VideoController) resolveHttpClientCtx(tmpUrl string) util.HttpClient {
 	case "media.oss-internal.novipnoad.net":
 		httpClient.AddHeader(headers.Origin, "https://player.novipnoad.net")
 		httpClient.AddHeader(headers.UserAgent, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36")
+		if strings.Contains(tmpUrl, "media.oss-internal.novipnoad.net/ts/") {
+			httpClient.AddHeader(headers.Origin, "https://media.oss-internal.novipnoad.net")
+		}
 	}
 
 	return httpClient
