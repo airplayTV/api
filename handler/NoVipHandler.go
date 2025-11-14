@@ -428,7 +428,7 @@ func (x NoVipHandler) UpdateHeader(header map[string]string) error {
 	switch resp.(type) {
 	case model.Success:
 		// 如果可用则设置到当前上下文的http请求头
-		_ = util.SaveHttpHeader(x.Name(), header)
+		//_ = util.SaveHttpHeader(x.Name(), header)
 		return nil
 	default:
 		log.Println("[ERR]", goWebsocket.ToJson(resp))
