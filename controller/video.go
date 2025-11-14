@@ -234,6 +234,19 @@ func (x VideoController) Source(ctx *gin.Context) {
 	case model.Success:
 		resp = x.m3u8pHandler(p, resp)
 		_ = globalCache.Set(context.Background(), cacheKey, resp, store.WithExpiration(time.Hour*1))
+		go func(data interface{}) {
+			defer func() { _ = recover() }()
+			switch tmpSource := data.(type) {
+			case model.Source:
+				log.Println("[VideoSourceUrl]", goWebsocket.ToJson(map[string]interface{}{
+					"_source": ctx.Query("_source"),
+					"vid":     tmpSource.Vid,
+					"pid":     tmpSource.Id,
+					"name":    tmpSource.Name,
+					"source":  tmpSource.Source,
+				}))
+			}
+		}(resp.(model.Success).Data)
 	}
 	x.response(ctx, resp)
 }
