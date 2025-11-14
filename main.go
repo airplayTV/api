@@ -27,6 +27,7 @@ func init() {
 
 func main() {
 	go task.NewSourceStat().Run()
+	go task.NewHoldCookie().Run()
 
 	var app = gin.Default()
 	app.Use(gin.Recovery())
