@@ -74,6 +74,7 @@ func newRouterApi(app *gin.Engine) *gin.Engine {
 	app.GET("/api/m3u8/network-check", UseRecovery(videoController.CheckNetwork)) // 检测视频播放的网络
 	app.GET("/api/sse/video/search", UseRecovery(videoController.SearchV2))       // 视频搜索SSE
 	app.GET("/api/source/stat", UseRecovery(videoController.SourceStat))          // 源统计数据
+	app.Any("/api/debug", UseRecovery(homeController.Debug))
 
 	//app.GET("/api/debug/http-ctx", func(ctx *gin.Context) {
 	//	ctx.JSON(http.StatusOK, model.NewSuccess(map[string]interface{}{
