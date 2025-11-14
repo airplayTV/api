@@ -222,6 +222,34 @@ func (x *HttpClient) Head(requestUrl string) (http.Header, error) {
 	return resp.Header, nil
 }
 
+func (x *HttpClient) Location(requestUrl string) (lo string, err error) {
+	req, err := http.NewRequest("GET", requestUrl, nil)
+	if err != nil {
+		return
+	}
+
+	x.addHeaderParams(req)
+
+	var checkRedirect = func(req *http.Request, via []*http.Request) error {
+		// 返回此错误使客户端停止在重定向处
+		return http.ErrUseLastResponse
+	}
+	resp, err := (&http.Client{CheckRedirect: checkRedirect}).Do(req)
+	if err != nil {
+		return
+	}
+	defer func() { _ = resp.Body.Close() }()
+
+	//log.Println("[resp.Header]", goWebsocket.ToJson(resp.Header))
+
+	lo = strings.TrimSpace(resp.Header.Get("Location"))
+	if len(lo) <= 0 {
+		err = errors.New("没有重定向地址")
+		return
+	}
+	return
+}
+
 func (x *HttpClient) Clone() HttpClient {
 	return HttpClient{headers: x.GetHeaders()}
 }
