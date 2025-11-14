@@ -319,7 +319,7 @@ func (x VideoController) M3u8p(ctx *gin.Context) {
 		x.response(ctx, model.NewError("请求失败："+err.Error()))
 		return
 	}
-	buff, err = util.FormatM3u8Url(buff, util.Http2HttpsUrl(tmpUrl), nil)
+	buff, err = util.FormatM3u8Url(buff, util.Http2HttpsUrl(tmpUrl), x.resolveUrlRedirect)
 	if err != nil {
 		x.response(ctx, model.NewError("文件处理异常："+err.Error()))
 		return
@@ -351,6 +351,43 @@ func (x VideoController) resolveHttpClientCtx(tmpUrl string) util.HttpClient {
 	}
 
 	return httpClient
+}
+
+func (x VideoController) resolveUrlRedirect(tmpUrl string) string {
+	switch util.ParseHost(tmpUrl) {
+	case "media.oss-internal.novipnoad.net":
+		tmpUrl = fmt.Sprintf("%s?url=%s", handler.ApiRedirectUrl, util.EncodeComponentUrl(tmpUrl))
+	}
+	return tmpUrl
+}
+
+func (x VideoController) ProxyRedirect(ctx *gin.Context) {
+	x.LogVisitor(ctx.ClientIP())
+
+	var tmpUrl = util.DecodeComponentUrl(ctx.Query("url"))
+	parsed, err := url.Parse(tmpUrl)
+	if err != nil {
+		x.response(ctx, model.NewError("URL地址错误"))
+		return
+	}
+	if len(parsed.Host) == 0 {
+		x.response(ctx, model.NewError("URL地址错误"))
+		return
+	}
+
+	log.Println("[tmpUrl]", tmpUrl)
+
+	var httpClient = x.resolveHttpClientCtx(tmpUrl)
+	location, err := httpClient.Location(tmpUrl)
+	if err != nil {
+		x.response(ctx, model.NewError(err.Error()))
+		return
+	}
+
+	log.Println("[location]", location)
+
+	ctx.Redirect(307, location)
+	return
 }
 
 func (x VideoController) SetCookie(ctx *gin.Context) {
