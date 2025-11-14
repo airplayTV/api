@@ -49,7 +49,7 @@ func (x HoldCookie) taskHandler() {
 		if err := h.Handler.HoldCookie(); err != nil {
 			log.Println("[HoldCookieError]", h.Handler.Name(), err.Error())
 		} else {
-			log.Println("[HoldCookieSuccess]", h.Handler.Name())
+			log.Println("[HoldCookieOk]", h.Handler.Name())
 		}
 	}
 

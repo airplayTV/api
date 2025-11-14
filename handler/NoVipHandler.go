@@ -431,7 +431,8 @@ func (x NoVipHandler) UpdateHeader(header map[string]string) error {
 }
 
 func (x NoVipHandler) HoldCookie() error {
-	switch r := x.Search("我的", "1").(type) {
+	var resp = x.VideoList("movie", "1")
+	switch r := resp.(type) {
 	case model.Success:
 		return nil
 	case model.Error:
