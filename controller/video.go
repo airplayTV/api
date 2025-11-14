@@ -378,7 +378,7 @@ func (x VideoController) ProxyRedirect(ctx *gin.Context) {
 		return
 	}
 
-	log.Println("[tmpUrl]", tmpUrl)
+	ctx.Header("X-Source-Url", tmpUrl)
 
 	var httpClient = x.resolveHttpClientCtx(tmpUrl)
 	location, err := httpClient.Location(tmpUrl)
