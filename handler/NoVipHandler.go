@@ -218,8 +218,9 @@ func (x NoVipHandler) _detail(id string) interface{} {
 		})
 	})
 	if len(video.Links) <= 0 {
+		playJson, _ := x.parsePlayInfo(string(buff))
 		video.Links = append(video.Links, model.Link{
-			Id:    "E0",
+			Id:    playJson.Get("vid").String(),
 			Name:  "HD",
 			Url:   "",
 			Group: "资源1",
@@ -246,6 +247,23 @@ func (x NoVipHandler) _detail(id string) interface{} {
 	return model.NewSuccess(video)
 }
 
+func (x NoVipHandler) parsePlayInfo(htmlContent string) (resp gjson.Result, err error) {
+	var playJsonText = x.simpleRegEx(htmlContent, `window\.playInfo=(\S+?);`)
+	if len(playJsonText) <= 0 {
+		err = errors.New("没有播放信息")
+		return
+	}
+	playJsonText = strings.ReplaceAll(playJsonText, `vid:`, `"vid":`)
+	playJsonText = strings.ReplaceAll(playJsonText, `pkey:`, `"pkey":`)
+	resp = gjson.Parse(playJsonText)
+	if !resp.Get("pkey").Exists() {
+		//return model.NewError("解析失败：没有pkey2")
+		err = errors.New("没有pkey")
+		return
+	}
+	return resp, nil
+}
+
 func (x NoVipHandler) _source(pid, vid string) interface{} {
 	var source = model.Source{Id: pid, Vid: vid}
 
@@ -259,21 +277,18 @@ func (x NoVipHandler) _source(pid, vid string) interface{} {
 		return model.NewError("获取数据失败：" + err.Error())
 	}
 	var ref = strings.ReplaceAll(doc.Find("#cancel-comment-reply-link").AttrOr("href", ""), "#respond", "")
-	//log.Println("[ref]", ref)
 
 	source.Name = doc.Find(".entry-title").Text()
 
-	var pKey = x.simpleRegEx(string(buff), `{pkey:"(\S+?)"};`)
-	if len(pKey) <= 0 {
-		return model.NewError("解析失败：没有pkey")
-	}
-	//log.Println("[pKey]", pKey)
-
-	buff, err = x.httpClient.Get(fmt.Sprintf("https://player.novipnoad.net/v1/?url=%s&pkey=%s&ref=%s", pid, pKey, ref))
+	playJson, err := x.parsePlayInfo(string(buff))
 	if err != nil {
 		return model.NewError("解析失败：" + err.Error())
 	}
-	//_ = util.WriteFile("D:\\repo\\github.com\\airplayTV\\api\\_debug\\ddddddddd-iframe.html", buff)
+
+	buff, err = x.httpClient.Get(fmt.Sprintf("https://player.novipnoad.net/v1/?url=%s&pkey=%s&ref=%s", pid, playJson.Get("pkey").String(), ref))
+	if err != nil {
+		return model.NewError("解析失败：" + err.Error())
+	}
 
 	var device = x.simpleRegEx(string(buff), `params\['device'\] = '(\S+?)';`)
 	if len(device) <= 0 {
@@ -291,15 +306,27 @@ func (x NoVipHandler) _source(pid, vid string) interface{} {
 		return model.NewError("解析失败：vkey异常")
 	}
 
+	buff, err = x.httpClient.Get(fmt.Sprintf("https://player.novipnoad.net/v1/player.php?id=%s&device=%s", pid, device))
+	if err != nil {
+		return model.NewError("解析失败：" + err.Error())
+	}
+
+	// const jsapi = 'https://enc-vod.oss-internal.novipnoad.net/ftn/1762780536.js';
+	var tmpJsApi = strings.TrimSpace(x.simpleRegEx(string(buff), `jsapi = '(\S+)';`))
+	if len(tmpJsApi) <= 0 {
+		return model.NewError("解析失败：没有jsapi")
+	}
+
 	buff, err = x.httpClient.Get(fmt.Sprintf(
-		"https://enc-vod.oss-internal.novipnoad.net/ftn/1748101977.js?ckey=%s&ref=%s&ip=%s&time=%s",
+		"%s?ckey=%s&ref=%s&ip=%s&time=%s",
+		tmpJsApi,
 		strings.ToUpper(matchedVKeyValues[1]),
 		url.QueryEscape(matchedVKeyValues[2]),
 		matchedVKeyValues[3],
 		matchedVKeyValues[4],
 	))
 	if err != nil {
-		return model.NewError("解析失败2：" + err.Error())
+		return model.NewError("解析失败：" + err.Error())
 	}
 
 	var encryptedRC4 = x.simpleRegEx(string(buff), `videoUrl=JSON.decrypt\("(\S+?)"\);`)
@@ -310,7 +337,7 @@ func (x NoVipHandler) _source(pid, vid string) interface{} {
 	//log.Println("[decryptNoVipVideoUrl]", encryptedRC4)
 	var decryptJson = gjson.Parse(encryptedRC4)
 	if !decryptJson.Get("quality").IsArray() {
-		return model.NewError("解析失败3：" + encryptedRC4)
+		return model.NewError("解析失败：" + encryptedRC4)
 	}
 
 	source.Source = decryptJson.Get("quality").Array()[0].Get("url").String()
