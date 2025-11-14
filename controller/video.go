@@ -314,6 +314,9 @@ func (x VideoController) M3u8p(ctx *gin.Context) {
 	ctx.Header("X-Source-Url", tmpUrl)
 
 	var httpClient = util.HttpClient{}
+	httpClient.AddHeader(headers.Origin, util.ParseUrlHost(tmpUrl))
+	httpClient.AddHeader(headers.UserAgent, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36")
+
 	header, buff, err := httpClient.GetResponse(util.Http2HttpsUrl(tmpUrl))
 	if err != nil {
 		x.response(ctx, model.NewError("请求失败："+err.Error()))
