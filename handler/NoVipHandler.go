@@ -424,7 +424,7 @@ func (x NoVipHandler) UpdateHeader(header map[string]string) error {
 	}
 
 	// 请求数据并检测Cookie是否可用
-	var resp = x.VideoList("movie", "1")
+	var resp = x._videoList("movie", "1")
 	switch resp.(type) {
 	case model.Success:
 		// 如果可用则设置到当前上下文的http请求头
@@ -437,7 +437,7 @@ func (x NoVipHandler) UpdateHeader(header map[string]string) error {
 }
 
 func (x NoVipHandler) HoldCookie() error {
-	var resp = x.VideoList("movie", "1")
+	var resp = x._videoList("movie", "1")
 	switch r := resp.(type) {
 	case model.Success:
 		return nil
