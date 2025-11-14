@@ -313,10 +313,7 @@ func (x VideoController) M3u8p(ctx *gin.Context) {
 
 	ctx.Header("X-Source-Url", tmpUrl)
 
-	var httpClient = util.HttpClient{}
-	httpClient.AddHeader(headers.Origin, util.ParseUrlHost(tmpUrl))
-	httpClient.AddHeader(headers.UserAgent, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36")
-
+	var httpClient = x.resolveHttpClientCtx(tmpUrl)
 	header, buff, err := httpClient.GetResponse(util.Http2HttpsUrl(tmpUrl))
 	if err != nil {
 		x.response(ctx, model.NewError("请求失败："+err.Error()))
@@ -342,6 +339,18 @@ func (x VideoController) M3u8p(ctx *gin.Context) {
 	ctx.Header(headers.CacheControl, "no-cache, no-store")
 
 	ctx.DataFromReader(http.StatusOK, -1, header.Get(headers.ContentType), bytes.NewReader(buff), nil)
+}
+
+func (x VideoController) resolveHttpClientCtx(tmpUrl string) util.HttpClient {
+	var httpClient = util.HttpClient{}
+	//log.Println("[util.ParseHost(tmpUrl)]", util.ParseHost(tmpUrl))
+	switch util.ParseHost(tmpUrl) {
+	case "media.oss-internal.novipnoad.net":
+		httpClient.AddHeader(headers.Origin, "https://player.novipnoad.net")
+		httpClient.AddHeader(headers.UserAgent, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36")
+	}
+
+	return httpClient
 }
 
 func (x VideoController) SetCookie(ctx *gin.Context) {

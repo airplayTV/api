@@ -5,6 +5,17 @@ import (
 	"net/url"
 )
 
+func ParseHost(tmpUrl string) (host string) {
+	tmpUrl2, err := url.Parse(tmpUrl)
+	if err != nil {
+		return
+	}
+	if tmpUrl2.Host == "" {
+		return
+	}
+	return tmpUrl2.Host
+}
+
 func ParseUrlHost(tmpUrl string) (host string) {
 	tmpUrl2, err := url.Parse(tmpUrl)
 	if err != nil {
