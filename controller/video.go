@@ -388,7 +388,7 @@ func (x VideoController) ProxyRedirect(ctx *gin.Context) {
 		return
 	}
 
-	log.Println("[location]", location)
+	//log.Println("[location]", location)
 
 	ctx.Redirect(307, location)
 	return
