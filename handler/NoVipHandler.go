@@ -2,7 +2,6 @@ package handler
 
 import (
 	"encoding/base64"
-	"encoding/hex"
 	"errors"
 	"fmt"
 	"github.com/dop251/goja"
@@ -10,7 +9,6 @@ import (
 	"log"
 	"net/url"
 	"regexp"
-	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -120,14 +118,11 @@ func (x NoVipHandler) _videoList(tagName, page string) interface{} {
 	var pager = model.Pager{Limit: 16, Page: x.parsePageNumber(page), List: make([]model.Video, 0)}
 
 	doc.Find(".video-listing-content .video-item").Each(func(i int, selection *goquery.Selection) {
-		name := selection.Find(".item-head").Text()
-		tmpUrl, _ := selection.Find(".item-thumbnail a").Attr("href")
-		thumb, _ := selection.Find("item-thumbnail img").Attr("data-original")
-
+		var tmpUrl = selection.Find(".item-thumbnail a").AttrOr("href", "")
 		pager.List = append(pager.List, model.Video{
 			Id:    x.simpleRegEx(tmpUrl, `(\d+).html`),
-			Name:  name,
-			Thumb: thumb,
+			Name:  selection.Find(".item-head").Text(),
+			Thumb: selection.Find(".item-thumbnail img").AttrOr("data-original", ""),
 			Url:   tmpUrl,
 		})
 	})
@@ -330,126 +325,6 @@ func (x NoVipHandler) _source(pid, vid string) interface{} {
 	return model.NewSuccess(source)
 }
 
-func (x NoVipHandler) _findEncryptedLine(htmlContent string) string {
-	var findLine = ""
-	tmpList := strings.Split(htmlContent, "\n")
-	for _, line := range tmpList {
-		if strings.Contains(line, "md5.AES.decrypt") {
-			findLine = line
-			break
-		}
-	}
-	return findLine
-}
-
-const NoVipVkeyBaseChars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ+/"
-
-func (x NoVipHandler) baseConvert(numberStr string, fromBase, toBase int) string {
-	if fromBase < 2 || fromBase > len(NoVipVkeyBaseChars) || toBase < 2 || toBase > len(NoVipVkeyBaseChars) {
-		return "0"
-	}
-
-	var fromChars = NoVipVkeyBaseChars[:fromBase]
-	var toChars = NoVipVkeyBaseChars[:toBase]
-
-	// 将输入字符串从源进制转换为十进制
-	var decimalValue = 0
-	for i := 0; i < len(numberStr); i++ {
-		char := numberStr[i]
-		var digitValue = strings.Index(fromChars, string(char))
-		if digitValue == -1 {
-			continue
-		}
-		var power = len(numberStr) - 1 - i
-		var multiplier = 1
-		for j := 0; j < power; j++ {
-			multiplier *= fromBase
-		}
-		decimalValue += digitValue * multiplier
-	}
-
-	// 处理零值情况
-	if decimalValue == 0 {
-		return "0"
-	}
-
-	// 将十进制值转换为目标进制
-	var result = ""
-	var tempValue = decimalValue
-	for tempValue > 0 {
-		remainder := tempValue % toBase
-		result = string(toChars[remainder]) + result
-		tempValue = tempValue / toBase
-	}
-
-	return result
-}
-
-func (x NoVipHandler) parseVKeySession(encodedStr string, param1, param2, delimiterIndex int, replaceChars string, offset int) string {
-	var chunkSize = param1 >> 1
-	_ = chunkSize
-
-	var decoded = ""
-	var i = 0
-	for i < len(encodedStr) {
-		var chunk = ""
-		// 收集直到遇到分隔符的字符
-		for i < len(encodedStr) && encodedStr[i] != replaceChars[delimiterIndex] {
-			chunk += string(encodedStr[i])
-			i++
-		}
-
-		// 跳过空块
-		if chunk == "" {
-			i++
-			continue
-		}
-
-		// 将字符替换为对应的数字
-		for j := 0; j < len(replaceChars); j++ {
-			oldChar := string(replaceChars[j])
-			newChar := strconv.Itoa(j)
-			chunk = strings.ReplaceAll(chunk, oldChar, newChar)
-		}
-
-		// 转换进制并获取字符代码
-		var converted = x.baseConvert(chunk, delimiterIndex, 12)
-		//charCode, err := strconv.Atoi(converted)
-		//if err != nil {
-		//	log.Printf("转换错误: %v, 原始字符串: %s", err, chunk)
-		//	i++
-		//	continue
-		//}
-
-		var charCode = cast.ToInt(converted) - offset
-
-		//charCode -= offset
-		// 确保字符代码在有效范围内
-		if charCode >= 0 && charCode <= 1114111 { // Unicode最大码点
-			decoded += string(rune(charCode))
-		} else {
-			log.Printf("无效字符代码: %d", charCode)
-		}
-		i++ // 跳过分隔符
-	}
-
-	// 改进的URL解码逻辑
-	if decoded == "" {
-		return ""
-	}
-
-	// 处理可能的URL编码
-	decoded = strings.ReplaceAll(decoded, "+", " ")
-
-	// 使用Go标准库进行URL解码
-	finalDecoded, err := url.QueryUnescape(decoded)
-	if err != nil {
-		log.Printf("URL解码错误: %v, 使用原始字符串", err)
-		return decoded
-	}
-	return finalDecoded
-}
-
 func (x NoVipHandler) fuckVKey(vKeyHandler string) string {
 	vKeyHandler = strings.Replace(vKeyHandler, "eval(function", "return (function", 1)
 	vKeyHandler = fmt.Sprintf(`function __() { %s; }`, vKeyHandler)
@@ -509,101 +384,6 @@ func (x NoVipHandler) decryptNoVipVideoUrl(encodedText string) string {
 		result[idx] = decodedBytes[idx] ^ keyByte
 	}
 	return string(result)
-}
-
-func (x NoVipHandler) _parseVideoSource(id, js string) (model.Source, error) {
-	var source = model.Source{}
-	tmpList := strings.Split(strings.TrimSpace(js), ";")
-
-	var data = ""
-	var key = ""
-	var iv = ""
-	for index, str := range tmpList {
-		if index == 0 {
-			regex := regexp.MustCompile(`"\S+"`)
-			data = strings.Trim(regex.FindString(str), `"`)
-			continue
-		}
-		if index == 1 {
-			regex := regexp.MustCompile(`"(\S+)"`)
-			matchList := regex.FindStringSubmatch(str)
-			if len(matchList) > 0 {
-				key = matchList[len(matchList)-1]
-			}
-			continue
-		}
-		if index == 2 {
-			regex := regexp.MustCompile(`\((\S+)\)`)
-			matchList := regex.FindStringSubmatch(str)
-			if len(matchList) > 0 {
-				iv = matchList[len(matchList)-1]
-			}
-			continue
-		}
-	}
-
-	log.Println(fmt.Sprintf("[parsing] key: %s, iv: %s", key, iv))
-
-	if key == "" && data == "" {
-		return source, errors.New("解析失败")
-	}
-	bs, err := util.DecryptByAes([]byte(key), []byte(iv), data)
-	if err != nil {
-		return source, errors.New("解密失败")
-	}
-	//log.Println("[解析数据]", string(bs))
-	source.Source = x.simpleRegEx(string(bs), `video: {url: "(\S+?)",`)
-	source.Type = x.simpleRegEx(string(bs), `,type:"(\S+?)",`)
-	if len(source.Source) == 0 {
-		return source, errors.New("解析失败")
-	}
-
-	return source, nil
-}
-
-func (x NoVipHandler) getIframeContent(iframeUrl string) (string, error) {
-	x.httpClient.AddHeader("referer", czzyHost)
-	x.httpClient.AddHeader("sec-fetch-dest", "iframe")
-	x.httpClient.AddHeader("sec-fetch-mode", "navigate")
-	buff, err := x.httpClient.Get(iframeUrl)
-	if err != nil {
-		return "", err
-	}
-	return string(buff), nil
-}
-
-func (x NoVipHandler) parseEncryptedResultV2ToUrl(resultV2 string) string {
-	// htoStr
-	var chars = strings.Split(resultV2, "")
-	slices.Reverse(chars)
-	var sb = strings.Builder{}
-	var tmpStr = ""
-	var buf []byte
-	var err error
-	for i := 0; i < len(chars); i += 2 {
-		tmpStr = chars[i] + chars[i+1]
-		buf, err = hex.DecodeString(tmpStr)
-		if err != nil {
-			log.Println("[decodeHexError]", err.Error())
-			break
-		}
-		sb.Write(buf)
-	}
-	// decodeStr
-	var tmpUrl = sb.String()
-	var tmpA = (len(tmpUrl) - 7) / 2
-	return fmt.Sprintf("%s%s", tmpUrl[0:tmpA], tmpUrl[tmpA+7:])
-}
-
-func (x NoVipHandler) parseEncryptedResultV3ToUrl(rand, player string) string {
-	buff, err := util.DecryptByAes([]byte("VFBTzdujpR9FWBhe"), []byte(rand), player)
-	if err != nil {
-		log.Println("[DecryptAesError]", err.Error())
-		return ""
-	} else {
-		var result = gjson.ParseBytes(buff)
-		return result.Get("url").String()
-	}
 }
 
 func (x NoVipHandler) UpdateHeader(header map[string]string) error {
