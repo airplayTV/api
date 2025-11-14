@@ -23,7 +23,7 @@ func (x HoldCookie) Run() {
 		}
 	}()
 
-	var ticker = time.NewTicker(time.Minute * 5)
+	var ticker = time.NewTicker(time.Minute * 4)
 	x.taskHandler()
 	for {
 		select {
