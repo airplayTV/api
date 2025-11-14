@@ -34,7 +34,7 @@ func (x NoVipHandler) Init(options interface{}) model.IVideo {
 	x.httpClient.AddHeader(headers.UserAgent, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36")
 	x.httpClient.AddHeader("cookie", "cf_clearance=NXLYYpe57DrVJO.6VUvA4oQj4ua.imSs0FmOQYD9Wvg-1763042955-1.2.1.1-ue8EpFp80HFHhOgixwHc8vCR_djsoav8YECw6oc4dNbvqOs8yaeba.w1ayKzbF_HlvE_fOKDjyxtGPuQVJXbZK5WUJL_PDOR8kkEOLgxG3il5xtzL3L5Bf7TtDzyMosD3GjLU3DuVhGK3zaVRjSkEeiAmsGpvkXzqpy8Dr35M.YO1QjqvhovL0Lfpuns0JkN8CTrQdUFXSPqThSB1lgEK2caW4wqWd0jtDeHbz6pn6s")
 	x.httpClient.AddHeader("referer", noVipHost)
-	//x.httpClient.AddHeader("upgrade-insecure-requests", "1")
+	x.httpClient.AddHeader("upgrade-insecure-requests", "1") // 搜索会检测
 
 	x.option = options.(model.CmsZyOption)
 
@@ -164,14 +164,11 @@ func (x NoVipHandler) _search(keyword, page string) interface{} {
 	}
 
 	doc.Find(".search-listing-content .video-item").Each(func(i int, selection *goquery.Selection) {
-		name := selection.Find(".item-head").Text()
-		tmpUrl, _ := selection.Find(".item-thumbnail a").Attr("href")
-		thumb, _ := selection.Find("item-thumbnail img").Attr("data-original")
-
+		var tmpUrl = selection.Find(".item-thumbnail a").AttrOr("href", "")
 		pager.List = append(pager.List, model.Video{
 			Id:    x.simpleRegEx(tmpUrl, `(\d+).html`),
-			Name:  name,
-			Thumb: thumb,
+			Name:  selection.Find(".item-head").Text(),
+			Thumb: selection.Find(".item-thumbnail img").AttrOr("data-original", ""),
 			Url:   tmpUrl,
 		})
 	})
