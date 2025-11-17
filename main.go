@@ -37,8 +37,8 @@ func main() {
 	var port = portUse(8082)
 	var app = gin.Default()
 	app.Use(gin.Recovery())
-	//app = newRouterWeb(app) // start frontend
 	app = newRouterApi(app) // start api
+	//app = newRouterWeb(app) // start frontend
 	//go serveHtml(port)
 	if err := app.Run(fmt.Sprintf(":%d", port)); err != nil {
 		log.Fatalln(err)
