@@ -37,8 +37,8 @@ func main() {
 	var app = gin.Default()
 	app.Use(gin.Recovery())
 	app = newRouterApi(app) // start api
-	app = newRouterWeb(app) // start frontend
-	go serveHtml(p)
+	//app = newRouterWeb(app) // start frontend
+	//go serveHtml(p)
 	if err := app.Run(fmt.Sprintf(":%d", p)); err != nil {
 		log.Fatalln(err)
 	}
