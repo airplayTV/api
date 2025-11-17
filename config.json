@@ -102,8 +102,9 @@
       "name": "黄瓜资源",
       "host": "https://avre.club/",
       "api": "https://www.avre06.com/api.php/provide/vod/",
+      "disable": true,
       "searchable": true,
-      "description": ""
+      "description": "失效"
     },
     {
       "id": "fhzy",
@@ -318,9 +319,9 @@
       "name": "草榴资源",
       "host": "https://caoliuzyw.com/",
       "api": "https://www.caoliuzyw.com/api.php/provide/vod/",
-      "disable": false,
+      "disable": true,
       "searchable": false,
-      "description": ""
+      "description": "失效"
     },
     {
       "id": "apilsbzy1",
@@ -351,8 +352,9 @@
       "name": "快播资源",
       "host": "https://gayapi.com",
       "api": "https://gayapi.com/api.php/provide/vod/at/json",
+      "disable": true,
       "searchable": false,
-      "description": "18+"
+      "description": "18+，失效"
     },
     {
       "id": "apidanaizi",
@@ -489,8 +491,9 @@
       "name": "魔爪资源",
       "host": "https://mzzy.me/",
       "api": "https://mozhuazy.com/api.php/provide/vod/",
+      "disable": true,
       "searchable": true,
-      "description": ""
+      "description": "被重定向到 极速资源"
     },
     {
       "id": "taopianapi",
@@ -564,6 +567,30 @@
       "host": "https://api.fczy888.me/",
       "api": "https://api.fczy888.me/api.php/provide/vod/at/json",
       "searchable": true,
+      "description": ""
+    },
+    {
+      "id": "souavzy",
+      "name": "搜av资源",
+      "host": "https://souavzy.com/",
+      "api": "https://api.souavzy.vip/api.php/provide/vod/at/json",
+      "searchable": true,
+      "description": ""
+    },
+    {
+      "id": "siwazyw",
+      "name": "丝袜资源",
+      "host": "https://siwazyw.tv/",
+      "api": "https://siwazyw.tv/api.php/provide/vod/at/json/",
+      "searchable": false,
+      "description": ""
+    },
+    {
+      "id": "jkun资源",
+      "name": "丝袜资源",
+      "host": "https://jkunzy.com/",
+      "api": "https://jkunzyapi.com/api.php/provide/vod",
+      "searchable": false,
       "description": ""
     }
   ],
