@@ -37,9 +37,9 @@ func main() {
 	var port = portUse(8082)
 	var app = gin.Default()
 	app.Use(gin.Recovery())
-	app = newRouterWeb(app) // start frontend
+	//app = newRouterWeb(app) // start frontend
 	app = newRouterApi(app) // start api
-	go serveHtml(port)
+	//go serveHtml(port)
 	if err := app.Run(fmt.Sprintf(":%d", port)); err != nil {
 		log.Fatalln(err)
 	}
@@ -69,7 +69,7 @@ func newRouterApi(app *gin.Engine) *gin.Engine {
 	})
 
 	// api接口
-	//app.GET("/", UseRecovery(homeController.Index)) // 来源
+	app.GET("/", UseRecovery(homeController.Index))                       // 来源
 	app.GET("/api/video/provider", UseRecovery(videoController.Provider)) // 来源
 	app.GET("/api/video/search", UseRecovery(videoController.Search))     // 视频搜索
 	app.GET("/api/video/list", UseRecovery(videoController.VideoList))    // 视频列表（根据来源-TAG确定）
