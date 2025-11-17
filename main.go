@@ -11,8 +11,13 @@ import (
 	"github.com/lixiang4u/goWebsocket"
 	"gopkg.in/natefinch/lumberjack.v2"
 	"log"
+	"net"
 	"net/http"
+	"os/exec"
 	"path/filepath"
+	"runtime"
+	"strings"
+	"time"
 )
 
 func init() {
@@ -29,9 +34,13 @@ func main() {
 	go task.NewSourceStat().Run()
 	go task.NewHoldCookie().Run()
 
+	var port = portUse(8082)
 	var app = gin.Default()
 	app.Use(gin.Recovery())
-	if err := newRouterApi(app).Run(":8082"); err != nil {
+	app = newRouterWeb(app) // start frontend
+	app = newRouterApi(app) // start api
+	go serveHtml(port)
+	if err := app.Run(fmt.Sprintf(":%d", port)); err != nil {
 		log.Fatalln(err)
 	}
 }
@@ -60,7 +69,7 @@ func newRouterApi(app *gin.Engine) *gin.Engine {
 	})
 
 	// api接口
-	app.GET("/", UseRecovery(homeController.Index))                       // 来源
+	//app.GET("/", UseRecovery(homeController.Index)) // 来源
 	app.GET("/api/video/provider", UseRecovery(videoController.Provider)) // 来源
 	app.GET("/api/video/search", UseRecovery(videoController.Search))     // 视频搜索
 	app.GET("/api/video/list", UseRecovery(videoController.VideoList))    // 视频列表（根据来源-TAG确定）
@@ -106,5 +115,35 @@ func UseRecovery(h func(ctx *gin.Context)) func(ctx *gin.Context) {
 			}
 		}()
 		h(ctx)
+	}
+}
+
+func portUse(port int) int {
+	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
+	if err != nil {
+		return portUse(port + 1)
+	}
+	defer func() { _ = listener.Close() }()
+	return port
+}
+
+func newRouterWeb(app *gin.Engine) *gin.Engine {
+	app.StaticFS("assets/", gin.Dir(filepath.Join(util.AppPath(), "dist/assets/"), true))
+	app.NoRoute(func(ctx *gin.Context) {
+		ctx.File("./dist/index.html")
+	})
+	return app
+}
+
+func serveHtml(port int) {
+	time.Sleep(time.Second * 1 / 2)
+	var osName = strings.ToLower(runtime.GOOS)
+	switch osName {
+	case "windows":
+		cmd := exec.Command("cmd", "/c", "start", fmt.Sprintf("http://127.0.0.1:%d", port))
+		_ = cmd.Run()
+	case "darwin":
+		cmd := exec.Command("open", fmt.Sprintf("http://127.0.0.1:%d", port))
+		_ = cmd.Run()
 	}
 }
