@@ -11,7 +11,6 @@ import (
 	"github.com/lixiang4u/goWebsocket"
 	"gopkg.in/natefinch/lumberjack.v2"
 	"log"
-	"net"
 	"net/http"
 	"os/exec"
 	"path/filepath"
@@ -34,13 +33,13 @@ func main() {
 	go task.NewSourceStat().Run()
 	go task.NewHoldCookie().Run()
 
-	var port = portUse(8082)
+	var p = 8082
 	var app = gin.Default()
 	app.Use(gin.Recovery())
 	app = newRouterApi(app) // start api
-	//app = newRouterWeb(app) // start frontend
-	//go serveHtml(port)
-	if err := app.Run(fmt.Sprintf(":%d", port)); err != nil {
+	app = newRouterWeb(app) // start frontend
+	go serveHtml(p)
+	if err := app.Run(fmt.Sprintf(":%d", p)); err != nil {
 		log.Fatalln(err)
 	}
 }
@@ -116,15 +115,6 @@ func UseRecovery(h func(ctx *gin.Context)) func(ctx *gin.Context) {
 		}()
 		h(ctx)
 	}
-}
-
-func portUse(port int) int {
-	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
-	if err != nil {
-		return portUse(port + 1)
-	}
-	defer func() { _ = listener.Close() }()
-	return port
 }
 
 func newRouterWeb(app *gin.Engine) *gin.Engine {
