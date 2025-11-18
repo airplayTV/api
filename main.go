@@ -53,7 +53,7 @@ func runHttpsWebServer() {
 	var domain = util.ParseHost(model.ApiHost())
 	cert, key, err := util.MakeDomainCertificate(domain)
 	if err != nil {
-		util.ExitMsg("证书生成失败")
+		util.ExitMsg(fmt.Sprintf("证书生成失败：%s", err.Error()))
 	}
 	_ = util.UpdateHosts(fmt.Sprintf("127.0.0.1	%s", domain))
 
