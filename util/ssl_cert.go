@@ -6,6 +6,7 @@ import (
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/pem"
+	"fmt"
 	"math/big"
 	"os"
 	"path/filepath"
@@ -47,8 +48,8 @@ func MakeDomainCertificate(domain string) (cert, key string, err error) {
 		return //创建自签名证书失败
 	}
 
-	cert = filepath.Join(AppPath(), "certs/%s.cert.pem", domain) // 同 ca.crt 文件
-	key = filepath.Join(AppPath(), "certs/%s.key.pem", domain)   // 同 ca.key 文件
+	cert = filepath.Join(AppPath(), fmt.Sprintf("certs/%s.cert.pem", domain)) // 同 ca.crt 文件
+	key = filepath.Join(AppPath(), fmt.Sprintf("certs/%s.key.pem", domain))   // 同 ca.key 文件
 
 	_ = MkdirAll(cert)
 	_ = MkdirAll(key)
