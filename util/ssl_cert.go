@@ -14,6 +14,15 @@ import (
 )
 
 func MakeDomainCertificate(domain string) (cert, key string, err error) {
+	_ = MkdirAll(filepath.Join(AppPath(), "certs"))
+	cert = filepath.Join(AppPath(), fmt.Sprintf("certs/%s.cert.pem", domain)) // 同 ca.crt 文件
+	key = filepath.Join(AppPath(), fmt.Sprintf("certs/%s.key.pem", domain))   // 同 ca.key 文件
+	_, certErr := os.Stat(cert)
+	_, keyErr := os.Stat(key)
+	if certErr == nil && keyErr == nil {
+		return
+	}
+
 	privateKey, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {
 		return //生成RSA密钥出错
@@ -47,10 +56,6 @@ func MakeDomainCertificate(domain string) (cert, key string, err error) {
 	if err != nil {
 		return //创建自签名证书失败
 	}
-
-	_ = MkdirAll(filepath.Join(AppPath(), "certs"))
-	cert = filepath.Join(AppPath(), fmt.Sprintf("certs/%s.cert.pem", domain)) // 同 ca.crt 文件
-	key = filepath.Join(AppPath(), fmt.Sprintf("certs/%s.key.pem", domain))   // 同 ca.key 文件
 
 	// 将证书写入PEM文件
 	certOut, err := os.Create(cert)
