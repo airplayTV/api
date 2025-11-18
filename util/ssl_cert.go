@@ -44,7 +44,7 @@ func MakeDomainCertificate(domain string) (cert, key string, err error) {
 			Province:     []string{"USA"},
 		},
 		NotBefore:             time.Now(),
-		NotAfter:              time.Now().AddDate(1, 0, 0), // 1年有效期
+		NotAfter:              time.Now().AddDate(10, 0, 0), // 1年有效期
 		KeyUsage:              x509.KeyUsageKeyEncipherment | x509.KeyUsageDigitalSignature | x509.KeyUsageCertSign,
 		ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth, x509.ExtKeyUsageClientAuth},
 		BasicConstraintsValid: true,
