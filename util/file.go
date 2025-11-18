@@ -35,3 +35,7 @@ func WriteFile(filename string, data []byte) error {
 	}
 	return nil
 }
+
+func MkdirAll(filename string) error {
+	return os.MkdirAll(filepath.Dir(filename), 0644)
+}
