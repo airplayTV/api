@@ -48,11 +48,9 @@ func MakeDomainCertificate(domain string) (cert, key string, err error) {
 		return //创建自签名证书失败
 	}
 
+	_ = MkdirAll(filepath.Join(AppPath(), "certs"))
 	cert = filepath.Join(AppPath(), fmt.Sprintf("certs/%s.cert.pem", domain)) // 同 ca.crt 文件
 	key = filepath.Join(AppPath(), fmt.Sprintf("certs/%s.key.pem", domain))   // 同 ca.key 文件
-
-	_ = MkdirAll(cert)
-	_ = MkdirAll(key)
 
 	// 将证书写入PEM文件
 	certOut, err := os.Create(cert)
