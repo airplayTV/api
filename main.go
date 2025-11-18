@@ -30,17 +30,43 @@ func init() {
 }
 
 func main() {
+	runApi()
+	//runHttpsWebServer()
+}
+func runApi() {
 	go task.NewSourceStat().Run()
 	go task.NewHoldCookie().Run()
-
 	var p = 8082
 	var app = gin.Default()
 	app.Use(gin.Recovery())
 	app = newRouterApi(app) // start api
-	//app = newRouterWeb(app) // start frontend
-	//go serveHtml(p)
 	if err := app.Run(fmt.Sprintf(":%d", p)); err != nil {
 		log.Fatalln(err)
+	}
+}
+
+func runHttpsWebServer() {
+	if !util.WindowsAdmin() {
+		util.ExitMsg("请使用管理员权限打开")
+	}
+
+	var domain = util.ParseHost(model.ApiHost())
+	cert, key, err := util.MakeDomainCertificate(domain)
+	if err != nil {
+		util.ExitMsg("证书生成失败")
+	}
+	_ = util.UpdateHosts(fmt.Sprintf("127.0.0.1	%s", domain))
+
+	go task.NewSourceStat().Run()
+	go task.NewHoldCookie().Run()
+
+	var app = gin.Default()
+	app.Use(gin.Recovery())
+	app = newRouterApi(app) // start api
+	app = newRouterWeb(app) // start frontend
+	go serveHtml(fmt.Sprintf("https://%s", domain))
+	if err = app.RunTLS(fmt.Sprintf(":443"), cert, key); err != nil {
+		util.ExitMsg(fmt.Sprintf("服务启动失败：%s", err.Error()))
 	}
 }
 
@@ -68,7 +94,7 @@ func newRouterApi(app *gin.Engine) *gin.Engine {
 	})
 
 	// api接口
-	app.GET("/", UseRecovery(homeController.Index))                       // 来源
+	//app.GET("/", UseRecovery(homeController.Index))                       // 来源
 	app.GET("/api/video/provider", UseRecovery(videoController.Provider)) // 来源
 	app.GET("/api/video/search", UseRecovery(videoController.Search))     // 视频搜索
 	app.GET("/api/video/list", UseRecovery(videoController.VideoList))    // 视频列表（根据来源-TAG确定）
@@ -125,15 +151,15 @@ func newRouterWeb(app *gin.Engine) *gin.Engine {
 	return app
 }
 
-func serveHtml(port int) {
+func serveHtml(pageUrl string) {
 	time.Sleep(time.Second * 1 / 2)
 	var osName = strings.ToLower(runtime.GOOS)
 	switch osName {
 	case "windows":
-		cmd := exec.Command("cmd", "/c", "start", fmt.Sprintf("http://127.0.0.1:%d", port))
+		cmd := exec.Command("cmd", "/c", "start", pageUrl)
 		_ = cmd.Run()
 	case "darwin":
-		cmd := exec.Command("open", fmt.Sprintf("http://127.0.0.1:%d", port))
+		cmd := exec.Command("open", pageUrl)
 		_ = cmd.Run()
 	}
 }

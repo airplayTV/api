@@ -1,15 +1,21 @@
 package handler
 
+import (
+	"fmt"
+	"github.com/airplayTV/api/model"
+	"strings"
+)
+
 const (
 	sourceTypeAuto = "auto"
 	sourceTypeHLS  = "hls"
 	useragent      = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"
 )
 
-const apiM3U8ProxyUrl = "https://airplay-api.artools.cc/api/m3u8p"
-const apiRedirectUrl = "https://airplay-api.artools.cc/api/redirect"
-const ApiM3U8ProxyUrl = apiM3U8ProxyUrl
-const ApiRedirectUrl = apiRedirectUrl
+var (
+	ApiM3U8ProxyUrl = fmt.Sprintf("%s/api/m3u8p", strings.TrimRight(model.ApiHost(), "/"))
+	ApiRedirectUrl  = fmt.Sprintf("%s/api/redirect", strings.TrimRight(model.ApiHost(), "/"))
+)
 
 const (
 	czzyHost      = "https://www.czzymovie.com"

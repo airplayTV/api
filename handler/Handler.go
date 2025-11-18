@@ -224,7 +224,7 @@ func (x *Handler) handleM3u8pUrl(tmpUrl string) string {
 	if !slices.Contains(model.M3u8ProxyHosts, parsed.Host) {
 		return tmpUrl
 	}
-	return fmt.Sprintf("%s?url=%s", apiM3U8ProxyUrl, util.EncodeComponentUrl(tmpUrl))
+	return fmt.Sprintf("%s?url=%s", ApiM3U8ProxyUrl, util.EncodeComponentUrl(tmpUrl))
 }
 
 func (x *Handler) handleVideoListThumb(detailApiUrl string, videos []model.Video) []model.Video {

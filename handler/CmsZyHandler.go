@@ -285,7 +285,7 @@ func (x CmsZyHandler) m3u8pUrl(tmpUrl string) string {
 	if !slices.Contains([]string{"暴风资源"}, x.option.GetName()) {
 		return tmpUrl
 	}
-	return fmt.Sprintf("%s?url=%s", apiM3U8ProxyUrl, util.EncodeComponentUrl(tmpUrl))
+	return fmt.Sprintf("%s?url=%s", ApiM3U8ProxyUrl, util.EncodeComponentUrl(tmpUrl))
 }
 
 func (x CmsZyHandler) parseSourceSplit(vodPlayNote string) string {
