@@ -218,8 +218,7 @@ func (x SourceStat) getMpegResolution(tmpUrl string) (width, height int, err err
 	probe, err := ffmpeg.ProbeWithTimeout(tmpUrl, time.Second*30, kwArgs)
 	width, height, err = x.parseProbe(probe)
 	if err != nil {
-		log.Println("[ProbeReader.tmpUrl]", tmpUrl)
-		log.Println("[ProbeReader.Error]", err.Error())
+		log.Println("[ProbeReader.Error]", tmpUrl)
 		return
 	}
 	if width*height > 100 {
@@ -234,8 +233,7 @@ func (x SourceStat) getMpegResolution(tmpUrl string) (width, height int, err err
 	probe, err = ffmpeg.ProbeReaderWithTimeout(buff, time.Second*30, kwArgs)
 	width, height, err = x.parseProbe(probe)
 	if err != nil {
-		log.Println("[ProbeReader.buff]", buff.String())
-		log.Println("[ProbeReader.Error]", err.Error())
+		log.Println("[ProbeReader.Error]", buff.String())
 		return
 	}
 
