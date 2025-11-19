@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"math/big"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"time"
 )
@@ -87,4 +88,14 @@ func MakeDomainCertificate(domain string) (cert, key string, err error) {
 func AppendCertsFromPEM(pemCerts []byte) bool {
 	// 信任证书
 	return x509.NewCertPool().AppendCertsFromPEM(pemCerts)
+}
+
+func AddCertToRoot(crt string) ([]byte, error) {
+	cmd := exec.Command("certutil", "-addstore", "root", crt)
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return nil, err
+	}
+	output, _ = GBKToUTF8(output)
+	return output, nil
 }

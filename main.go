@@ -56,6 +56,11 @@ func runHttpsWebServer() {
 	if err != nil {
 		util.ExitMsg(fmt.Sprintf("证书生成失败：%s", err.Error()))
 	}
+	output, err := util.AddCertToRoot(cert)
+	if err != nil {
+		util.ExitMsg(fmt.Sprintf("导入证书失败：%s", err.Error()))
+	}
+	log.Println("[导入证书信息]", string(output))
 	_ = util.UpdateHosts(fmt.Sprintf("127.0.0.1	%s", domain))
 
 	go task.NewSourceStat().Run()

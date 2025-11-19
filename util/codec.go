@@ -4,6 +4,8 @@ import (
 	"encoding/base64"
 	"github.com/gin-gonic/gin"
 	"github.com/tidwall/gjson"
+	"golang.org/x/text/encoding/simplifiedchinese"
+	"golang.org/x/text/transform"
 	"net/url"
 )
 
@@ -24,4 +26,9 @@ func DecodeComponentUrl(encodedUrl string) string {
 		return ""
 	}
 	return unescape
+}
+
+func GBKToUTF8(buff []byte) ([]byte, error) {
+	bytes, _, err := transform.Bytes(simplifiedchinese.GBK.NewDecoder(), buff)
+	return bytes, err
 }
