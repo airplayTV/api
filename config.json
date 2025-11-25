@@ -588,11 +588,19 @@
       "description": ""
     },
     {
-      "id": "jkun资源",
-      "name": "丝袜资源",
+      "id": "jkunzy",
+      "name": "jkun资源",
       "host": "https://jkunzy.com/",
       "api": "https://jkunzyapi.com/api.php/provide/vod",
       "searchable": false,
+      "description": ""
+    },
+    {
+      "id": "heiliaozy",
+      "name": "黑料资源",
+      "host": "https://heiliaozy.com/",
+      "api": "https://heiliaozyapi.com/api.php/provide/vod",
+      "searchable": true,
       "description": ""
     }
   ],
