@@ -271,8 +271,9 @@
       "name": "黑木耳资源",
       "host": "https://heimuer.tv/",
       "api": "https://json.heimuer.xyz/api.php/provide/vod/?ac=list",
+      "disable": true,
       "searchable": true,
-      "description": ""
+      "description": "挂了半年多了"
     },
     {
       "id": "jisuzy",
@@ -566,8 +567,9 @@
       "name": "蜂巢片库",
       "host": "https://api.fczy888.me/",
       "api": "https://api.fczy888.me/api.php/provide/vod/at/json",
+      "disable": true,
       "searchable": true,
-      "description": ""
+      "description": "域名转让了"
     },
     {
       "id": "souavzy",
