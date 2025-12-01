@@ -7,7 +7,7 @@
       "api": "https://cjhwba.com/api.php/provide/vod/",
       "disable": true,
       "searchable": true,
-      "description": "越来越垃圾"
+      "description": "越来越垃圾，挂了"
     },
     {
       "id": "bfzy",
@@ -30,8 +30,8 @@
       "name": "金鹰资源",
       "host": "http://jinyingzy.com/",
       "api": "https://jyzyapi.com/provide/vod/from/jinyingm3u8/at/json",
-      "searchable": false,
-      "description": "搜索返回全部"
+      "searchable": true,
+      "description": ""
     },
     {
       "id": "ukuzy",
@@ -152,7 +152,7 @@
       "host": "https://yayazy1.com/",
       "api": "https://cj.yayazy.net/api.php/provide/vod/",
       "searchable": false,
-      "description": "不支持搜索"
+      "description": "暂不支持搜索"
     },
     {
       "id": "okzyw",
@@ -167,16 +167,16 @@
       "name": "红牛资源",
       "host": "https://hongniuziyuan.com",
       "api": "https://www.hongniuzy2.com/api.php/provide/vod/from/hnm3u8/at/josn/",
-      "searchable": false,
-      "description": "搜索不了"
+      "searchable": true,
+      "description": ""
     },
     {
       "id": "xinlangzy",
       "name": "新浪资源",
       "host": "https://xinlangzy.com",
       "api": "https://api.xinlangapi.com/xinlangapi.php/provide/vod/from/xlm3u8/",
-      "searchable": false,
-      "description": "搜索不了"
+      "searchable": true,
+      "description": ""
     },
     {
       "id": "maotaizy",
@@ -191,8 +191,8 @@
       "name": "百度资源",
       "host": "https://api.apibdzy.com/",
       "api": "https://api.apibdzy.com/api.php/provide/vod/",
-      "searchable": false,
-      "description": "暂不支持搜索"
+      "searchable": true,
+      "description": ""
     },
     {
       "id": "iqiyizy",
@@ -255,8 +255,8 @@
       "name": "光速资源",
       "host": "https://www.guangsuzy.com/",
       "api": "https://api.guangsuapi.com/api.php/provide/vod/from/gsm3u8/",
-      "searchable": false,
-      "description": "搜索返回所有"
+      "searchable": true,
+      "description": ""
     },
     {
       "id": "ikunzy",
@@ -543,7 +543,7 @@
       "name": "豪华资源",
       "host": "https://hhzyapi.com/",
       "api": "https://hhzyapi.com/api.php/provide/vod/from/hhm3u8/at/json",
-      "searchable": false,
+      "searchable": true,
       "description": ""
     },
     {
@@ -560,7 +560,7 @@
       "host": "https://api.niuniuzy.me/",
       "api": "https://api.niuniuzy.me/api.php/provide/vod",
       "searchable": false,
-      "description": ""
+      "description": "暂不支持搜索"
     },
     {
       "id": "fczy888",
@@ -585,14 +585,14 @@
       "host": "https://siwazyw.tv/",
       "api": "https://siwazyw.tv/api.php/provide/vod/at/json/",
       "searchable": false,
-      "description": ""
+      "description": "搜索返回所有"
     },
     {
       "id": "jkunzy",
       "name": "jkun资源",
       "host": "https://jkunzy.com/",
       "api": "https://jkunzyapi.com/api.php/provide/vod",
-      "searchable": false,
+      "searchable": true,
       "description": ""
     },
     {
