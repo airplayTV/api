@@ -226,23 +226,26 @@ func (x CmsZyHandler) _detail(id string) interface{} {
 	}
 	var video = model.Video{Id: id, Links: make([]model.Link, 0)}
 	var result = gjson.ParseBytes(buff)
-	if result.Get("total").Int() > 0 {
-		result.Get("list").ForEach(func(key, value gjson.Result) bool {
-			video.Name = value.Get("vod_name").String()
-			video.Thumb = value.Get("vod_pic").String()
-			video.Intro = util.HtmlToText(value.Get("vod_content").String())
-			video.Actors = value.Get("vod_actor").String()
-			video.UpdatedAt = value.Get("vod_time").String()
-			video.Links, _ = x.parseSourceList(
-				x.option.GetName(),
-				value.Get("vod_play_from").String(),
-				value.Get("vod_play_note").String(),
-				value.Get("vod_play_url").String(),
-				"",
-			)
-			return true
-		})
+
+	if result.Get("total").Int() <= 0 {
+		return model.NewError("数据获取失败，请重试")
 	}
+
+	result.Get("list").ForEach(func(key, value gjson.Result) bool {
+		video.Name = value.Get("vod_name").String()
+		video.Thumb = value.Get("vod_pic").String()
+		video.Intro = util.HtmlToText(value.Get("vod_content").String())
+		video.Actors = value.Get("vod_actor").String()
+		video.UpdatedAt = value.Get("vod_time").String()
+		video.Links, _ = x.parseSourceList(
+			x.option.GetName(),
+			value.Get("vod_play_from").String(),
+			value.Get("vod_play_note").String(),
+			value.Get("vod_play_url").String(),
+			"",
+		)
+		return true
+	})
 
 	return model.NewSuccess(video)
 }
