@@ -602,6 +602,14 @@
       "api": "https://heiliaozyapi.com/api.php/provide/vod",
       "searchable": true,
       "description": ""
+    },
+    {
+      "id": "maoyanzy",
+      "name": "猫眼资源",
+      "host": "https://www.maoyanzy.com/",
+      "api": "https://api.maoyanapi.top/api.php/provide/vod/at/json",
+      "searchable": true,
+      "description": ""
     }
   ],
   "mode": {
