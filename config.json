@@ -624,8 +624,9 @@
       "name": "神马资源",
       "host": "https://api.smdyw.top/",
       "api": "https://api.smdyw.top/api.php/provide/vod",
+      "disable": true,
       "searchable": false,
-      "description": "暂不支持搜索，屏蔽欧美ip播放"
+      "description": "盗版电影天堂资源"
     }
   ],
   "mode": {
