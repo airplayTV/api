@@ -618,6 +618,14 @@
       "api": "https://cj.yayazy.net/api.php/provide/vod/?ac=list",
       "searchable": false,
       "description": "暂不支持搜索，屏蔽欧美ip播放"
+    },
+    {
+      "id": "smdyw",
+      "name": "神马资源",
+      "host": "https://api.smdyw.top/",
+      "api": "https://api.smdyw.top/api.php/provide/vod",
+      "searchable": false,
+      "description": "暂不支持搜索，屏蔽欧美ip播放"
     }
   ],
   "mode": {
