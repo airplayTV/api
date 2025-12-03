@@ -610,6 +610,14 @@
       "api": "https://api.maoyanapi.top/api.php/provide/vod/at/json",
       "searchable": true,
       "description": ""
+    },
+    {
+      "id": "yayazy",
+      "name": "鸭鸭资源",
+      "host": "https://yayazy2.com/",
+      "api": "https://cj.yayazy.net/api.php/provide/vod/?ac=list",
+      "searchable": true,
+      "description": "屏蔽欧美ip播放"
     }
   ],
   "mode": {
