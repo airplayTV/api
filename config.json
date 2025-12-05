@@ -216,7 +216,7 @@
       "host": "https://moduzy.com/",
       "api": "https://www.mdzyapi.com/api.php/provide/vod/?ac=list",
       "searchable": true,
-      "description": ""
+      "description": "https://www.moduzy.net/caiji/"
     },
     {
       "id": "apiyhzy",
@@ -627,6 +627,58 @@
       "disable": true,
       "searchable": false,
       "description": "盗版电影天堂资源"
+    },
+    {
+      "id": "xiangjiaozyw",
+      "name": "香蕉资源",
+      "host": "https://www.xiangjiaozyw.com/",
+      "api": "https://api.smdyw.top/api.php/provide/vod",
+      "disable": true,
+      "searchable": true,
+      "description": "其实就是细胞资源"
+    },
+    {
+      "id": "91jpzyw",
+      "name": "91精品资源",
+      "host": "https://91jpzyw.com/",
+      "api": "https://91jpzyw.com/api.php/provide/vod/at/json",
+      "disable": false,
+      "searchable": true,
+      "description": "18+"
+    },
+    {
+      "id": "xzytv",
+      "name": "幸资源站",
+      "host": "https://xzytv.com/",
+      "api": "https://xzybb1.com/api.php/provide/vod/?ac=list",
+      "disable": false,
+      "searchable": true,
+      "description": "18+"
+    },
+    {
+      "id": "yparse",
+      "name": "云解析资源",
+      "host": "https://www.yparse.com/help",
+      "api": "https://api.yparse.com/api/m3u8/json",
+      "searchable": true
+    },
+    {
+      "id": "fqzy",
+      "name": "番茄资源",
+      "host": "https://fqzy.me/",
+      "api": "https://fqzy.me//api.php/provide/vod/?ac=list",
+      "disable": false,
+      "searchable": true,
+      "description": "18+"
+    },
+    {
+      "id": "dadizy",
+      "name": "大地资源",
+      "host": "https://dadizy11.com/",
+      "api": "https://dadiapi.com/api.php",
+      "disable": false,
+      "searchable": true,
+      "description": "18+"
     }
   ],
   "mode": {
