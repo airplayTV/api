@@ -660,7 +660,9 @@
       "name": "云解析资源",
       "host": "https://www.yparse.com/help",
       "api": "https://api.yparse.com/api/m3u8/json",
-      "searchable": true
+      "disable": true,
+      "searchable": true,
+      "description": "18+，播放数据加密的"
     },
     {
       "id": "fqzy",
@@ -676,9 +678,45 @@
       "name": "大地资源",
       "host": "https://dadizy11.com/",
       "api": "https://dadiapi.com/api.php",
+      "disable": true,
+      "searchable": true,
+      "description": "18+,不支持json"
+    },
+    {
+      "id": "ckbh",
+      "name": "CK百货",
+      "host": "https://ckbh.vip/",
+      "api": "https://ckbh1.xyz/api.php/provide/vod/?ac=list",
       "disable": false,
       "searchable": true,
       "description": "18+"
+    },
+    {
+      "id": "yyzywcj",
+      "name": "优优资源",
+      "host": "https://yyzywcj.com/",
+      "api": "https://yyzywcj.com/api.php/provide/vod/?ac=list",
+      "disable": false,
+      "searchable": true,
+      "description": "18+"
+    },
+    {
+      "id": "doudouzy",
+      "name": "豆豆资源",
+      "host": "https://doudouzy.com/",
+      "api": "https://api.douapi.cc/api.php/provide/vod/?ac=list",
+      "disable": false,
+      "searchable": true,
+      "description": "18+"
+    },
+    {
+      "id": "laosebizy",
+      "name": "老色P资源",
+      "host": "https://laosebizy.com/",
+      "api": "https://apiyutu.com/api.php/providedao/vod/?ac=list",
+      "disable": false,
+      "searchable": true,
+      "description": "18+，和玉兔资源一样"
     }
   ],
   "mode": {
