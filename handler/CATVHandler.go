@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"errors"
 	"fmt"
 	"github.com/PuerkitoBio/goquery"
 	"github.com/airplayTV/api/model"
@@ -11,7 +10,6 @@ import (
 	"github.com/zc310/headers"
 	"log"
 	"net/url"
-	"regexp"
 	"slices"
 	"strings"
 )
@@ -157,7 +155,7 @@ func (x CATVHandler) _search(keyword, page string) interface{} {
 }
 
 func (x CATVHandler) _detail(id string) interface{} {
-	buff, err := x.requestUrlBypassCheck(fmt.Sprintf(catvDetailUrl, util.DecodeComponentUrl(id)))
+	buff, err := x.httpClient.Get(fmt.Sprintf(catvDetailUrl, util.DecodeComponentUrl(id)))
 	if err != nil {
 		return model.NewError("获取数据失败：" + err.Error())
 	}
@@ -195,41 +193,20 @@ func (x CATVHandler) _detail(id string) interface{} {
 
 func (x CATVHandler) _source(pid, vid string) interface{} {
 	var source = model.Source{Id: pid, Vid: vid}
-
-	//// 干，妈的不稳定
-
-	buff, err := x.httpClient.Get(util.DecodeComponentUrl(pid))
+	var jxUrl = util.DecodeComponentUrl(pid)
+	jxUrl = strings.ReplaceAll(jxUrl, "https://qt6.cn/?", "https://jx.xymp4.cc/?")
+	buff, err := x.httpClient.Get(jxUrl)
 	if err != nil {
 		return model.NewError("获取数据失败：" + err.Error())
 	}
+
+	// https://jx.xymp4.cc
+
 	doc, err := goquery.NewDocumentFromReader(strings.NewReader(string(buff)))
 	if err != nil {
 		return model.NewError("获取数据失败：" + err.Error())
 	}
 	source.Name = doc.Find(".paycon .ptit a").Text()
-
-	{
-		// 从html加密数据中解析播放地址
-		var encryptedLine = x._findEncryptedLine(string(buff))
-		if len(encryptedLine) == 0 {
-			return model.NewError("获取数据失败：无解析数据")
-		}
-
-		tmpSource, err := x._parseVideoSource(pid, encryptedLine)
-		if err != nil {
-			return model.NewError(err.Error())
-		}
-		source.Source = tmpSource.Source
-		source.Type = tmpSource.Type
-	}
-
-	{
-		// 解析另一种iframe嵌套的视频
-		iframeUrl, _ := doc.Find(".videoplay iframe").Attr("src")
-		if strings.TrimSpace(iframeUrl) != "" {
-			log.Println("[iframeUrl]", iframeUrl)
-		}
-	}
 
 	if len(source.Source) == 0 {
 		return model.NewError("播放地址解析失败")
@@ -244,162 +221,12 @@ func (x CATVHandler) _source(pid, vid string) interface{} {
 	}
 
 	return model.NewSuccess(source)
-
-}
-
-func (x CATVHandler) _findEncryptedLine(htmlContent string) string {
-	var findLine = ""
-	tmpList := strings.Split(htmlContent, "\n")
-	for _, line := range tmpList {
-		if strings.Contains(line, "md5.AES.decrypt") {
-			findLine = line
-			break
-		}
-	}
-	return findLine
-}
-
-func (x CATVHandler) _parseVideoSource(id, js string) (model.Source, error) {
-	var source = model.Source{}
-	tmpList := strings.Split(strings.TrimSpace(js), ";")
-
-	var data = ""
-	var key = ""
-	var iv = ""
-	for index, str := range tmpList {
-		if index == 0 {
-			regex := regexp.MustCompile(`"\S+"`)
-			data = strings.Trim(regex.FindString(str), `"`)
-			continue
-		}
-		if index == 1 {
-			regex := regexp.MustCompile(`"(\S+)"`)
-			matchList := regex.FindStringSubmatch(str)
-			if len(matchList) > 0 {
-				key = matchList[len(matchList)-1]
-			}
-			continue
-		}
-		if index == 2 {
-			regex := regexp.MustCompile(`\((\S+)\)`)
-			matchList := regex.FindStringSubmatch(str)
-			if len(matchList) > 0 {
-				iv = matchList[len(matchList)-1]
-			}
-			continue
-		}
-	}
-
-	log.Println(fmt.Sprintf("[parsing] key: %s, iv: %s", key, iv))
-
-	if key == "" && data == "" {
-		return source, errors.New("解析失败")
-	}
-	bs, err := util.DecryptByAes([]byte(key), []byte(iv), data)
-	if err != nil {
-		return source, errors.New("解密失败")
-	}
-	//log.Println("[解析数据]", string(bs))
-	source.Source = x.simpleRegEx(string(bs), `video: {url: "(\S+?)",`)
-	source.Type = x.simpleRegEx(string(bs), `,type:"(\S+?)",`)
-	if len(source.Source) == 0 {
-		return source, errors.New("解析失败")
-	}
-
-	return source, nil
-}
-
-func (x CATVHandler) requestUrlBypassCheck(requestUrl string) ([]byte, error) {
-	buff, err := x.httpClient.Get(requestUrl)
-	if err != nil {
-		return nil, err
-	}
-	return x.bypassHuadongCheck(requestUrl, string(buff))
-}
-
-func (x CATVHandler) bypassHuadongCheck(requestUrl, respHtml string) ([]byte, error) {
-	var findCheckUrl = x.simpleRegEx(respHtml, `src="(\S+)"></script>`)
-	if !strings.Contains(findCheckUrl, "huadong") && !strings.Contains(respHtml, "人机身份验证") {
-		return []byte(respHtml), nil
-	}
-	_, buff, err := x.httpClient.GetResponse(fmt.Sprintf("%s/%s", strings.TrimRight(subbHost, "/"), strings.TrimLeft(findCheckUrl, "/")))
-	if err != nil {
-		return nil, err
-	}
-	respHtml = string(buff)
-
-	var kvList = x.simpleRegExList(respHtml, `,key="(\S+)",value="(\S+)";`)
-	var urlList = x.simpleRegExList(respHtml, `c\.get\("(\S+)\?type=(\S+)&key=`)
-	if len(kvList) < 3 || len(urlList) < 3 {
-		return nil, errors.New("验证数据解析失败")
-	}
-
-	var checkUrl = fmt.Sprintf(
-		"%s/%s?type=%s&key=%s&value=%s",
-		strings.TrimRight(subbHost, "/"),
-		strings.TrimLeft(urlList[1], "/"),
-		urlList[2],
-		kvList[1],
-		util.StringMd5(x.bypassStringToHex(kvList[2])),
-	)
-	log.Println("[checkUrl]", checkUrl)
-
-	header, buff, err := x.httpClient.GetResponse(checkUrl)
-	if err != nil {
-		return nil, err
-	}
-
-	// 修改请求头，全局生效
-	x.httpClient.AddHeader(headers.Cookie, header.Get("Set-Cookie"))
-
-	_, buff, err = x.httpClient.GetResponse(requestUrl)
-	if err != nil {
-		return nil, err
-	}
-
-	_ = util.SaveHttpHeader(x.Name(), x.httpClient.GetHeaders())
-
-	return buff, nil
-}
-
-func (x CATVHandler) bypassStringToHex(str string) string {
-	var codeList []string
-	for _, r := range []rune(str) {
-		codeList = append(codeList, fmt.Sprintf("%d", int(r)+1))
-	}
-	return strings.Join(codeList, "")
 }
 
 func (x CATVHandler) UpdateHeader(header map[string]string) error {
-	if header == nil {
-		return errors.New("header数据不能为空")
-	}
-	var tmpHttpClient = util.HttpClient{}
-	tmpHttpClient.SetHeaders(x.httpClient.GetHeaders())
-	for key, value := range header {
-		tmpHttpClient.AddHeader(key, value)
-	}
-
-	// 请求数据并检测Cookie是否可用
-	switch x.Search("我的", "1").(type) {
-	case model.Success:
-		// 如果可用则设置到当前上下文的http请求头
-		x.httpClient.SetHeaders(tmpHttpClient.GetHeaders())
-
-		_ = util.SaveHttpHeader(x.Name(), tmpHttpClient.GetHeaders())
-
-		return nil
-	default:
-		return errors.New("cookie无效")
-	}
+	return nil
 }
 
 func (x CATVHandler) HoldCookie() error {
-	switch r := x.Search("我的", "1").(type) {
-	case model.Success:
-		return nil
-	case model.Error:
-		return errors.New(r.Msg)
-	}
-	return errors.New("未知错误")
+	return nil
 }
