@@ -83,3 +83,11 @@ const (
 	noVipDetailUrl = "https://www.novipnoad.net/movie/%s.html"
 	noVipPlayUrl   = "https://www.novipnoad.net/movie/%s.html"
 )
+
+const (
+	catvHost      = "http://vip.catv1.com/"
+	catvTagUrl    = "http://vip.catv1.com/%s_rankhot_____%d_%d.html"
+	catvSearchUrl = "http://vip.catv1.com/search-%s.html"
+	catvDetailUrl = "http://vip.catv1.com/%s"
+	catvPlayUrl   = ""
+)
