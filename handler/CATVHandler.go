@@ -29,7 +29,7 @@ func (x CATVHandler) Init(options interface{}) model.IVideo {
 }
 
 func (x CATVHandler) Name() string {
-	return "CATV"
+	return "CATV(解析)"
 }
 
 func (x CATVHandler) Option() model.CmsZyOption {
