@@ -34,13 +34,13 @@ func MakeDomainCertificate(domain string) (cert, key string, err error) {
 		SerialNumber: big.NewInt(int64(time.Now().Year())), // 序列号
 		Subject: pkix.Name{
 			CommonName:   domain,
-			Organization: []string{"FuckVod Co."},
+			Organization: []string{"AirplayTV Co."},
 			Country:      []string{"USA"},
 			Province:     []string{"USA"},
 		},
 		Issuer: pkix.Name{
 			CommonName:   domain,
-			Organization: []string{"FuckVod Co."},
+			Organization: []string{"AirplayTV Co."},
 			Country:      []string{"USA"},
 			Province:     []string{"USA"},
 		},
