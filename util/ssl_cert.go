@@ -7,22 +7,30 @@ import (
 	"crypto/x509/pkix"
 	"encoding/pem"
 	"fmt"
+	"log"
 	"math/big"
+	rand2 "math/rand/v2"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 	"time"
 )
 
-func MakeDomainCertificate(domain string) (cert, key string, err error) {
-	_ = MkdirAll(filepath.Join(AppPath(), "certs/1.txt"))
-	cert = filepath.Join(AppPath(), fmt.Sprintf("certs/%s.cert.pem", domain)) // 同 ca.crt 文件
-	key = filepath.Join(AppPath(), fmt.Sprintf("certs/%s.key.pem", domain))   // 同 ca.key 文件
-	_, certErr := os.Stat(cert)
-	_, keyErr := os.Stat(key)
-	if certErr == nil && keyErr == nil {
-		return
-	}
+var email = "localhost@airplayTV.org" // 标识证书用
+
+func MakeDomainCertificate(certificateName string, dnsNames []string) (cert, key string, err error) {
+	_ = MkdirAll(filepath.Join(AppPath(), "www/certs/1.txt"))
+	cert = filepath.Join(AppPath(), fmt.Sprintf("www/certs/%s.crt", certificateName)) // 同 ca.crt 文件 // 同 cert.pem 文件
+	key = filepath.Join(AppPath(), fmt.Sprintf("www/certs/%s.key", certificateName))  // 同 ca.key 文件 // 同 key.pem 文件
+	//_, certErr := os.Stat(cert)
+	//_, keyErr := os.Stat(key)
+	//if certErr == nil && keyErr == nil && !debug { // debug模式不缓存
+	//	log.Println("[证书文件已存在]", cert)
+	//	return
+	//}
+	var sn = big.NewInt(int64(time.Now().Year()*10000000000000 + rand2.IntN(99999999)))
+	log.Println("[开始生成证书]", sn)
 
 	privateKey, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {
@@ -31,16 +39,16 @@ func MakeDomainCertificate(domain string) (cert, key string, err error) {
 
 	// 创建证书模板
 	template := x509.Certificate{
-		SerialNumber: big.NewInt(int64(time.Now().Year())), // 序列号
+		SerialNumber: sn, // 序列号
 		Subject: pkix.Name{
-			CommonName:   domain,
-			Organization: []string{"AirplayTV Co."},
+			CommonName:   certificateName,
+			Organization: []string{certificateName},
 			Country:      []string{"USA"},
 			Province:     []string{"USA"},
 		},
 		Issuer: pkix.Name{
-			CommonName:   domain,
-			Organization: []string{"AirplayTV Co."},
+			CommonName:   certificateName,
+			Organization: []string{certificateName},
 			Country:      []string{"USA"},
 			Province:     []string{"USA"},
 		},
@@ -50,7 +58,8 @@ func MakeDomainCertificate(domain string) (cert, key string, err error) {
 		ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth, x509.ExtKeyUsageClientAuth},
 		BasicConstraintsValid: true,
 		IsCA:                  true, // 标记为CA证书
-		DNSNames:              []string{domain},
+		DNSNames:              dnsNames,
+		EmailAddresses:        []string{email},
 	}
 
 	derBytes, err := x509.CreateCertificate(rand.Reader, &template, &template, &privateKey.PublicKey, privateKey)
@@ -97,5 +106,29 @@ func AddCertToRoot(crt string) ([]byte, error) {
 		return nil, err
 	}
 	output, _ = GBKToUTF8(output)
+	return output, nil
+}
+
+func ReplaceCertToRoot(crt string, debug bool) ([]byte, error) {
+	output, err := exec.Command("certutil", "-delstore", "root", email).CombinedOutput()
+	if err != nil {
+		log.Println("[移除旧证书失败]", err.Error())
+	}
+	if debug {
+		output, _ = GBKToUTF8(output)
+		log.Println("[移除旧证书]", strings.TrimSpace(string(output)))
+	}
+
+	time.Sleep(time.Second / 4)
+
+	cmd := exec.Command("certutil", "-addstore", "root", crt)
+	output, err = cmd.CombinedOutput()
+	if err != nil {
+		return nil, err
+	}
+	output, _ = GBKToUTF8(output)
+	if debug {
+		log.Println("[添加新证书]", strings.TrimSpace(string(output)))
+	}
 	return output, nil
 }

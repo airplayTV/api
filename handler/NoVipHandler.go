@@ -431,7 +431,7 @@ func (x NoVipHandler) UpdateHeader(header map[string]string) error {
 		//_ = util.SaveHttpHeader(x.Name(), header)
 		return nil
 	default:
-		log.Println("[ERR]", goWebsocket.ToJson(resp))
+		log.Println("[UpdateHeaderErr]", x.Name(), goWebsocket.ToJson(resp))
 		return errors.New("cookie无效")
 	}
 }
