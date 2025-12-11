@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"bytes"
+	"errors"
 	"fmt"
 	"github.com/PuerkitoBio/goquery"
 	"github.com/airplayTV/api/model"
@@ -235,6 +237,12 @@ func (x CATVHandler) handleQiGeJieXi(sourceUrl string) (resp gjson.Result, err e
 	if err != nil {
 		return
 	}
+
+	if bytes.Contains(body, []byte("502 Bad Gateway")) {
+		err = errors.New("仅限国内ip请求解析/502 Bad Gateway")
+		return
+	}
+
 	decrypt, err := util.AesDecrypt_QiGeJieXi(string(body), []byte("QRSTUVWXYZabcdefghijklmnopqrsutv"))
 	if err != nil {
 		return
