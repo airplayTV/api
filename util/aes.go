@@ -8,6 +8,7 @@ import (
 	"crypto/cipher"
 	"encoding/base64"
 	"errors"
+	"fmt"
 )
 
 //加密过程：
@@ -80,6 +81,49 @@ func AesDecrypt(data []byte, key, iv []byte) ([]byte, error) {
 		return nil, err
 	}
 	return crypted, nil
+}
+
+func AesDecrypt_QiGeJieXi(encryptText string, key []byte) ([]byte, error) {
+	// AI: JavaScript转golang
+
+	// 2. Base64 解码 (对应 JS: CryptoJS.enc.Base64.parse)
+	ciphertextBytes, err := base64.StdEncoding.DecodeString(encryptText)
+	if err != nil {
+		return nil, err
+	}
+	// 校验长度，至少要包含 IV (16字节)
+	if len(ciphertextBytes) < aes.BlockSize {
+		return nil, errors.New("ciphertext too short")
+	}
+	// 3. 提取 IV (前16字节) 和 实际密文 (16字节之后)
+	// 对应 JS: words.slice(0, 0x4) 和 words.slice(0x4)
+	iv := ciphertextBytes[:aes.BlockSize]
+	actualCiphertext := ciphertextBytes[aes.BlockSize:]
+
+	// 4. 创建 AES Cipher Block
+	block, err := aes.NewCipher(key)
+	if err != nil {
+		return nil, err
+	}
+
+	// 5. 设置 CBC 模式
+	if len(actualCiphertext)%aes.BlockSize != 0 {
+		return nil, errors.New("ciphertext is not a multiple of the block size")
+	}
+
+	// 6. 解密
+	// 注意：CryptBlocks 会直接修改传入的 slice，这里可以直接原地解密
+	var plaintext = make([]byte, len(actualCiphertext))
+	cipher.NewCBCDecrypter(block, iv).CryptBlocks(plaintext, actualCiphertext)
+
+	// 7. 去除 PKCS7 填充 (CryptoJS 自动处理了，Go 需要手动处理)
+	plaintext, err = pkcs7UnPadding(plaintext)
+	if err != nil {
+		return nil, fmt.Errorf("unpadding error: %v", err)
+	}
+
+	// 8. 返回字符串
+	return plaintext, nil
 }
 
 // EncryptByAes Aes加密 后 base64 再加

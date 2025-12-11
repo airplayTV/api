@@ -6,7 +6,9 @@ import (
 	"github.com/airplayTV/api/model"
 	"github.com/airplayTV/api/util"
 	"github.com/gin-gonic/gin"
+	headers2 "github.com/go-http-utils/headers"
 	"github.com/spf13/cast"
+	"github.com/tidwall/gjson"
 	"github.com/zc310/headers"
 	"log"
 	"net/url"
@@ -170,7 +172,9 @@ func (x CATVHandler) _detail(id string) interface{} {
 		var tmpGroup = selection.Text()
 		var lineId = selection.AttrOr("id", "")
 		var jxUrl = selection.AttrOr("data-url", "")
-		if !slices.Contains([]string{"xl0", "xl4"}, lineId) {
+		// xl0 线路暂未解密
+		// xl4 解析地址：https://jx.nnxv.cn/tv.php?url=http://www.mgtv.com/b/297817/4050151.html?cxid=90f0zbamf
+		if !slices.Contains([]string{ /** "xl0", **/ "xl4"}, lineId) {
 			return
 		}
 		doc.Find("#playlist li").Each(func(j int, selection2 *goquery.Selection) {
@@ -195,23 +199,16 @@ func (x CATVHandler) _source(pid, vid string) interface{} {
 	var source = model.Source{Id: pid, Vid: vid}
 	var jxUrl = util.DecodeComponentUrl(pid)
 	jxUrl = strings.ReplaceAll(jxUrl, "https://qt6.cn/?", "https://jx.xymp4.cc/?")
-	buff, err := x.httpClient.Get(jxUrl)
+	jxUrl = strings.ReplaceAll(jxUrl, "https://jx.mmkv.cn/", "https://jx.nnxv.cn/")
+
+	u, _ := url.Parse(jxUrl)
+	resp, err := x.handleQiGeJieXi(u.Query().Get("url"))
 	if err != nil {
-		return model.NewError("获取数据失败：" + err.Error())
+		log.Println("[handleQiGeJieXiError]", err.Error())
+		return nil
 	}
 
-	// https://jx.xymp4.cc
-
-	doc, err := goquery.NewDocumentFromReader(strings.NewReader(string(buff)))
-	if err != nil {
-		return model.NewError("获取数据失败：" + err.Error())
-	}
-	source.Name = doc.Find(".paycon .ptit a").Text()
-
-	if len(source.Source) == 0 {
-		return model.NewError("播放地址解析失败")
-	}
-
+	source.Source = resp.Get("url").String()
 	// 视频类型问题处理
 	source.Type = x.parseVideoType(source.Source)
 	source.Url = source.Source
@@ -221,6 +218,29 @@ func (x CATVHandler) _source(pid, vid string) interface{} {
 	}
 
 	return model.NewSuccess(source)
+}
+
+func (x CATVHandler) handleQiGeJieXi(sourceUrl string) (resp gjson.Result, err error) {
+	var httpClient = x.httpClient.Clone()
+	httpClient.AddHeader(headers2.ContentType, "application/x-www-form-urlencoded")
+	httpClient.AddHeader(headers2.Origin, "https://jx.nnxv.cn")
+	httpClient.AddHeader(headers2.Referer, fmt.Sprintf("https://jx.nnxv.cn/tv.html?url=%s", sourceUrl))
+	httpClient.AddHeader(headers2.UserAgent, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36 Edg/143.0.0.0")
+
+	var form = url.Values{}
+	form.Add("url", sourceUrl)
+	form.Add("api_key", "qigejiexi")
+
+	_, body, err := httpClient.PostResponse("https://jx.nnxv.cn/qigejiexiii.js", form.Encode())
+	if err != nil {
+		return
+	}
+	decrypt, err := util.AesDecrypt_QiGeJieXi(string(body), []byte("QRSTUVWXYZabcdefghijklmnopqrsutv"))
+	if err != nil {
+		return
+	}
+
+	return gjson.ParseBytes(decrypt), nil
 }
 
 func (x CATVHandler) UpdateHeader(header map[string]string) error {

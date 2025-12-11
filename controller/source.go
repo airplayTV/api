@@ -29,6 +29,11 @@ func initSourceList() {
 			Name:       handler.NoVipHandler{}.Name(),
 			Searchable: true,
 		})},
+		handler.CATVHandler{}.Name(): {Sort: 3, Handler: handler.CATVHandler{}.Init(model.CmsZyOption{
+			Id:         "CATV",
+			Name:       handler.CATVHandler{}.Name(),
+			Searchable: true,
+		})},
 		//handler.SubbHandler{}.Name(): {Sort: 2, Handler: handler.SubbHandler{}.Init(model.CmsZyOption{
 		//	Id:         "subaibai",
 		//	Name:       handler.SubbHandler{}.Name(),
