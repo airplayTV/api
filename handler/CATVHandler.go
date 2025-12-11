@@ -206,8 +206,8 @@ func (x CATVHandler) _source(pid, vid string) interface{} {
 	u, _ := url.Parse(jxUrl)
 	resp, err := x.handleQiGeJieXi(u.Query().Get("url"))
 	if err != nil {
-		log.Println("[handleQiGeJieXiError]", err.Error())
-		return nil
+		log.Println("[QiGeJieXiError]", jxUrl, err.Error())
+		return model.NewError(err.Error())
 	}
 
 	source.Source = resp.Get("url").String()
