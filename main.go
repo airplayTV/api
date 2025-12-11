@@ -51,7 +51,7 @@ func runHttpsWebServer() {
 		util.ExitMsg("请使用管理员权限打开")
 	}
 
-	var domain = util.ParseHost(model.ApiHost())
+	var domain = "airplay-tv.pages.dev"
 	cert, key, err := util.MakeDomainCertificate("AirplayTV.org", []string{domain})
 	if err != nil {
 		util.ExitMsg(fmt.Sprintf("证书生成失败：%s", err.Error()))
