@@ -18,6 +18,7 @@ import (
 	"strings"
 )
 
+// CATVHandler 总之很垃圾，解析垃圾还他妈的限制请求
 type CATVHandler struct {
 	Handler
 }
