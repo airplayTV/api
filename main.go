@@ -31,7 +31,7 @@ func init() {
 
 func main() {
 	runApi()
-	//runHttpsWebServer()
+	//runHttpsWebServer("airplay-tv.pages.dev")
 }
 
 func runApi() {
@@ -46,12 +46,11 @@ func runApi() {
 	}
 }
 
-func runHttpsWebServer() {
+func runHttpsWebServer(domain string) {
 	if !util.WindowsAdmin() {
 		util.ExitMsg("请使用管理员权限打开")
 	}
 
-	var domain = "airplay-tv.pages.dev"
 	cert, key, err := util.MakeDomainCertificate("AirplayTV.org", []string{domain})
 	if err != nil {
 		util.ExitMsg(fmt.Sprintf("证书生成失败：%s", err.Error()))
