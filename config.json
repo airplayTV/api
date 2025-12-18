@@ -386,8 +386,9 @@
       "name": "湿乐园",
       "host": "https://xxavs.com/",
       "api": "https://xxavs.com/api.php/provide/vod",
+      "disable": true,
       "searchable": true,
-      "description": "18+"
+      "description": "18+,接口被关了"
     },
     {
       "id": "yutuzy",
@@ -475,7 +476,7 @@
       "id": "hsckzy",
       "name": "黄仓资源",
       "host": "https://hsckzy.cc/help/",
-      "api": "https://hsckzy888.com/api.php/provide/vod/from/hsckm3u8/at/json/",
+      "api": "https://hsckzy.xyz/api.php/provide/vod/from/hsckm3u8/at/json/",
       "searchable": true,
       "description": ""
     },
@@ -576,8 +577,9 @@
       "name": "搜av资源",
       "host": "https://souavzy.com/",
       "api": "https://api.souavzy.vip/api.php/provide/vod/at/json",
+      "disable": true,
       "searchable": true,
-      "description": ""
+      "description": "搜尼玛域名都没了"
     },
     {
       "id": "siwazyw",
