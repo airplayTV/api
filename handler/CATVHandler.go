@@ -18,7 +18,7 @@ import (
 	"strings"
 )
 
-// CATVHandler 总之很垃圾，解析垃圾还他妈的限制请求
+// CATVHandler 总之很垃圾，解析垃圾还他妈的限制请求，服务器解析被拒绝，需要本地尝试解析
 type CATVHandler struct {
 	Handler
 }
