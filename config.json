@@ -248,7 +248,7 @@
       "host": "http://ffzy5.tv/",
       "api": "http://api.ffzyapi.com/api.php/provide/vod/from/ffm3u8/at/json/",
       "searchable": true,
-      "description": ""
+      "description": "备用api: http://ffzy5.tv/api.php/provide/vod"
     },
     {
       "id": "guangsuzy",
@@ -297,7 +297,7 @@
       "host": "https://wolongzyw.com/",
       "api": "https://collect.wolongzy.cc/api.php/provide/vod/",
       "searchable": true,
-      "description": ""
+      "description": "备用api: https://collect.wolongzyw.com/api.php/provide/vod"
     },
     {
       "id": "zuidazy",
@@ -461,7 +461,7 @@
       "host": "https://tyyszy.com/",
       "api": "https://tyyszyapi.com/api.php/provide/vod/",
       "searchable": true,
-      "description": ""
+      "description": "备用api: https://tyyszy.com/api.php/provide/vod"
     },
     {
       "id": "wuxianzy",
@@ -719,6 +719,24 @@
       "disable": false,
       "searchable": true,
       "description": "18+，和玉兔资源一样"
+    },
+    {
+      "id": "p2100",
+      "name": "飘零资源",
+      "host": "https://p2100.net/",
+      "api": "https://p2100.net/api.php/provide/vod/",
+      "disable": false,
+      "searchable": true,
+      "description": "m3u8源(qrssuv.com)与 无尽资源 交叉"
+    },
+    {
+      "id": "1080zyku",
+      "name": "1080资源库",
+      "host": "https://api.1080zyku.com/",
+      "api": "https://api.1080zyku.com/inc/api_mac10.php/",
+      "disable": false,
+      "searchable": true,
+      "description": "m3u8源(cdn.yzzy31-play.com)与 优质资源 交叉"
     }
   ],
   "mode": {
