@@ -737,6 +737,15 @@
       "disable": false,
       "searchable": true,
       "description": "m3u8源(cdn.yzzy31-play.com)与 优质资源 交叉"
+    },
+    {
+      "id": "yparse",
+      "name": "云解析资源",
+      "host": "https://api.yparse.com",
+      "api": "https://api.yparse.com/api/json",
+      "disable": false,
+      "searchable": true,
+      "description": "暂不能播放"
     }
   ],
   "mode": {
