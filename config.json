@@ -142,7 +142,7 @@
       "id": "huyaziyuan",
       "name": "虎牙资源",
       "host": "https://www.huyaziyuan.com/",
-      "api": "https://www.huyaapi.com/api.php/provide/vod/from/hym3u8/at/json",
+      "api": "https://www.huyaapi.com/api.php/provide/vod/at/json",
       "searchable": false,
       "description": "搜索返回全部"
     },
