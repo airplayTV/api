@@ -33,7 +33,7 @@ func (x *HttpClient) InitClient() {
 	x.SkipVerify = true
 	//x.ProxyUrl = "http://127.0.0.1:1080"
 	x.resolves = map[string][]string{
-		"www.czzymovie.com:443": {"45.150.227.241:443", "45.150.227.241:443"},
+		//"www.czzymovie.com:443": {"45.150.227.241:443", "45.150.227.241:443"},
 	}
 
 	if x.transport == nil {
