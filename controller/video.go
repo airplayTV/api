@@ -81,10 +81,10 @@ func (x VideoController) sortedSourceList(sourceMap map[string]model.SourceHandl
 func (x VideoController) parseSourceHandler(ctx *gin.Context) (model.SourceHandler, error) {
 	h, ok := x.getSourceMap(ctx)[strings.TrimSpace(ctx.Query("_source"))]
 	if !ok {
-		return h, errors.New("数据源错误")
+		return h, errors.New("数据源错误：无数据源")
 	}
 	if h.Handler.Option().Disable {
-		return h, errors.New("数据源错误")
+		return h, errors.New("数据源错误：未启用")
 	}
 	return h, nil
 }

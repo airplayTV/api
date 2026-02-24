@@ -34,6 +34,12 @@ func initSourceList() {
 			Name:       handler.CATVHandler{}.Name(),
 			Searchable: true,
 		})},
+		handler.XgCartoonHandler{}.Name(): {Sort: 4, Handler: handler.XgCartoonHandler{}.Init(model.CmsZyOption{
+			Id:         "西瓜卡通",
+			Name:       handler.XgCartoonHandler{}.Name(),
+			Searchable: true,
+		})},
+
 		//handler.SubbHandler{}.Name(): {Sort: 2, Handler: handler.SubbHandler{}.Init(model.CmsZyOption{
 		//	Id:         "subaibai",
 		//	Name:       handler.SubbHandler{}.Name(),
