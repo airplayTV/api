@@ -748,6 +748,24 @@
       "disable": false,
       "searchable": true,
       "description": "暂不能播放"
+    },
+    {
+      "id": "wsyzy",
+      "name": "无水印资源",
+      "host": "https://www.wsyzy.cc/",
+      "api": "https://api.wsyzy.net/api.php/provide/vod/",
+      "disable": false,
+      "searchable": true,
+      "description": ""
+    },
+    {
+      "id": "yjzy",
+      "name": "影剧资源",
+      "host": "https://yjzy.tv/help/index.html",
+      "api": "https://caiji.maotaizy.cc/api.php/provide/vod/from/mtm3u8/at/josn/",
+      "disable": true,
+      "searchable": true,
+      "description": "就是茅台资源"
     }
   ],
   "mode": {
