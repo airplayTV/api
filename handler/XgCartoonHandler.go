@@ -41,8 +41,10 @@ func (x XgCartoonHandler) TagList() interface{} {
 	tags = append(tags, gin.H{"name": "全部", "value": strings.Join([]string{"*", "*", "*", "*"}, sep)})
 	tags = append(tags, gin.H{"name": "国漫", "value": strings.Join([]string{"*", "cn", "*", "*"}, sep)})
 	tags = append(tags, gin.H{"name": "日漫", "value": strings.Join([]string{"*", "jp", "*", "*"}, sep)})
+	tags = append(tags, gin.H{"name": "少儿", "value": strings.Join([]string{"shaoer", "*", "*", "*"}, sep)})
 	tags = append(tags, gin.H{"name": "儿童", "value": strings.Join([]string{"ertongxiang", "*", "*", "*"}, sep)})
 	tags = append(tags, gin.H{"name": "亲子", "value": strings.Join([]string{"qinzi", "*", "*", "*"}, sep)})
+	tags = append(tags, gin.H{"name": "音乐", "value": strings.Join([]string{"yinyue", "*", "*", "*"}, sep)})
 	tags = append(tags, gin.H{"name": "高达", "value": strings.Join([]string{"gaoda", "*", "*", "*"}, sep)})
 	return tags
 }
