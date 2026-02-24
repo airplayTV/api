@@ -16,6 +16,7 @@ type YingshiHandler struct {
 }
 
 func (x YingshiHandler) Init(options interface{}) model.IVideo {
+	x.option = options.(model.CmsZyOption)
 	x.httpClient = util.HttpClient{}
 	x.httpClient.AddHeader(headers.UserAgent, useragent)
 	x.httpClient.AddHeader(headers.Origin, yingshiHost)

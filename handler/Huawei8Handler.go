@@ -21,6 +21,9 @@ func (x Huawei8Handler) Init(options interface{}) model.IVideo {
 	x.httpClient.AddHeader(headers.UserAgent, useragent)
 	x.httpClient.AddHeader(headers.Origin, huawei8Host)
 	x.httpClient.AddHeader(headers.Referer, huawei8Host)
+
+	x.option = options.(model.CmsZyOption)
+
 	return x
 }
 

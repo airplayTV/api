@@ -91,3 +91,11 @@ const (
 	catvDetailUrl = "http://vip.catv1.com/%s"
 	catvPlayUrl   = ""
 )
+
+const (
+	xgctHost      = "https://www.xgcartoon.com/"
+	xgctTagUrl    = "https://cn.xgcartoon.com/api/amp_query_cartoon_list?type=%s&region=%s&filter=%s&filter=*,*&page=%d&limit=%d&language=cn"
+	xgctSearchUrl = "https://cn.xgcartoon.com/search?q=%s"
+	xgctDetailUrl = "https://cn.xgcartoon.com/detail/%s"
+	xgctPlayUrl   = "https://www.cnxgct.com/video/%s/%s.html"
+)

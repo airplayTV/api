@@ -21,6 +21,9 @@ type SubbHandler struct {
 func (x SubbHandler) Init(options interface{}) model.IVideo {
 	x.httpClient = util.HttpClient{}
 	x.httpClient.AddHeader(headers.Referer, subbHost)
+
+	x.option = options.(model.CmsZyOption)
+
 	return x
 }
 
