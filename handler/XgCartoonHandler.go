@@ -3,12 +3,13 @@ package handler
 import (
 	"errors"
 	"fmt"
-	"github.com/airplayTV/api/util"
-	"github.com/lixiang4u/goWebsocket"
 	"log"
 	"net/url"
 	"strings"
 	"time"
+
+	"github.com/airplayTV/api/util"
+	"github.com/lixiang4u/goWebsocket"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/airplayTV/api/model"
@@ -109,7 +110,6 @@ func (x XgCartoonHandler) _videoList(tagName, page string) interface{} {
 	pager.Total = pager.Pages * pager.Limit
 
 	result.Get("items").ForEach(func(key, value gjson.Result) bool {
-		log.Println("【name】", value.Get("name").String())
 		pager.List = append(pager.List, model.Video{
 			Id:         value.Get("cartoon_id").String(),
 			Name:       value.Get("name").String(),
