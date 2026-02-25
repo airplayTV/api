@@ -286,10 +286,11 @@ func (x CmsZyHandler) _source(pid, vid string) interface{} {
 }
 
 func (x CmsZyHandler) m3u8pUrl(tmpUrl string) string {
-	if !slices.Contains([]string{"暴风资源??????"}, x.option.GetName()) {
-		return tmpUrl
-	}
-	return fmt.Sprintf("%s?url=%s", ApiM3U8ProxyUrl, util.EncodeComponentUrl(tmpUrl))
+	//if !slices.Contains([]string{"暴风资源??????"}, x.option.GetName()) {
+	//	return tmpUrl
+	//}
+	//return fmt.Sprintf("%s?url=%s", ApiM3U8ProxyUrl, util.EncodeComponentUrl(tmpUrl))
+	return tmpUrl
 }
 
 func (x CmsZyHandler) parseSourceSplit(vodPlayNote string) string {
