@@ -341,6 +341,47 @@ func (x VideoController) M3u8p(ctx *gin.Context) {
 	ctx.DataFromReader(http.StatusOK, -1, header.Get(headers.ContentType), bytes.NewReader(buff), nil)
 }
 
+func (x VideoController) Proxy(ctx *gin.Context) {
+	x.LogVisitor(ctx.ClientIP())
+
+	buff, err := base64.StdEncoding.DecodeString(ctx.Query("url"))
+	var tmpUrl = string(buff)
+	parsed, err := url.Parse(tmpUrl)
+	if err != nil {
+		x.response(ctx, model.NewError("URL地址错误"))
+		return
+	}
+	if len(parsed.Host) == 0 {
+		x.response(ctx, model.NewError("URL地址错误"))
+		return
+	}
+
+	ctx.Header("X-Source-Url", tmpUrl)
+
+	var httpClient = x.resolveHttpClientCtx(tmpUrl)
+
+	header, buff, err := httpClient.GetResponse(util.Http2HttpsUrl(tmpUrl))
+	if err != nil {
+		x.response(ctx, model.NewError("请求失败："+err.Error()))
+		return
+	}
+
+	for k, v := range header {
+		if k == headers.ContentLength {
+			continue
+		}
+		ctx.Header(k, v[0])
+	}
+	// 跨域
+	ctx.Header(headers.AccessControlAllowOrigin, "*")
+	ctx.Header(headers.AccessControlAllowHeaders, "*")
+	ctx.Header(headers.AccessControlAllowMethods, "*")
+	ctx.Header(headers.AccessControlExposeHeaders, "Content-Length,Hit-Cache")
+	ctx.Header(headers.CacheControl, "no-cache, no-store")
+
+	ctx.DataFromReader(http.StatusOK, -1, header.Get(headers.ContentType), bytes.NewReader(buff), nil)
+}
+
 func (x VideoController) resolveHttpClientCtx(tmpUrl string) util.HttpClient {
 	var httpClient = util.HttpClient{}
 	//log.Println("[util.ParseHost(tmpUrl)]", util.ParseHost(tmpUrl))
