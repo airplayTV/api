@@ -129,6 +129,7 @@ func (x VideoController) SearchV2(ctx *gin.Context) {
 
 	var keyword = ctx.Query("keyword")
 	var page = ctx.Query("page")
+	var source = ctx.Query("source")
 
 	ctx.Header("Content-Type", "text/event-stream")
 	ctx.Header("Cache-Control", "no-cache")
@@ -140,6 +141,12 @@ func (x VideoController) SearchV2(ctx *gin.Context) {
 	var ch = make(chan interface{}, sourceLength)
 	for tmpSourceName, h := range tmpSourceList {
 		go func(name string, handler model.IVideo) {
+
+			if len(source) > 0 && name != source {
+				ch <- nil
+				return
+			}
+
 			var resp interface{}
 			defer func() {
 				if err := recover(); err != nil {
@@ -161,7 +168,10 @@ func (x VideoController) SearchV2(ctx *gin.Context) {
 		}(tmpSourceName, h.Handler)
 	}
 	for i := 0; i < sourceLength; i++ {
-		ctx.SSEvent("update", goWebsocket.ToJson(<-ch))
+		var tmpResp = <-ch
+		if tmpResp != nil {
+			ctx.SSEvent("update", goWebsocket.ToJson(tmpResp))
+		}
 	}
 
 	ctx.SSEvent("finish", model.NewSuccess(nil))
