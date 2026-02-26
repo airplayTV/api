@@ -341,7 +341,7 @@ func (x VideoController) M3u8p(ctx *gin.Context) {
 	ctx.DataFromReader(http.StatusOK, -1, header.Get(headers.ContentType), bytes.NewReader(buff), nil)
 }
 
-func (x VideoController) Proxy(ctx *gin.Context) {
+func (x VideoController) Thumbp(ctx *gin.Context) {
 	x.LogVisitor(ctx.ClientIP())
 
 	buff, err := base64.StdEncoding.DecodeString(ctx.Query("url"))

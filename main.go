@@ -106,7 +106,7 @@ func newRouterApi(app *gin.Engine) *gin.Engine {
 	app.GET("/api/video/source", UseRecovery(videoController.Source))     // 视频播放源
 	app.POST("/api/video/control", UseRecovery(videoController.Control))  // 远程遥控功能
 	app.GET("/api/m3u8p", UseRecovery(videoController.M3u8p))
-	app.GET("/api/thumbp", UseRecovery(videoController.Proxy))
+	app.GET("/api/thumbp", UseRecovery(videoController.Thumbp))
 	app.GET("/api/redirect", UseRecovery(videoController.ProxyRedirect))
 	app.POST("/api/cookie", UseRecovery(videoController.SetCookie))               // 手动设置cookie用
 	app.GET("/api/qrcode", UseRecovery(videoController.QrCode))                   // 根据文本生成二维码图
