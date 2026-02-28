@@ -157,10 +157,11 @@
     {
       "id": "okzyw",
       "name": "ok资源",
-      "host": "https://okzyw.me/",
-      "api": "https://api.okzy.org/api.php/provide/vod/",
-      "disable": true,
-      "description": "服务挂了"
+      "host": "https://okzyw.cc/",
+      "api": "https://api.okzyw.net/api.php/provide/vod/?ac=list",
+      "searchable": true,
+      "disable": false,
+      "description": "换域名了"
     },
     {
       "id": "hongniuziyuan",
