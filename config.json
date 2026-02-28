@@ -159,9 +159,9 @@
       "name": "ok资源",
       "host": "https://okzyw.cc/",
       "api": "https://api.okzyw.net/api.php/provide/vod/?ac=list",
-      "searchable": true,
+      "searchable": false,
       "disable": false,
-      "description": "换域名了"
+      "description": "换域名了，暂不支持搜索"
     },
     {
       "id": "hongniuziyuan",
