@@ -39,6 +39,11 @@ func initSourceList() {
 			Name:       handler.XgCartoonHandler{}.Name(),
 			Searchable: true,
 		})},
+		handler.JinpaiHandler{}.Name(): {Sort: 5, Handler: handler.JinpaiHandler{}.Init(model.CmsZyOption{
+			Id:         "金牌影院",
+			Name:       handler.JinpaiHandler{}.Name(),
+			Searchable: true,
+		})},
 
 		//handler.SubbHandler{}.Name(): {Sort: 2, Handler: handler.SubbHandler{}.Init(model.CmsZyOption{
 		//	Id:         "subaibai",
