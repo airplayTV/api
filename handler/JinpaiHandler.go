@@ -135,26 +135,33 @@ func (x JinpaiHandler) _videoList(tagName, page string) interface{} {
 }
 
 func (x JinpaiHandler) _search(keyword, page string) interface{} {
-	var pager = model.Pager{Limit: 100, Pages: 1, Page: x.parsePageNumber(page)}
-	buff, err := x.httpClient.Get(fmt.Sprintf(xgctSearchUrl, url.QueryEscape(keyword)))
+	var pager = model.Pager{Limit: 12, Pages: 1, Page: x.parsePageNumber(page)}
+	buff, err := x.jinpaiSignHttpClientGet(fmt.Sprintf(jinpaiSearchUrl, url.QueryEscape(keyword), pager.Page))
 	if err != nil {
 		return model.NewError("获取数据失败：" + err.Error())
 	}
 
-	doc, err := goquery.NewDocumentFromReader(strings.NewReader(string(buff)))
-	if err != nil {
-		return model.NewError("文档解析失败：" + err.Error())
-	}
+	var result = gjson.ParseBytes(buff)
+	result = result.Get("data").Get("result")
 
-	doc.Find(".search .topic-list .topic-list-box").Each(func(i int, selection *goquery.Selection) {
+	result.Get("list").ForEach(func(key, value gjson.Result) bool {
 		pager.List = append(pager.List, model.Video{
-			Id:    x.simpleRegEx(selection.Find(".topic-list-item").AttrOr("href", ""), `/detail/(\S+)`),
-			Name:  strings.TrimSpace(selection.Find(".h3.mb12").Text()),
-			Thumb: selection.Find("amp-img").AttrOr("src", ""),
-			// https://cn.xgcartoon.com/detail/zhongshengdoushitianzun_dongtaimanhua4k-yuanmandongman
-			Url: fmt.Sprintf("https://cn.xgcartoon.com/%s", strings.TrimLeft(selection.Find(".topic-list-item").AttrOr("href", ""), "/")),
+			Id:         value.Get("vodId").String(),
+			Name:       value.Get("vodName").String(),
+			Thumb:      value.Get("vodPic").String(),
+			Resolution: value.Get("vodVersion").String(),
+			Tag:        value.Get("vodYear").String(),
+			UpdatedAt:  value.Get("vodPubdate").String(),
 		})
+		return true
 	})
+
+	pager.Pages = cast.ToInt(result.Get("totalPage").String())
+	pager.Total = cast.ToInt(result.Get("totalCount").String())
+
+	if len(pager.List) <= 0 {
+		return model.NewError("没有解析到数据")
+	}
 
 	return model.NewSuccess(pager)
 }
@@ -239,6 +246,9 @@ func (x JinpaiHandler) jinpaiSignHttpClientGet(requestUrl string) (buff []byte, 
 		tmpHttp.AddHeader("Sign", util.Sha1Simple([]byte(util.StringMd5(tmpQuery))))
 	} else if strings.Contains(requestUrl, "video/detail") {
 		var tmpQuery = fmt.Sprintf(`id=%s&key=%s&t=%s`, values.Get("id"), signKey, ts)
+		tmpHttp.AddHeader("Sign", util.Sha1Simple([]byte(util.StringMd5(tmpQuery))))
+	} else if strings.Contains(requestUrl, "video/searchByWord") {
+		var tmpQuery = fmt.Sprintf(`keyword=%s&pageNum=%s&pageSize=%s&sourceCode=1&key=%s&t=%s`, values.Get("keyword"), values.Get("pageNum"), values.Get("pageSize"), signKey, ts)
 		tmpHttp.AddHeader("Sign", util.Sha1Simple([]byte(util.StringMd5(tmpQuery))))
 	} else {
 		err = errors.New("请求配置异常")

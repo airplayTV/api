@@ -103,7 +103,7 @@ const (
 const (
 	jinpaiHost      = "https://610pkea.com/"
 	jinpaiTagUrl    = "https://610pkea.com/vod/show/id/1/type/%s/page/%d"
-	jinpaiSearchUrl = "https://610pkea.com/vod/search/%s"
+	jinpaiSearchUrl = "https://610pkea.com/api/mw-movie/anonymous/video/searchByWord?keyword=%s&pageNum=%d&pageSize=12&sourceCode=1"
 	jinpaiDetailUrl = "https://610pkea.com/api/mw-movie/anonymous/video/detail?id=%s"
 	jinpaiPlayUrl   = "https://610pkea.com/api/mw-movie/anonymous/v2/video/episode/url?clientType=1&id=%s&nid=%s"
 )
