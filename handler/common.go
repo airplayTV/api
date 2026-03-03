@@ -99,3 +99,11 @@ const (
 	xgctDetailUrl = "https://cn.xgcartoon.com/detail/%s"
 	xgctPlayUrl   = "https://www.cnxgct.com/video/%s/%s.html"
 )
+
+const (
+	jinpaiHost      = "https://610pkea.com/"
+	jinpaiTagUrl    = "https://610pkea.com/vod/show/id/1/type/%s/page/%d"
+	jinpaiSearchUrl = "https://610pkea.com/vod/search/%s"
+	jinpaiDetailUrl = "https://610pkea.com/detail/%s"
+	jinpaiPlayUrl   = ""
+)

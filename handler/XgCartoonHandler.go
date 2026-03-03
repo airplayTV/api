@@ -164,7 +164,7 @@ func (x XgCartoonHandler) _detail(id string) interface{} {
 		return model.NewError("获取数据失败：" + err.Error())
 	}
 
-	var video = model.Video{Id: id, Url: fmt.Sprintf(noVipDetailUrl, id)}
+	var video = model.Video{Id: id, Url: fmt.Sprintf(xgctDetailUrl, id)}
 	doc.Find(".detail-right__volumes .chapter-box").Each(func(i int, selection *goquery.Selection) {
 		video.Links = append(video.Links, model.Link{
 			Id:    x.simpleRegEx(selection.AttrOr("href", ""), `&chapter_id=(\S+)`),
