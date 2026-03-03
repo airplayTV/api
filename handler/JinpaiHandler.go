@@ -206,8 +206,10 @@ func (x JinpaiHandler) parseVideoJson(html []byte, vid string) (result gjson.Res
 				continue
 			}
 			tmpLine2 = strings.ReplaceAll(tmpLine2, `\"`, `"`)
-			tmpLine2 = x.simpleRegEx(tmpLine2, fmt.Sprintf(`%s([\S\s]+)%s`, regexp.QuoteMeta(`__next_f.push([1,"6:`), regexp.QuoteMeta(`\n"])</script>`)))
-			result = gjson.Parse(tmpLine2)
+			var prefix = x.simpleRegEx(tmpLine2, `self\.__next_f\.push\(\[1,"(\S+?):\[`)
+			var suffix = `\n"])</script>`
+			var tmpRegEx = fmt.Sprintf(`%s([\S\s]+)%s`, regexp.QuoteMeta(fmt.Sprintf("%s:", prefix)), regexp.QuoteMeta(suffix))
+			result = gjson.Parse(x.simpleRegEx(tmpLine2, tmpRegEx))
 		}
 	}
 
