@@ -104,6 +104,6 @@ const (
 	jinpaiHost      = "https://610pkea.com/"
 	jinpaiTagUrl    = "https://610pkea.com/vod/show/id/1/type/%s/page/%d"
 	jinpaiSearchUrl = "https://610pkea.com/vod/search/%s"
-	jinpaiDetailUrl = "https://610pkea.com/detail/%s"
-	jinpaiPlayUrl   = ""
+	jinpaiDetailUrl = "https://610pkea.com/api/mw-movie/anonymous/video/detail?id=%s"
+	jinpaiPlayUrl   = "https://610pkea.com/api/mw-movie/anonymous/v2/video/episode/url?clientType=1&id=%s&nid=%s"
 )

@@ -5,6 +5,9 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"github.com/go-http-utils/headers"
+	"github.com/google/uuid"
+	"github.com/spf13/cast"
 	"github.com/tidwall/gjson"
 	"log"
 	"net/url"
@@ -157,27 +160,17 @@ func (x JinpaiHandler) _search(keyword, page string) interface{} {
 }
 
 func (x JinpaiHandler) _detail(id string) interface{} {
-	buff, err := x.httpClient.Get(fmt.Sprintf(jinpaiDetailUrl, id))
+	buff, err := x.jinpaiSignHttpClientGet(fmt.Sprintf(jinpaiDetailUrl, id))
 	if err != nil {
 		return model.NewError("获取数据失败：" + err.Error())
 	}
 
-	//doc, err := goquery.NewDocumentFromReader(strings.NewReader(string(buff)))
-	//if err != nil {
-	//	return model.NewError("获取数据失败：" + err.Error())
-	//}
-
 	var video = model.Video{Id: id, Url: fmt.Sprintf(jinpaiDetailUrl, id), Links: make([]model.Link, 0)}
-
-	result, err := x.parseVideoJson(buff, id)
-	if err != nil {
-		return model.NewError(err.Error())
-	}
-
-	video.Name = result.Get("vodName").String()
-	video.Thumb = result.Get("vodPic").String()
-	video.Intro = util.HtmlToText(result.Get("vodContent").String())
-	result.Get("episodeList").ForEach(func(key, value gjson.Result) bool {
+	var result = gjson.ParseBytes(buff)
+	video.Name = result.Get("data").Get("vodName").String()
+	video.Thumb = result.Get("data").Get("vodPic").String()
+	video.Intro = util.HtmlToText(result.Get("data").Get("vodContent").String())
+	result.Get("data").Get("episodeList").ForEach(func(key, value gjson.Result) bool {
 		video.Links = append(video.Links, model.Link{
 			Id:    value.Get("nid").String(),
 			Name:  value.Get("name").String(),
@@ -226,31 +219,54 @@ func (x JinpaiHandler) parseVideoJson(html []byte, vid string) (result gjson.Res
 	return
 }
 
+func (x JinpaiHandler) jinpaiSignHttpClientGet(requestUrl string) (buff []byte, err error) {
+	var ts = cast.ToString(time.Now().UnixMilli())
+	var tmpHttp = x.httpClient.Clone()
+	tmpHttp.AddHeader("Authorization", "")
+	tmpHttp.AddHeader("Deviceid", uuid.New().String())
+	tmpHttp.AddHeader("T", ts)
+	tmpHttp.AddHeader("Client-Type", "1")
+	tmpHttp.AddHeader(headers.Referer, jinpaiHost)
+
+	tmpUrl, err := url.Parse(requestUrl)
+	if err != nil {
+		return
+	}
+	var values = tmpUrl.Query()
+	var signKey = "cb808529bae6b6be45ecfab29a4889bc"
+	if strings.Contains(requestUrl, "video/episode") {
+		var tmpQuery = fmt.Sprintf(`clientType=1&id=%s&nid=%s&key=%s&t=%s`, values.Get("id"), values.Get("nid"), signKey, ts)
+		tmpHttp.AddHeader("Sign", util.Sha1Simple([]byte(util.StringMd5(tmpQuery))))
+	} else if strings.Contains(requestUrl, "video/detail") {
+		var tmpQuery = fmt.Sprintf(`id=%s&key=%s&t=%s`, values.Get("id"), signKey, ts)
+		tmpHttp.AddHeader("Sign", util.Sha1Simple([]byte(util.StringMd5(tmpQuery))))
+	} else {
+		err = errors.New("请求配置异常")
+		return
+	}
+
+	return tmpHttp.Get(requestUrl)
+}
+
 func (x JinpaiHandler) _source(pid, vid string) interface{} {
 	var source = model.Source{Id: pid, Vid: vid}
 
-	buff, err := x.httpClient.Get(fmt.Sprintf(xgctPlayUrl, vid, pid))
+	buff, err := x.jinpaiSignHttpClientGet(fmt.Sprintf(jinpaiPlayUrl, vid, pid))
 	if err != nil {
 		return model.NewError("获取数据失败：" + err.Error())
 	}
 
-	doc, err := goquery.NewDocumentFromReader(strings.NewReader(string(buff)))
-	if err != nil {
-		return model.NewError("获取数据失败：" + err.Error())
-	}
+	var result = gjson.ParseBytes(buff)
+	var resolution int64 = 0
+	result.Get("data").Get("list").ForEach(func(key, value gjson.Result) bool {
+		if value.Get("resolution").Int() >= resolution {
+			resolution = value.Get("resolution").Int()
+			source.Source = value.Get("url").String()
+			source.Name = fmt.Sprintf("%s(%s)", value.Get("resolutionName").String(), value.Get("resolution").String())
+		}
+		return true
+	})
 
-	var iframe = doc.Find(".video-iframe iframe").AttrOr("src", "")
-	log.Println("[iframe]", iframe)
-
-	// https://pframe.xgcartoon.com/player.htm?vid=89ac1cfc-6fb3-4c1f-9602-d25fda7f151e&amp;autoplay=false
-	// https://xgct-video.bzcdn.net/89ac1cfc-6fb3-4c1f-9602-d25fda7f151e/playlist.m3u8
-	var guid = x.simpleRegEx(iframe, `vid=(\S+)&`)
-	if len(guid) <= 0 {
-		return model.NewError("没有解析到播放地址")
-	}
-
-	source.Name = strings.TrimSpace(doc.Find(".breadcrumb a.breadcrumb-item").Last().Text())
-	source.Source = fmt.Sprintf("https://xgct-video.bzcdn.net/%s/playlist.m3u8", guid)
 	source.Url = source.Source
 	// 视频类型问题处理
 	source.Type = x.parseVideoType(source.Source)
