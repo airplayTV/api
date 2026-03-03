@@ -19,11 +19,7 @@ func initSourceList() {
 	var sourceMap map[string]model.SourceHandler
 
 	sourceMap = map[string]model.SourceHandler{
-		handler.JinpaiHandler{}.Name(): {Sort: 1, Handler: handler.JinpaiHandler{}.Init(model.CmsZyOption{
-			Id:         "金牌影院",
-			Name:       handler.JinpaiHandler{}.Name(),
-			Searchable: true,
-		})},
+
 		handler.CzzyHandler{}.Name(): {Sort: 2, Handler: handler.CzzyHandler{}.Init(model.CmsZyOption{
 			Id:         "czzy",
 			Name:       handler.CzzyHandler{}.Name(),
@@ -43,6 +39,12 @@ func initSourceList() {
 			Id:         "西瓜卡通",
 			Name:       handler.XgCartoonHandler{}.Name(),
 			Searchable: true,
+		})},
+		handler.JinpaiHandler{}.Name(): {Sort: 6, Handler: handler.JinpaiHandler{}.Init(model.CmsZyOption{
+			Id:          "金牌影院",
+			Name:        handler.JinpaiHandler{}.Name(),
+			Searchable:  true,
+			Description: "本地部署，可解决ip限制问题",
 		})},
 
 		//handler.SubbHandler{}.Name(): {Sort: 2, Handler: handler.SubbHandler{}.Init(model.CmsZyOption{
