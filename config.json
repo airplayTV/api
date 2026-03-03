@@ -501,13 +501,13 @@
       "description": "被重定向到 极速资源"
     },
     {
-      "id": "taopianapi",
+      "id": "taopianzy",
       "name": "淘片资源",
-      "host": "https://taopianapi.com/index.html",
+      "host": "https://www.taopianzy.com/index.html",
       "api": "https://taopianapi.com/cjapi/mc10/vod/json/m3u8.html",
       "disable": true,
       "searchable": true,
-      "description": "只能看封面，不能播放"
+      "description": "不能采集"
     },
     {
       "id": "360zy",
@@ -767,6 +767,15 @@
       "disable": true,
       "searchable": true,
       "description": "就是茅台资源"
+    },
+    {
+      "id": "jinchancaiji",
+      "name": "金蝉解析",
+      "host": "https://zy.jinchancaiji.com/",
+      "api": "https://zy.jinchancaiji.com/api.php/provide/vod/?ac=list",
+      "disable": false,
+      "searchable": true,
+      "description": "不可播放"
     }
   ],
   "mode": {
