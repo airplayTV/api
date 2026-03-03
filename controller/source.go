@@ -19,29 +19,29 @@ func initSourceList() {
 	var sourceMap map[string]model.SourceHandler
 
 	sourceMap = map[string]model.SourceHandler{
-		handler.CzzyHandler{}.Name(): {Sort: 1, Handler: handler.CzzyHandler{}.Init(model.CmsZyOption{
+		handler.JinpaiHandler{}.Name(): {Sort: 1, Handler: handler.JinpaiHandler{}.Init(model.CmsZyOption{
+			Id:         "金牌影院",
+			Name:       handler.JinpaiHandler{}.Name(),
+			Searchable: true,
+		})},
+		handler.CzzyHandler{}.Name(): {Sort: 2, Handler: handler.CzzyHandler{}.Init(model.CmsZyOption{
 			Id:         "czzy",
 			Name:       handler.CzzyHandler{}.Name(),
 			Searchable: true,
 		})},
-		handler.NoVipHandler{}.Name(): {Sort: 2, Handler: handler.NoVipHandler{}.Init(model.CmsZyOption{
+		handler.NoVipHandler{}.Name(): {Sort: 3, Handler: handler.NoVipHandler{}.Init(model.CmsZyOption{
 			Id:         "NO视频",
 			Name:       handler.NoVipHandler{}.Name(),
 			Searchable: true,
 		})},
-		handler.CATVHandler{}.Name(): {Sort: 3, Handler: handler.CATVHandler{}.Init(model.CmsZyOption{
+		handler.CATVHandler{}.Name(): {Sort: 4, Handler: handler.CATVHandler{}.Init(model.CmsZyOption{
 			Id:         "CATV",
 			Name:       handler.CATVHandler{}.Name(),
 			Searchable: true,
 		})},
-		handler.XgCartoonHandler{}.Name(): {Sort: 4, Handler: handler.XgCartoonHandler{}.Init(model.CmsZyOption{
+		handler.XgCartoonHandler{}.Name(): {Sort: 5, Handler: handler.XgCartoonHandler{}.Init(model.CmsZyOption{
 			Id:         "西瓜卡通",
 			Name:       handler.XgCartoonHandler{}.Name(),
-			Searchable: true,
-		})},
-		handler.JinpaiHandler{}.Name(): {Sort: 5, Handler: handler.JinpaiHandler{}.Init(model.CmsZyOption{
-			Id:         "金牌影院",
-			Name:       handler.JinpaiHandler{}.Name(),
 			Searchable: true,
 		})},
 

@@ -18,7 +18,6 @@ import (
 	"github.com/airplayTV/api/util"
 	"github.com/lixiang4u/goWebsocket"
 
-	"github.com/PuerkitoBio/goquery"
 	"github.com/airplayTV/api/model"
 	"github.com/eko/gocache/lib/v4/store"
 	"github.com/gin-gonic/gin"
@@ -45,42 +44,37 @@ func (x JinpaiHandler) Option() model.CmsZyOption {
 }
 
 func (x JinpaiHandler) TagList() interface{} {
-	var sep = "," // type,region,state,filter
 	var tags = make([]gin.H, 0)
-	tags = append(tags, gin.H{"name": "全部", "value": strings.Join([]string{"*", "*", "*", "*"}, sep)})
-	tags = append(tags, gin.H{"name": "国漫", "value": strings.Join([]string{"*", "cn", "*", "*"}, sep)})
-	tags = append(tags, gin.H{"name": "日漫", "value": strings.Join([]string{"*", "jp", "*", "*"}, sep)})
-	tags = append(tags, gin.H{"name": "少儿", "value": strings.Join([]string{"shaoer", "*", "*", "*"}, sep)})
-	tags = append(tags, gin.H{"name": "儿童", "value": strings.Join([]string{"ertongxiang", "*", "*", "*"}, sep)})
-	tags = append(tags, gin.H{"name": "亲子", "value": strings.Join([]string{"qinzi", "*", "*", "*"}, sep)})
-	tags = append(tags, gin.H{"name": "音乐", "value": strings.Join([]string{"yinyue", "*", "*", "*"}, sep)})
-	tags = append(tags, gin.H{"name": "高达", "value": strings.Join([]string{"gaoda", "*", "*", "*"}, sep)})
+	tags = append(tags, gin.H{"name": "电影", "value": "1"})
+	tags = append(tags, gin.H{"name": "电视剧", "value": "2"})
+	tags = append(tags, gin.H{"name": "动漫", "value": "4"})
+	tags = append(tags, gin.H{"name": "综艺", "value": "3"})
 	return tags
 }
 
 func (x JinpaiHandler) VideoList(tag, page string) interface{} {
-	var key = fmt.Sprintf("xgct-video-list::%s_%s_%s", x.Name(), tag, page)
+	var key = fmt.Sprintf("jinpai-video-list::%s_%s_%s", x.Name(), tag, page)
 	return model.WithSuccessCache(key, store.WithExpiration(time.Hour*6), func() interface{} {
 		return x._videoList(tag, page)
 	})
 }
 
 func (x JinpaiHandler) Search(keyword, page string) interface{} {
-	var key = fmt.Sprintf("xgct-video-search::%s_%s_%s", x.Name(), keyword, page)
+	var key = fmt.Sprintf("jinpai-video-search::%s_%s_%s", x.Name(), keyword, page)
 	return model.WithSuccessCache(key, store.WithExpiration(time.Hour*6), func() interface{} {
 		return x._search(keyword, page)
 	})
 }
 
 func (x JinpaiHandler) Detail(id string) interface{} {
-	var key = fmt.Sprintf("xgct-video-detail::%s_%s", x.Name(), id)
+	var key = fmt.Sprintf("jinpai-video-detail::%s_%s", x.Name(), id)
 	return model.WithSuccessCache(key, store.WithExpiration(time.Hour*6), func() interface{} {
 		return x._detail(id)
 	})
 }
 
 func (x JinpaiHandler) Source(pid, vid string) interface{} {
-	var key = fmt.Sprintf("xgct-video-source::%s_%s_%s", x.Name(), pid, vid)
+	var key = fmt.Sprintf("jinpai-video-source::%s_%s_%s", x.Name(), pid, vid)
 	return model.WithSuccessCache(key, store.WithExpiration(time.Hour*2), func() interface{} {
 		return x._source(pid, vid)
 	})
@@ -95,40 +89,33 @@ func (x JinpaiHandler) Airplay(pid, vid string) interface{} {
 func (x JinpaiHandler) _videoList(tagName, page string) interface{} {
 	var pager = model.Pager{Limit: 24, Page: x.parsePageNumber(page)}
 
-	buff, err := x.httpClient.Get(fmt.Sprintf(jinpaiTagUrl, tagName, pager.Page))
+	buff, err := x.jinpaiSignHttpClientGet(fmt.Sprintf(jinpaiTagUrl, tagName, pager.Page))
 	if err != nil {
 		return model.NewError("获取数据失败：" + err.Error())
 	}
 
-	doc, err := goquery.NewDocumentFromReader(strings.NewReader(string(buff)))
+	result, err := x.parseVideoListJson(buff)
 	if err != nil {
-		return model.NewError("获取数据失败：" + err.Error())
+		return model.NewError(err.Error())
 	}
 
-	doc.Find(".movie-ul .content-card a").Each(func(i int, selection *goquery.Selection) {
+	result.Get("list").ForEach(func(key, value gjson.Result) bool {
 		pager.List = append(pager.List, model.Video{
-			Id:         x.simpleRegEx(selection.AttrOr("href", ""), `/detail/(\d+)`),
-			Name:       selection.Find(".card-info .title").Text(),
-			Thumb:      selection.Find(".card-img img").AttrOr("src", ""),
-			Url:        selection.AttrOr("href", ""),
-			Actors:     selection.Find(".card-info .role span").Text(),
-			Tag:        selection.Find(".info-tag").Text(),
-			Resolution: selection.Find(".tag").Text(),
+			Id:         value.Get("vodId").String(),
+			Name:       value.Get("vodName").String(),
+			Thumb:      value.Get("vodPic").String(),
+			Resolution: value.Get("vodVersion").String(),
+			Tag:        value.Get("vodYear").String(),
+			UpdatedAt:  value.Get("vodPubdate").String(),
 		})
+		return true
 	})
 
-	doc.Find(".pagination > div > div").Each(func(i int, selection *goquery.Selection) {
-		var n = x.parsePageNumber(selection.AttrOr("page", ""))
-		if n*pager.Limit > pager.Total {
-			pager.Total = n * pager.Limit
-		}
-		if n >= pager.Pages {
-			pager.Pages = n
-		}
-	})
+	pager.Pages = cast.ToInt(result.Get("totalPage").String())
+	pager.Total = cast.ToInt(result.Get("totalCount").String())
 
-	if len(pager.List) == 0 {
-		return model.NewError("暂无数据")
+	if len(pager.List) <= 0 {
+		return model.NewError("没有解析到数据")
 	}
 
 	return model.NewSuccess(pager)
@@ -226,6 +213,23 @@ func (x JinpaiHandler) parseVideoJson(html []byte, vid string) (result gjson.Res
 	return
 }
 
+func (x JinpaiHandler) parseVideoListJson(html []byte) (result gjson.Result, err error) {
+	var scanner = bufio.NewScanner(bytes.NewReader(html))
+	for scanner.Scan() {
+		var tmpLine = strings.TrimSpace(scanner.Text())
+		if !strings.Contains(tmpLine, "filerList") || !strings.Contains(tmpLine, "videoList") {
+			continue
+		}
+		var tmpRegEx = fmt.Sprintf(`%s([\S\s]+)%s$`, regexp.QuoteMeta(`"videoList":`), regexp.QuoteMeta(`}]`))
+		result = gjson.Parse(x.simpleRegEx(tmpLine, tmpRegEx)).Get("data")
+	}
+	if !result.Exists() {
+		err = errors.New("数据解析失败1")
+		return
+	}
+	return
+}
+
 func (x JinpaiHandler) jinpaiSignHttpClientGet(requestUrl string) (buff []byte, err error) {
 	var ts = cast.ToString(time.Now().UnixMilli())
 	var tmpHttp = x.httpClient.Clone()
@@ -250,6 +254,8 @@ func (x JinpaiHandler) jinpaiSignHttpClientGet(requestUrl string) (buff []byte, 
 	} else if strings.Contains(requestUrl, "video/searchByWord") {
 		var tmpQuery = fmt.Sprintf(`keyword=%s&pageNum=%s&pageSize=%s&sourceCode=1&key=%s&t=%s`, values.Get("keyword"), values.Get("pageNum"), values.Get("pageSize"), signKey, ts)
 		tmpHttp.AddHeader("Sign", util.Sha1Simple([]byte(util.StringMd5(tmpQuery))))
+	} else if strings.Contains(requestUrl, "vod/show/id") {
+		tmpHttp.AddHeader("RSC", "1")
 	} else {
 		err = errors.New("请求配置异常")
 		return
